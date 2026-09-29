@@ -21,7 +21,7 @@ order or write a custom brief, and the shop confirms every order with them on LI
 | `manifest.webmanifest` and the icon files | The name and icon a phone uses when the site is added to the home screen. |
 | `404.html` | Sends a mistyped or old address back into the site. |
 
-There is no admin page. The shop's Google Sheet is the back office.
+The shop's Google Sheet is the back office. `#/admin` (a 4-digit code, not linked from the public pages) shows the queue and day view for orders placed on the same device — useful for showing staff how orders look, not a shared inbox.
 
 ## How an order reaches the shop
 
