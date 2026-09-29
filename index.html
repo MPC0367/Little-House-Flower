@@ -29,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Chonburi&family=Anuphan:wght@300..700&family=Charm:wght@400;700&display=swap">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Florist","name":"Little House Flower","alternateName":"Little House Flowers","url":"https://mpc0367.github.io/Little-House-Flower/","logo":"https://mpc0367.github.io/Little-House-Flower/img/icon-512.png","image":"https://mpc0367.github.io/Little-House-Flower/img/og.jpg","description":"Little House Flower ร้านดอกไม้ นนทบุรี รัตนาธิเบศร์ ช่อดอกไม้ กระเช้า พวงหรีด เขียนการ์ดให้ฟรี ส่งนนทบุรีและกรุงเทพฯ เปิดทุกวัน 08.00–20.00 น. สำรองคิวได้เลยค่ะ","telephone":"+66627495533","email":"littlechildice2@gmail.com","address":{"@type":"PostalAddress","streetAddress":"17 ซอยบ้านไทรม้า ตำบลบางรักน้อย","addressLocality":"อำเภอเมืองนนทบุรี","addressRegion":"นนทบุรี","postalCode":"11000","addressCountry":"TH"},"areaServed":["Nonthaburi","Bangkok"],"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"08:00","closes":"20:00"}],"hasMap":"https://maps.app.goo.gl/weL5cQv1m1YyfPFt8","sameAs":["https://www.instagram.com/littlehouseflower/","https://www.facebook.com/Littlehouseflower/","https://lin.ee/2RYsFwz"],"slogan":"LET PRESENT YOUR LOVE"}
+{"@context":"https://schema.org","@type":"Florist","name":"Little House Flower","geo":{"@type":"GeoCoordinates","latitude":13.8709357,"longitude":100.461574},"alternateName":"Little House Flowers","url":"https://mpc0367.github.io/Little-House-Flower/","logo":"https://mpc0367.github.io/Little-House-Flower/img/icon-512.png","image":"https://mpc0367.github.io/Little-House-Flower/img/og.jpg","description":"Little House Flower ร้านดอกไม้ นนทบุรี รัตนาธิเบศร์ ช่อดอกไม้ กระเช้า พวงหรีด เขียนการ์ดให้ฟรี ส่งนนทบุรีและกรุงเทพฯ เปิดทุกวัน 08.00–20.00 น. สำรองคิวได้เลยค่ะ","telephone":"+66627495533","email":"littlechildice2@gmail.com","address":{"@type":"PostalAddress","streetAddress":"17 ซอยบ้านไทรม้า ตำบลบางรักน้อย","addressLocality":"อำเภอเมืองนนทบุรี","addressRegion":"นนทบุรี","postalCode":"11000","addressCountry":"TH"},"areaServed":["Nonthaburi","Bangkok"],"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"08:00","closes":"20:00"}],"hasMap":"https://maps.app.goo.gl/weL5cQv1m1YyfPFt8","sameAs":["https://www.instagram.com/littlehouseflower/","https://www.facebook.com/Littlehouseflower/","https://lin.ee/2RYsFwz"],"slogan":"LET PRESENT YOUR LOVE"}
 </script>
 <style>
 /* ---- tokens.css ---- */
@@ -952,6 +952,26 @@ body[data-route] { padding-bottom: 0; }
 .map-card .zone { font-family: var(--f-display); font-style: italic; font-size: 26px; }
 :lang(th) .map-card .zone { font-family: var(--f-body); font-style: normal; font-weight: 500; font-size: 22px; }
 .map-card .rings { position: absolute; inset: -20%; background: repeating-radial-gradient(circle at 50% 50%, transparent 0 38px, rgba(47,28,21,.08) 38px 39px); }
+/* live map: OpenStreetMap tiles toned toward the paper palette; the drawn card sits on top until tiles arrive */
+.osm-card { margin: 0; display: grid; gap: 12px; align-content: start; }
+.osm-box { position: relative; aspect-ratio: 4/3; background: var(--wall); overflow: hidden; }
+.osm-box > .map-card { position: absolute; inset: 0; aspect-ratio: auto; z-index: 2; }
+.osm-map { position: absolute; inset: 0; z-index: 1; background: var(--wall); font: inherit; }
+.osm-map img.leaflet-tile { filter: grayscale(1) sepia(.2) contrast(.9) brightness(1.05); }   /* per tile: Safari skips filters on the transformed pane */
+.osm-map .leaflet-bar { border: 1px solid var(--ink); border-radius: 0; box-shadow: none; }
+.osm-map .leaflet-bar a { width: 36px; height: 36px; line-height: 34px; color: var(--ink); background: var(--paper); border-radius: 0 !important; border-bottom-color: var(--line); font-weight: 400; }
+.osm-map .leaflet-bar a:hover { background: #fff; }
+.osm-map .leaflet-control-attribution { background: rgba(246,243,238,.88); color: var(--muted); font-size: 11px; }
+.osm-map .leaflet-control-attribution a { color: var(--ink); }
+.osm-pin { color: var(--rose); }
+.osm-pin svg path { fill: var(--rose); stroke: var(--paper); stroke-width: 1.2; }
+.osm-pin svg circle { fill: var(--paper); }
+.osm-map .osm-label { background: var(--paper); color: var(--ink); border: 1px solid var(--ink); border-radius: 0; box-shadow: none; padding: 3px 8px; font-family: var(--f-body); font-size: 12px; letter-spacing: .02em; }
+.osm-map .osm-label::before { display: none; }
+.osm-hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 3; pointer-events: none; white-space: nowrap; background: rgba(47,28,21,.82); color: var(--paper); font-size: 13px; padding: 6px 12px; }
+.osm-cap { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+.osm-card:not(.is-live) .osm-cap { display: none; }
+.osm-map a:focus-visible, .osm-map .leaflet-marker-icon:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 /* ---- booking.css ---- */
 /* =====================================================================
@@ -2604,6 +2624,7 @@ LHF.data.shop = {
   instagramHandle: 'littlehouseflower',
   facebook: 'https://www.facebook.com/Littlehouseflower/',
   mapsUrl: 'https://maps.app.goo.gl/weL5cQv1m1YyfPFt8',
+  geo: [13.8709357, 100.461574],               // the shop's own pin on its Google Business Profile (read 2026-09-29)
   address: {                                  // shown on the site: the shop publishes it on its Google Business Profile
     th: '17 ซอยบ้านไทรม้า ตำบลบางรักน้อย อำเภอเมืองนนทบุรี นนทบุรี 11000',
     en: '17 Soi Ban Sai Ma, Bang Rak Noi, Mueang Nonthaburi, Nonthaburi 11000',
@@ -3115,6 +3136,8 @@ LHF.data.strings = {
   'visit.social': { th: 'โซเชียล', en: 'Social' },
   'visit.map': { th: 'เปิดแผนที่', en: 'Open map' },
   'visit.mapZone': { th: 'รัตนาธิเบศร์ · นนทบุรี', en: 'Rattanathibet · Nonthaburi' },
+  'visit.mapLabel': { th: 'แผนที่ร้าน Little House Flower', en: 'Map to Little House Flower' },
+  'visit.mapHint': { th: 'แตะแผนที่เพื่อเลื่อนดูค่ะ', en: 'Tap the map to move it' },
   'visit.urgent': { th: 'ออเดอร์ด่วนภายใน 3–4 ชม. สอบถามคิววันต่อวันทาง LINE นะคะ', en: 'Urgent orders within 3–4 hours: ask about today’s queue on LINE.' },
   /* what the shop settles with each customer on LINE; never a policy the shop has not stated */
   'terms.title': { th: 'ก่อนเริ่มจัดดอกไม้', en: 'Before we start' },
@@ -3261,6 +3284,7 @@ LHF.data.strings = {
   'privacy.where.h': { th: 'ข้อมูลไปอยู่ที่ไหน', en: 'Where it goes' },
   'privacy.where.p': { th: 'คำจองถูกส่งเข้า Google Sheets ที่ทางร้านใช้รับออเดอร์ ซึ่งเป็นบริการของ Google และอาจเก็บข้อมูลบนเซิร์ฟเวอร์นอกประเทศไทย สำหรับคำจองที่ให้ร้านส่ง ชื่อ เบอร์โทร และที่อยู่ของผู้รับจะส่งต่อให้ผู้ให้บริการขนส่ง เช่น Lalamove เพื่อนำดอกไม้ไปส่งค่ะ', en: 'Your booking goes into the Google Sheets we use to receive orders. Google Sheets is a Google service and may keep data on servers outside Thailand. For delivery orders, the recipient’s name, phone number and address go to the courier, such as Lalamove, so they can deliver.' },
   'privacy.where.fonts': { th: 'เว็บไซต์นี้โหลดตัวอักษรจาก Google Fonts ทุกครั้งที่เปิดหน้าเว็บ เบราว์เซอร์ของคุณจึงติดต่อเซิร์ฟเวอร์ของ Google ซึ่งจะเห็นหมายเลข IP ของคุณค่ะ', en: 'This website loads its fonts from Google Fonts, so each time you open a page your browser contacts Google’s servers, which see your IP address.' },
+  'privacy.where.map': { th: 'หน้าติดต่อร้านมีแผนที่จาก OpenStreetMap เมื่อเปิดหน้านั้น เบราว์เซอร์ของคุณจะโหลดภาพแผนที่จากเซิร์ฟเวอร์ของ OpenStreetMap และโค้ดแผนที่ (Leaflet) จาก cdnjs ซึ่งจะเห็นหมายเลข IP ของคุณเช่นกันค่ะ', en: 'The contact page shows a map from OpenStreetMap. When you open it, your browser loads map images from OpenStreetMap’s servers and the map code (Leaflet) from cdnjs, which also see your IP address.' },
   'privacy.device.h': { th: 'ข้อมูลบนเครื่องของคุณ', en: 'On your device' },
   'privacy.device.p': { th: 'ระหว่างกรอกคำจอง เบราว์เซอร์จะเก็บสิ่งที่คุณพิมพ์และรูปอ้างอิงที่เลือกไว้ในเครื่องนี้ เพื่อไม่ให้ข้อมูลหายถ้าปิดหน้าไปก่อน เมื่อส่งคำจองแล้ว ข้อมูลที่กรอกจะถูกลบออกจากเครื่อง ถ้ากรอกค้างไว้โดยไม่ได้ส่ง ชื่อ เบอร์โทร ที่อยู่ ข้อความการ์ด และรูปอ้างอิงจะถูกลบเองหลัง 36 ชั่วโมง หลังส่งคำจอง เครื่องนี้เก็บเพียงสรุปคำจอง (หมายเลขคำจอง วันที่ และรายการดอกไม้ ไม่มีชื่อ เบอร์โทร ที่อยู่ หรือข้อความการ์ด) ไว้ 30 วัน เพื่อให้เปิดดูหน้าคำจองได้อีก และจำภาษาที่คุณเลือกไว้ ข้อมูลส่วนนี้อยู่ในเครื่องของคุณเท่านั้น ลบได้ทุกเมื่อโดยล้างข้อมูลเว็บไซต์ในเบราว์เซอร์ค่ะ', en: 'While you fill in a booking, your browser keeps what you type, and any reference photo you choose, on this device so nothing is lost if you close the page. Once the booking is sent, those details are cleared from the device. If a booking is left unsent, the names, phone numbers, address, card message and photo are removed after 36 hours. After sending, this device keeps only a summary (booking number, date and flowers, with no names, phone numbers, address or card message) for 30 days so you can open the booking page again, and it remembers your language. This copy stays on your device; clear this site’s data in your browser to remove it at any time.' },
   'privacy.keep.h': { th: 'เก็บไว้นานแค่ไหน', en: 'How long we keep it' },
@@ -5011,9 +5035,77 @@ LHF.pages.visit = function () {
         h('div.contact-actions', ui.btn('LINE ' + S.lineId, { className: 'btn-primary', href: S.lineUrl, target: '_blank', icon: 'line' }), ui.btn(phone, { href: 'tel:' + S.phoneTel, icon: 'phone' }), ui.btn(t('nav.reserve'), { href: R.href('/order'), icon: 'heart' }), ui.btn(t('visit.map'), { href: S.mapsUrl, target: '_blank', icon: 'map' })),
         h('section', ui.head({ title: t('terms.title'), sub: t('terms.sub'), titleClass: 'h3' }),
           h('dl.contact-list', row(t('terms.pay'), t('terms.payVal')), row(t('terms.fee'), t('terms.feeVal')), row(t('terms.change'), t('terms.changeVal')), row(t('terms.season'), t('terms.seasonVal'))))),
-      h('a.map-card', { href: S.mapsUrl, target: '_blank', rel: 'noopener', 'aria-label': t('visit.map') }, h('div.rings'), h('div.stack', { style: { position: 'relative' } }, ui.icon('map', 44), h('div.zone', t('visit.mapZone')), h('div.small', t('strip.zone')), h('div.tlink', t('home.dist.map'), ui.icon('arrow', 16)))))));
+      mapFigure())));
   return page;
+
+  /* The shop's own pin (its Google Business Profile) on OpenStreetMap. Leaflet and the
+     tiles load only when the card comes into view; until the first tiles arrive — and for
+     good if either is blocked — the drawn card stays on top, linking to Google Maps. On
+     touch screens one finger keeps scrolling the page: a first tap unlocks dragging. */
+  function mapFigure() {
+    const fallback = h('a.map-card', { href: S.mapsUrl, target: '_blank', rel: 'noopener', 'aria-label': t('visit.map') }, h('div.rings'), h('div.stack', { style: { position: 'relative' } }, ui.icon('map', 44), h('div.zone', t('visit.mapZone')), h('div.small', t('strip.zone')), h('div.tlink', t('home.dist.map'), ui.icon('arrow', 16))));
+    const box = h('div.osm-box', fallback);
+    const fig = h('figure.osm-card', box, h('figcaption.osm-cap', h('span', t('strip.zone')), h('a.tlink', { href: S.mapsUrl, target: '_blank', rel: 'noopener' }, t('home.dist.map'), ui.icon('arrow', 16))));
+    let map = null, io = null;
+    const begin = () => {
+      if (io) { io.disconnect(); io = null; }
+      LHF.osm.load().then((L) => { if (fig.isConnected && !map) map = draw(L); }).catch(() => {});
+    };
+    if ('IntersectionObserver' in window) { io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) begin(); }, { rootMargin: '300px' }); io.observe(fig); }
+    else begin();
+    R.onLeave(() => { if (io) io.disconnect(); if (map) { map.remove(); map = null; } });
+    return fig;
+
+    function draw(L) {
+      const touch = window.matchMedia('(pointer: coarse)').matches;
+      const still = U.reducedMotion();
+      const el = h('div.osm-map', { role: 'region', 'aria-label': t('visit.mapLabel') });
+      box.appendChild(el);
+      const m = L.map(el, { center: S.geo, zoom: 16, minZoom: 11, maxZoom: 19, scrollWheelZoom: false, dragging: !touch, zoomAnimation: !still, fadeAnimation: !still, markerZoomAnimation: !still, attributionControl: false });
+      L.control.attribution({ prefix: false }).addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>').addTo(m);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(m).once('load', () => { fallback.remove(); fig.classList.add('is-live'); });
+      const pin = L.divIcon({ className: 'osm-pin', html: '<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M12 22s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="10" r="2.6"/></svg>', iconSize: [40, 40], iconAnchor: [20, 38], tooltipAnchor: [0, -34] });
+      L.marker(S.geo, { icon: pin, title: S.name, alt: S.name, keyboard: true }).addTo(m)
+        .bindTooltip(S.name, { permanent: true, direction: 'top', className: 'osm-label' })
+        .on('click', () => window.open(S.mapsUrl, '_blank', 'noopener'));
+      /* the page scrolls past the map until someone means to use it */
+      m.once('click focus', () => m.scrollWheelZoom.enable());
+      if (touch) {
+        const hint = h('div.osm-hint', t('visit.mapHint'));
+        box.appendChild(hint);
+        m.once('click', () => { m.dragging.enable(); hint.remove(); });
+      }
+      return m;
+    }
+  }
 };
+
+/* Leaflet from cdnjs, pinned and integrity-checked, loaded once and only by a page that
+   draws a map. Resolves with window.L; rejects if the CDN is blocked (the caller keeps
+   its drawn fallback). */
+LHF.osm = (function () {
+  const BASE = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';
+  let loading = null;
+  function add(tag, attrs) {
+    return new Promise((resolve, reject) => {
+      const el = Object.assign(document.createElement(tag), attrs, { crossOrigin: 'anonymous' });
+      el.onload = resolve; el.onerror = reject;
+      document.head.appendChild(el);
+    });
+  }
+  function load() {
+    if (window.L && window.L.map) return Promise.resolve(window.L);
+    if (!loading) {
+      loading = Promise.all([
+        add('link', { rel: 'stylesheet', href: BASE + 'leaflet.min.css', integrity: 'sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb' }),
+        add('script', { src: BASE + 'leaflet.min.js', integrity: 'sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO', async: true }),
+      ]).then(() => { if (!window.L) throw new Error('leaflet'); return window.L; })
+        .catch((e) => { loading = null; throw e; });
+    }
+    return loading;
+  }
+  return { load };
+})();
 
 /* ---- pages/order.js ---- */
 /* =====================================================================
@@ -5811,7 +5903,7 @@ LHF.pages.privacy = function () {
       sec('who', para('privacy.who.p')),
       sec('what', h('ol.dotlist', [1, 2, 3, 4].map((n) => h('li', h('span.n', '0' + n), h('span', t('privacy.what.' + n))))), para('privacy.what.photo')),
       sec('why', para('privacy.why.p')),
-      sec('where', para('privacy.where.p'), para('privacy.where.fonts')),
+      sec('where', para('privacy.where.p'), para('privacy.where.fonts'), para('privacy.where.map')),
       sec('device', para('privacy.device.p')),
       sec('keep', para('privacy.keep.p')),
       sec('rights', para('privacy.rights.p'), h('div.hero-ctas', ui.btn('LINE ' + S.lineId, { className: 'btn-primary', href: S.lineUrl, target: '_blank', icon: 'line' }), ui.btn(fill.phone, { href: 'tel:' + S.phoneTel, icon: 'phone' }))))));
