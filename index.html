@@ -69,7 +69,9 @@
   --surface: #FBFAF7;
   --border: var(--line);
 
-  --f-display: 'Bodoni Moda', 'Bodoni 72', Didot, 'Times New Roman', Georgia, serif;
+  /* Bodoni has no Thai: Thai characters set in the display stack (prices,
+     labels) fall through, per glyph, to Anuphan instead of a system font */
+  --f-display: 'Bodoni Moda', 'Bodoni 72', Didot, 'Times New Roman', Georgia, 'Anuphan', serif;
   --f-thai-display: 'Chonburi', 'Anuphan', 'Leelawadee UI', Thonburi, serif;
   --f-body: 'Anuphan', 'Leelawadee UI', Thonburi, 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --f-hand: 'Charm', 'Leelawadee UI', cursive;
@@ -82,7 +84,8 @@
   --t-cine: 1100ms;
 
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px; --s10: 128px;
-  --gutter: clamp(16px, 4vw, 40px);
+  /* never less than the notch or rounded corner in landscape (viewport-fit=cover) */
+  --gutter: max(clamp(16px, 4vw, 40px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   --max: 1440px;
   --measure: 62ch;
   --radius: 2px;
@@ -113,7 +116,8 @@
    BASE — reset, layout primitives, accessibility
    ===================================================================== */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 12px); }
+@media (max-width: 767px) { html { scroll-padding-bottom: calc(var(--doorstep-h) + env(safe-area-inset-bottom, 0px) + 12px); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
   margin: 0;
@@ -135,6 +139,8 @@ img, svg, video { display: block; max-width: 100%; }
 img { height: auto; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; }
+a, button, label, summary, [role="button"] { -webkit-tap-highlight-color: transparent; }
+button, .btn, .chip, .seg, .lang-switch, #doorstep a { -webkit-user-select: none; user-select: none; }
 a { color: inherit; text-decoration: none; }
 p { margin: 0 0 1em; }
 h1, h2, h3, h4 { margin: 0; font-weight: 400; }
@@ -143,12 +149,18 @@ figure { margin: 0; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 address { font-style: normal; }
 :focus { outline: none; }
-:focus-visible { box-shadow: var(--focus); border-radius: var(--radius); }
-[tabindex="-1"]:focus-visible, #main:focus-visible { box-shadow: none; }
+/* the ring is a box-shadow; the transparent outline is what Windows contrast
+   themes (forced colours) paint, since they drop shadows */
+:focus-visible { box-shadow: var(--focus); border-radius: var(--radius); outline: 2px solid transparent; outline-offset: 2px; }
+[tabindex="-1"]:focus-visible, #main:focus-visible { box-shadow: none; outline: none; }
+@media (forced-colors: active) {
+  .input:focus, .select:focus, .textarea:focus, .check input:focus-visible + .box { outline: 2px solid Highlight; outline-offset: 2px; }
+  .window:has(input:focus-visible), .radio-card:has(input:focus-visible) { outline: 2px solid Highlight; outline-offset: 2px; }
+}
 ::selection { background: var(--heart); color: var(--ink); }
 
 .skip { position: absolute; left: 8px; top: -60px; background: var(--ink); color: var(--paper); padding: 8px 12px; z-index: 200; }
-.skip:focus { top: 8px; }
+.skip:focus { top: 8px; position: fixed; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 /* layout */
@@ -157,6 +169,7 @@ address { font-style: normal; }
 .section { padding-block: clamp(48px, 8vw, 112px); }
 .section-tight { padding-block: clamp(32px, 5vw, 64px); }
 main { display: block; min-height: 60vh; }
+#main:empty { min-height: 100vh; min-height: 100svh; }
 #main[data-route] { position: relative; }
 body[data-route] { padding-bottom: 0; }
 
@@ -221,6 +234,8 @@ body[data-route] { padding-bottom: 0; }
 .rail { display: flex; gap: var(--s4); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); padding-bottom: var(--s3); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { scroll-snap-align: start; flex: 0 0 auto; }
+/* cards follow their bouquet's posted size, so they are not stretched to the tallest one */
+.rail { align-items: flex-start; }
 .rail-bleed { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
 
 /* loader */
@@ -236,12 +251,6 @@ body[data-route] { padding-bottom: 0; }
 @keyframes tilt { to { transform: rotate(-8deg); } }
 @keyframes fadeIn { to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .loader-heart path { animation: none; fill: var(--heart); stroke: var(--heart-2); stroke-dashoffset: 0; transform: rotate(-8deg); } .loader-word { animation: none; opacity: 1; } }
-
-/* transitions overlay: a sheet of paper passing */
-#transition { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
-#transition .paper { position: absolute; inset: 0; background: var(--cream); transform: translateY(101%); }
-#transition.run .paper { animation: paperPass var(--t-slow) var(--ease) forwards; }
-@keyframes paperPass { 0% { transform: translateY(101%); } 45% { transform: translateY(0); } 55% { transform: translateY(0); } 100% { transform: translateY(-101%); } }
 
 /* toasts */
 #toasts { position: fixed; left: 50%; bottom: calc(var(--doorstep-h) + 16px); transform: translateX(-50%); z-index: 350; display: grid; gap: 8px; width: min(92vw, 420px); pointer-events: none; }
@@ -314,37 +323,44 @@ body[data-route] { padding-bottom: 0; }
 
 /* ---- buttons: rectangles, folded corner on primary, ribbon-tail on secondary ---- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; font-family: var(--f-body); font-weight: 500; font-size: 15px; line-height: 1.2; letter-spacing: .01em; border: 1px solid var(--ink); color: var(--ink); background: transparent; border-radius: var(--radius); transition: transform var(--t-fast) var(--ease), background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast); white-space: nowrap; text-align: center; }
-.btn:hover { background: var(--paper-2); }
+/* hover styles only where there is a real pointer: on a phone they would stick after a tap */
+@media (hover: hover) { .btn:hover { background: var(--paper-2); } }
 .btn:active { transform: translateY(1px); }
+/* a long label wraps on a small phone instead of pushing the page sideways */
+.btn { max-width: 100%; }
+@media (max-width: 400px) { .btn { white-space: normal; } }
 .btn-primary { background: var(--ink); color: var(--paper); border-color: var(--ink); clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%); }
-.btn-primary:hover { background: #3F2A21; }
-.btn-primary:focus-visible { box-shadow: none; outline: 2px solid var(--ink); outline-offset: -4px; }
+@media (hover: hover) { .btn-primary:hover { background: #3F2A21; } }
+/* the clip-path cuts any outer ring, so focus is an inset paper line on the ink */
+.btn-primary:focus-visible { box-shadow: none; outline: 2px solid var(--paper); outline-offset: -5px; }
+.wrap-dark .btn-primary:focus-visible, .viewer-side .acts .btn-primary:focus-visible { outline-color: var(--ink); }
 .btn-rose:focus-visible { box-shadow: none; outline: 2px solid #fff; outline-offset: -4px; }
 .btn-rose { background: var(--rose); border-color: var(--rose); color: #fff; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%); }
-.btn-rose:hover { background: var(--ribbon); }
+@media (hover: hover) { .btn-rose:hover { background: var(--ribbon); } }
 .btn-ghost { border-color: transparent; padding-inline: 8px; }
-.btn-ghost:hover { background: transparent; text-decoration: underline; text-underline-offset: .2em; }
+@media (hover: hover) { .btn-ghost:hover { background: transparent; text-decoration: underline; text-underline-offset: .2em; } }
 .btn-line { border-color: var(--line); }
 .btn-sm { min-height: 38px; padding: 0 14px; font-size: 14px; }
 .btn-lg { min-height: 56px; padding: 0 28px; font-size: 16px; }
 .btn-block { width: 100%; }
 .btn[disabled], .btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
 .wrap-dark .btn { border-color: var(--paper); color: var(--paper); }
-.wrap-dark .btn:hover { background: var(--wrap-2); }
+@media (hover: hover) { .wrap-dark .btn:hover { background: var(--wrap-2); } }
 .wrap-dark .btn-primary { background: var(--paper); color: var(--ink); }
 .btn .ico { width: 18px; height: 18px; flex: 0 0 auto; }
 
 /* text link with drawn underline */
-.tlink { position: relative; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; padding-bottom: 2px; background-image: linear-gradient(var(--ribbon), var(--ribbon)); background-size: 0% 1px; background-repeat: no-repeat; background-position: 0 100%; transition: background-size var(--t) var(--ease); }
-.tlink:hover, .tlink:focus-visible { background-size: 100% 1px; }
+.tlink { position: relative; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; padding-bottom: 2px; background-image: linear-gradient(var(--ribbon), var(--ribbon)); background-size: 0% 1px; background-repeat: no-repeat; background-position: 0 100%; transition: background-size var(--t-fast) var(--ease); }
+.tlink:focus-visible { background-size: 100% 1px; }
 .tlink .arrow { transition: transform var(--t-fast) var(--ease); }
-.tlink:hover .arrow { transform: translateX(4px); }
+@media (hover: hover) { .tlink:hover { background-size: 100% 1px; } .tlink:hover .arrow { transform: translateX(4px); } }
 
 /* ---- chips: rectangular, hairline, heart fill when selected ---- */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; color: var(--ink-2); border-radius: var(--radius); transition: border-color var(--t-fast), background var(--t-fast), color var(--t-fast); }
-.chip:hover { border-color: var(--ink); color: var(--ink); }
-.chip[aria-pressed="true"], .chip.is-on { background: var(--heart); border-color: var(--heart-2); color: var(--ink); }
+@media (hover: hover) { .chip:hover { border-color: var(--ink); color: var(--ink); } }
+.chip:active { background: var(--paper-2); }
+.chip[aria-pressed="true"], .chip.is-on { background: var(--heart); border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); color: var(--ink); }
 .chip .sw { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(47,28,21,.2); }
 .wrap-dark .chip { background: var(--wrap-2); color: var(--paper); border-color: var(--border); }
 
@@ -360,8 +376,8 @@ body[data-route] { padding-bottom: 0; }
 .heart-tag.flat { transform: rotate(0); }
 .heart-tag.press { animation: press var(--t-fast) var(--ease); }
 @keyframes press { 50% { transform: rotate(-4deg) scale(.94); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); } }
-.heart-tag.pop { animation: pop 320ms var(--ease); }
-@keyframes pop { 40% { transform: rotate(-8deg) scale(1.18); } }
+.heart-tag.pop { animation: pop 260ms var(--ease); }
+@keyframes pop { 40% { transform: rotate(-3deg) scale(1.04); } }
 .heart-badge { position: relative; }
 .heart-badge .count { position: absolute; right: -6px; top: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--ink); color: var(--paper); font-size: 11px; font-weight: 600; display: grid; place-items: center; transform: rotate(8deg); }
 
@@ -370,33 +386,39 @@ body[data-route] { padding-bottom: 0; }
 .ribbon::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.45), transparent 45%, rgba(47,28,21,.05)); pointer-events: none; }
 .ribbon-tilt { transform: rotate(-1.2deg); margin-inline: -2vw; width: 104vw; }
 .ribbon-track { display: flex; gap: 0; white-space: nowrap; will-change: transform; animation: marquee 60s linear infinite; }
-.ribbon:hover .ribbon-track, .ribbon:focus-within .ribbon-track { animation-play-state: paused; }
+.ribbon:hover .ribbon-track, .ribbon:focus-within .ribbon-track, .ribbon.is-paused .ribbon-track { animation-play-state: paused; }
+.ribbon-toggle { position: absolute; right: 0; top: 0; bottom: 0; z-index: 1; width: 46px; display: grid; place-items: center; background: var(--cream); color: var(--ink); box-shadow: -1px 0 0 rgba(47,28,21,.12), -14px 0 14px -6px var(--cream); }
+.ribbon-toggle .ico { width: 16px; height: 16px; }
 .ribbon-item { display: inline-flex; align-items: center; gap: 22px; padding-inline: 22px; font-family: var(--f-body); font-weight: 500; font-size: 13px; letter-spacing: .02em; }
 .ribbon-item .serif { font-family: var(--f-display); letter-spacing: .28em; font-size: 12px; text-transform: uppercase; }
 .ribbon-item .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ribbon); opacity: .7; }
 .ribbon-dark { background: var(--ribbon); color: var(--cream); }
 @keyframes marquee { to { transform: translateX(-50%); } }
-@media (prefers-reduced-motion: reduce) { .ribbon-track { animation: none; flex-wrap: wrap; white-space: normal; } .ribbon { height: auto; padding: 8px 0; } .ribbon-tilt { transform: none; margin: 0; width: auto; } }
+@media (prefers-reduced-motion: reduce) { .ribbon-track { animation: none; flex-wrap: wrap; white-space: normal; } .ribbon { height: auto; padding: 8px 0; } .ribbon-toggle { display: none; } .ribbon-tilt { transform: none; margin: 0; width: auto; } }
 
 /* ---- product card: photo, entry, ruler edge ---- */
-.pcard { position: relative; display: flex; flex-direction: column; background: var(--surface); box-shadow: var(--sheet); border-radius: var(--radius); transition: box-shadow var(--t) var(--ease), transform var(--t) var(--ease); }
-.pcard:hover { box-shadow: var(--sheet-lift); transform: translateY(-2px); }
+.pcard { position: relative; display: flex; flex-direction: column; min-width: 0; background: var(--surface); box-shadow: var(--sheet); border-radius: var(--radius); transition: box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease); }
+@media (hover: hover) { .pcard:hover { box-shadow: var(--sheet-lift); transform: translateY(-2px); } }
 .pcard-media { position: relative; overflow: hidden; background: var(--wall); aspect-ratio: var(--ar, 4/5); }
+/* the photo fills the frame whatever the posted size's ratio (no grey band) */
+.pcard-media .pic { position: absolute; inset: 0; }
 .pcard-media img { width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, 50% 35%); transition: transform var(--t-cine) var(--ease); }
 .pcard-media .heart-tag { position: absolute; left: 10px; top: 10px; z-index: 2; }
-.pcard:hover .heart-tag { transform: rotate(0deg); }
+@media (hover: hover) { .pcard:hover .heart-tag { transform: rotate(0deg); } }
 .pcard-ruler { position: absolute; right: 0; top: 0; bottom: 0; width: 18px; background: repeating-linear-gradient(to bottom, rgba(47,28,21,.55) 0 1px, transparent 1px 8px); background-size: 6px 100%; background-repeat: no-repeat; background-position: right; pointer-events: none; opacity: .55; }
 .pcard-ruler span { position: absolute; right: 2px; bottom: 6px; writing-mode: vertical-rl; font-size: 9px; letter-spacing: .12em; color: var(--ink); background: var(--surface); padding: 2px 1px; font-family: var(--f-body); font-weight: 600; }
-.pcard-body { padding: 14px 16px 16px; display: grid; gap: 4px; }
-.pcard-name { font-family: var(--f-display); font-style: italic; font-size: 24px; line-height: 1.15; font-variation-settings: 'opsz' 40; }
+.pcard-body { padding: 14px 16px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.pcard-name { font-family: var(--f-display); font-style: italic; font-size: 24px; line-height: 1.15; font-variation-settings: 'opsz' 40; overflow-wrap: break-word; }
 :lang(th) .pcard-name, .pcard-name:lang(th) { font-family: var(--f-body); font-style: normal; font-weight: 500; font-size: 19px; line-height: 1.4; }
 .pcard-meaning { font-size: 14px; line-height: 1.55; color: var(--euca); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
 :lang(th) .pcard-meaning { line-height: 1.7; min-height: 3.2em; }
-.pcard-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-top: 1px solid var(--line-soft); padding-top: 10px; margin-top: 6px; }
-.pcard-size { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 500; }
-.pcard-price { position: relative; }
-.pcard-price::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: var(--ribbon); transform: scaleX(0); transform-origin: left; transition: transform var(--t) var(--ease); }
-.pcard:hover .pcard-price::after { transform: scaleX(1); }
+.pcard-foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; border-top: 1px solid var(--line-soft); padding-top: 10px; margin-top: 6px; }
+.pcard-size { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 500; white-space: nowrap; }
+:lang(th) .pcard-size, :lang(th) .pcard-badge { letter-spacing: 0; }
+/* when the foot wraps on a narrow card the price keeps to the right edge */
+.pcard-price { position: relative; margin-left: auto; text-align: right; }
+.pcard-price::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: var(--ribbon); transform: scaleX(0); transform-origin: left; transition: transform var(--t-fast) var(--ease); }
+@media (hover: hover) { .pcard:hover .pcard-price::after { transform: scaleX(1); } }
 .pcard-micro { font-size: 12px; color: var(--muted); }
 .pcard-badge { position: absolute; right: 10px; top: 10px; z-index: 2; background: var(--surface); color: var(--ink); font-size: 11px; font-weight: 600; letter-spacing: .06em; padding: 4px 8px; border-radius: var(--radius); }
 .pcard-noimg { display: grid; place-items: center; text-align: center; padding: 24px; background: var(--paper-2); color: var(--ink-2); gap: 10px; }
@@ -407,15 +429,16 @@ body[data-route] { padding-bottom: 0; }
 
 /* ---- ledger (price list) ---- */
 .ledger { border-top: 1px solid var(--ink); }
-.ledger-row { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); text-decoration: none; transition: background var(--t-fast); }
-.ledger-row:hover { background: var(--paper-2); }
+.ledger-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); text-decoration: none; transition: background var(--t-fast); }
+@media (hover: hover) { .ledger-row:hover { background: var(--paper-2); } }
 .ledger-row img { width: 64px; height: 80px; object-fit: cover; background: var(--wall); }
 .ledger-row .thumb-empty { width: 64px; height: 80px; background: var(--paper-2); display: grid; place-items: center; }
 .ledger-name { font-weight: 500; font-size: 17px; line-height: 1.35; }
 .ledger-meta { font-size: 13px; color: var(--muted); line-height: 1.5; }
-.ledger-price { text-align: right; }
+.ledger-price { text-align: right; max-width: 44vw; }
+.ledger-price .price { white-space: normal; }
 .ledger-price .sub { display: block; font-size: 12px; color: var(--muted); font-family: var(--f-body); }
-@media (min-width: 768px) { .ledger-row { grid-template-columns: 72px 1.4fr 1fr auto; } .ledger-row img, .ledger-row .thumb-empty { width: 72px; height: 90px; } }
+@media (min-width: 768px) { .ledger-row { grid-template-columns: 72px 1.4fr 1fr auto; } .ledger-row img, .ledger-row .thumb-empty { width: 72px; height: 90px; } .ledger-row { grid-template-columns: 72px minmax(0, 1.4fr) minmax(0, 1fr) auto; } .ledger-price { max-width: none; } }
 
 /* ---- dictionary entry ---- */
 .entry { background: var(--surface); box-shadow: var(--sheet); padding: 22px 22px 20px; display: grid; gap: 8px; border-radius: var(--radius); min-height: 100%; }
@@ -427,15 +450,16 @@ body[data-route] { padding-bottom: 0; }
 .entry-foot { display: flex; align-items: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
 .entry-foot .thumbs { display: flex; gap: 6px; }
 .entry-foot .thumbs img { width: 44px; height: 56px; object-fit: cover; }
-.entry.dark { background: var(--wrap); color: var(--paper); box-shadow: none; border: 1px solid var(--wrap-hi); }
+.entry.dark { background: var(--wrap); color: var(--paper); box-shadow: none; border: 1px solid var(--wrap-hi); --muted: #D9D3C8; --faint: #A9A39A; }
 .entry.dark .entry-def { color: #D9D3C8; }
 
 /* ---- forms ---- */
 .field { display: grid; gap: 6px; }
 .field label, .label { font-size: 14px; font-weight: 500; color: var(--ink-2); }
 .field .hint { font-size: 13px; color: var(--muted); }
-.input, .select, .textarea { width: 100%; min-height: 50px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink); font-size: 16px; line-height: 1.5; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
-.input::placeholder, .textarea::placeholder { color: var(--ink-3); }
+.input, .select, .textarea { width: 100%; min-height: 50px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--ink-3); border-radius: var(--radius); color: var(--ink); font-size: 16px; line-height: 1.5; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+/* 5.3:1 on the field: readable, still clearly not typed text */
+.input::placeholder, .textarea::placeholder { color: #75665E; opacity: 1; }
 .input:focus, .select:focus, .textarea:focus { border-color: var(--ink); box-shadow: 0 0 0 3px var(--heart); outline: none; }
 .textarea { min-height: 120px; resize: vertical; }
 :lang(th) .input, :lang(th) .textarea { line-height: 1.7; padding-top: 13px; }
@@ -454,7 +478,7 @@ body[data-route] { padding-bottom: 0; }
 .radio-cards { display: grid; gap: 10px; }
 @media (min-width: 640px) { .radio-cards.cols-2 { grid-template-columns: 1fr 1fr; } .radio-cards.cols-3 { grid-template-columns: repeat(3, 1fr); } }
 .radio-card { display: block; position: relative; padding: 16px 18px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); cursor: pointer; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
-.radio-card:hover { border-color: var(--ink); }
+@media (hover: hover) { .radio-card:hover { border-color: var(--ink); } }
 .radio-card input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .radio-card.is-on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink), var(--sheet); }
 .radio-card .t { font-weight: 500; font-size: 16px; display: flex; align-items: center; gap: 10px; }
@@ -462,15 +486,19 @@ body[data-route] { padding-bottom: 0; }
 .radio-card .mark { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--ink); display: inline-block; flex: 0 0 auto; }
 .radio-card.is-on .mark { background: var(--heart); border-color: var(--heart-2); }
 .radio-card input:focus-visible ~ .t { text-decoration: underline; }
+.radio-card:has(input:focus-visible) { box-shadow: var(--focus); }
+.radio-card.is-on:has(input:focus-visible) { box-shadow: 0 0 0 1px var(--ink), var(--focus); }
 .counter { display: inline-flex; align-items: center; border: 1px solid var(--line); background: var(--surface); }
 .counter button { width: 44px; height: 44px; font-size: 20px; display: grid; place-items: center; }
-.counter button:hover { background: var(--paper-2); }
+@media (hover: hover) { .counter button:hover { background: var(--paper-2); } }
+.counter button:active { background: var(--paper-2); }
 .counter output { min-width: 40px; text-align: center; font-weight: 500; }
 
 /* upload */
 .upload { display: grid; gap: 10px; }
 .upload-drop { border: 1px dashed var(--line); background: var(--surface); padding: 22px; text-align: center; color: var(--muted); font-size: 14px; cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast); }
-.upload-drop:hover, .upload-drop.is-over { border-color: var(--ink); background: var(--paper-2); }
+.upload-drop.is-over { border-color: var(--ink); background: var(--paper-2); }
+@media (hover: hover) { .upload-drop:hover { border-color: var(--ink); background: var(--paper-2); } }
 .upload-preview { display: flex; gap: 14px; align-items: center; }
 .upload-preview img { width: 96px; height: 96px; object-fit: cover; border: 1px solid var(--line); }
 
@@ -481,31 +509,33 @@ body[data-route] { padding-bottom: 0; }
 :lang(th) .cal-title { font-family: var(--f-body); font-weight: 500; font-size: 18px; }
 .cal-nav { display: flex; gap: 4px; }
 .cal-nav button { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--surface); }
-.cal-nav button:hover { border-color: var(--ink); }
+@media (hover: hover) { .cal-nav button:hover { border-color: var(--ink); } }
 .cal-nav button[disabled] { opacity: .3; pointer-events: none; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .cal-row { display: contents; }
-.cal-dow { text-align: center; font-size: 11px; letter-spacing: .06em; color: var(--muted); font-weight: 600; padding: 6px 0; }
+.cal-dow { text-align: center; font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 600; padding: 6px 0; }
 .cal-day { position: relative; aspect-ratio: 1; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 15px; border: 1px solid transparent; border-radius: var(--radius); color: var(--ink); transition: background var(--t-fast), border-color var(--t-fast); }
 .cal-day.out { color: transparent; pointer-events: none; }
-.cal-day.ok:hover { border-color: var(--ink); }
+@media (hover: hover) { .cal-day.ok:hover { border-color: var(--ink); } }
 .cal-day.ok { background: var(--paper); }
 .cal-day.low::after { content: ''; position: absolute; bottom: 5px; width: 4px; height: 4px; border-radius: 50%; background: var(--rose); }
 .cal-day.no { color: var(--ink-3); text-decoration: line-through; text-decoration-color: rgba(47,28,21,.25); }
 .cal-day.today { font-weight: 600; }
 .cal-day.today::before { content: ''; position: absolute; top: 4px; right: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--euca); }
-.cal-day.sel { background: var(--heart); border-color: var(--heart-2); font-weight: 600; }
+.cal-day.sel { background: var(--heart); border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); font-weight: 600; }
 .cal-day.urgent { color: var(--rose); text-decoration: none; }
 .cal-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
 .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .cal-legend i { width: 10px; height: 10px; display: inline-block; border-radius: 2px; }
 .windows { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-.window { position: relative; padding: 12px; border: 1px solid var(--line); background: var(--surface); text-align: center; font-variant-numeric: tabular-nums; cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast); }
-.window:hover { border-color: var(--ink); }
+.window { position: relative; padding: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: center; font-variant-numeric: tabular-nums; cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast); }
+.field .window { color: var(--ink); }
+@media (hover: hover) { .window:hover { border-color: var(--ink); } }
 .window:has(input:focus-visible) { box-shadow: var(--focus); }
-.window.is-on { background: var(--heart); border-color: var(--heart-2); }
+.window.is-on { background: var(--heart); border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.window.is-on .sub { color: var(--ink); }
 .window.is-off { opacity: .45; pointer-events: none; text-decoration: line-through; }
-.window .sub { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.window .sub { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .window input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 
 /* ---- steps / progress ribbon ---- */
@@ -514,7 +544,8 @@ body[data-route] { padding-bottom: 0; }
 .step.done { background: var(--heart); }
 .step.cur::after { content: ''; position: absolute; inset: 0; background: var(--heart); transform-origin: left; animation: fillStep var(--t) var(--ease) forwards; }
 @keyframes fillStep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.step-labels { display: grid; grid-template-columns: repeat(6, 1fr); font-size: 11px; color: var(--muted); margin-top: 6px; }
+.step-labels { display: grid; grid-template-columns: repeat(6, 1fr); font-size: 12px; color: var(--muted); margin-top: 6px; }
+:lang(th) .step-labels { font-size: 13px; }
 .step-labels span.cur { color: var(--ink); font-weight: 600; }
 
 /* ---- sheets (bottom/side panels) ---- */
@@ -526,7 +557,7 @@ body[data-route] { padding-bottom: 0; }
 @keyframes sheetUp { from { transform: translateY(24px); opacity: 0; } }
 .sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .close-x { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--surface); }
-.close-x:hover { border-color: var(--ink); }
+@media (hover: hover) { .close-x:hover { border-color: var(--ink); } }
 @media (prefers-reduced-motion: reduce) { .sheet-panel, .sheet-overlay { animation: none; } .step.cur::after { animation: none; transform: none; } }
 
 /* ---- image with LQIP and fallback ---- */
@@ -571,7 +602,7 @@ body[data-route] { padding-bottom: 0; }
 .notice.rose { background: #F8E7E8; color: var(--ribbon); }
 .notice.dark { background: var(--wrap); color: var(--paper); }
 .avatar-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
-.avatar-row a { display: grid; justify-items: center; gap: 6px; font-size: 11px; color: var(--muted); flex: 0 0 auto; width: 74px; text-align: center; }
+.avatar-row a { display: grid; justify-items: center; gap: 6px; font-size: 12px; color: var(--muted); flex: 0 0 auto; width: 74px; text-align: center; }
 .avatar-row img { width: 62px; height: 62px; border-radius: 50%; object-fit: cover; border: 1px solid var(--line); padding: 2px; background: var(--surface); }
 
 /* ---- nav.css ---- */
@@ -599,15 +630,19 @@ body[data-route] { padding-bottom: 0; }
 .logo { display: inline-flex; align-items: center; gap: 12px; }
 .logo img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--paper); border: 1px solid var(--line-soft); }
 .logo .word { font-family: var(--f-display); font-size: 14px; letter-spacing: .22em; text-transform: uppercase; line-height: 1.1; white-space: nowrap; }
-.logo .word small { display: block; font-size: 7.5px; letter-spacing: .3em; color: var(--muted); margin-top: 3px; }
-@media (max-width: 640px) { .logo { gap: 8px; min-width: 0; } .logo img { width: 36px; height: 36px; } .logo .word { font-size: 11px; letter-spacing: .14em; } .logo .word small { display: none; } .header-right { gap: 6px; } .header-right .icon-btn { width: 40px; } }
-@media (max-width: 400px) { .logo .word { display: none; } }
-@media (min-width: 1024px) and (max-width: 1279px) { .logo .word { font-size: 12px; letter-spacing: .18em; } .logo .word small { display: none; } .header-right .icon-btn.only-desktop { display: none; } }
+.logo .word small { display: block; font-size: 9px; letter-spacing: .24em; color: var(--muted); margin-top: 3px; }
+@media (max-width: 640px) { .logo { gap: 8px; min-width: 0; } .logo img { width: 36px; height: 36px; } .logo .word { font-size: 11px; letter-spacing: .14em; } .logo .word small { letter-spacing: .2em; margin-top: 2px; } .logo .word .where { display: none; } .header-right { gap: 6px; } .header-right .icon-btn { width: 40px; } }
+/* the smallest phones: a smaller wordmark and tighter controls rather than no name */
+@media (max-width: 400px) { .header-in { gap: 8px; } .logo { gap: 6px; } .logo img { width: 32px; height: 32px; } .logo .word { font-size: 9.5px; letter-spacing: .08em; } .logo .word small { font-size: 8.5px; letter-spacing: .14em; } .lang-switch button { padding: 0 8px; } .menu-word { padding-inline: 2px; } }
+/* 320px: the name stacks LITTLE / HOUSE / FLOWER, like the sticker */
+@media (max-width: 350px) { .logo .word { white-space: normal; width: min-content; font-size: 9.5px; line-height: 1.15; letter-spacing: .1em; } .logo .word small { margin-top: 1px; } }
+@media (min-width: 1024px) and (max-width: 1279px) { .logo .word { font-size: 12px; letter-spacing: .18em; } .logo .word .where { display: none; } .header-right .icon-btn.only-desktop { display: none; } }
 .nav-main { display: none; gap: clamp(14px, 1.6vw, 26px); align-items: center; }
 .nav-main a { font-size: 14px; font-weight: 500; color: var(--ink-2); padding: 6px 0; position: relative; white-space: nowrap; }
 @media (min-width: 1280px) { .nav-main a { font-size: 15px; } }
-.nav-main a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--ribbon); transform: scaleX(0); transform-origin: left; transition: transform var(--t) var(--ease); }
-.nav-main a:hover::after, .nav-main a.is-active::after { transform: scaleX(1); }
+.nav-main a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--ribbon); transform: scaleX(0); transform-origin: left; transition: transform var(--t-fast) var(--ease); }
+.nav-main a.is-active::after, .nav-main a:focus-visible::after { transform: scaleX(1); }
+@media (hover: hover) { .nav-main a:hover::after { transform: scaleX(1); } }
 .nav-main a.is-active { color: var(--ink); }
 @media (min-width: 1024px) { .nav-main { display: flex; } }
 .header-right { display: flex; align-items: center; gap: 10px; }
@@ -616,7 +651,7 @@ body[data-route] { padding-bottom: 0; }
 .lang-switch button + button { border-left: 1px solid var(--line); }
 .lang-switch button[aria-pressed="true"] { color: var(--ink); background: var(--paper-2); }
 .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid transparent; }
-.icon-btn:hover { border-color: var(--line); }
+@media (hover: hover) { .icon-btn:hover { border-color: var(--line); } }
 .menu-word { font-weight: 500; font-size: 15px; padding: 8px 4px; }
 @media (min-width: 1024px) { .menu-word { display: none; } .only-mobile-nav { display: none; } }
 .header-cta { display: none; }
@@ -643,6 +678,7 @@ body[data-route] { padding-bottom: 0; }
 #doorstep a .heart-badge { display: inline-grid; }
 #doorstep svg { width: 18px; height: 18px; }
 @media (min-width: 768px) { #doorstep { display: none; } }
+@media (max-width: 767px) { body:has(:is(input, textarea, select):focus) #doorstep { display: none; } }
 @media (max-width: 767px) { body { padding-bottom: calc(var(--doorstep-h) + env(safe-area-inset-bottom)); } body.no-doorstep { padding-bottom: 0; } body.no-doorstep #doorstep { display: none; } }
 
 /* footer */
@@ -654,7 +690,7 @@ body[data-route] { padding-bottom: 0; }
 .footer-in ul { display: grid; gap: 8px; font-size: 15px; }
 .footer-in a { display: inline-block; padding: 5px 0; }
 .footer-in a:hover { text-decoration: underline; text-underline-offset: .2em; }
-.footer-brand { display: grid; gap: 12px; }
+.footer-brand { display: grid; gap: 12px; align-content: start; }
 .footer-brand img { width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--line-soft); }
 .footer-brand .tag-line { font-family: var(--f-display); font-size: 11px; letter-spacing: .32em; text-transform: uppercase; color: var(--ink-2); }
 .footer-bottom { border-top: 1px solid var(--line); padding: 14px 0 20px; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; font-size: 12px; color: var(--muted); }
@@ -672,7 +708,7 @@ body[data-route] { padding-bottom: 0; }
 @media (max-width: 767px) { body:not(.no-doorstep) #footer { padding-bottom: calc(var(--doorstep-h) + env(safe-area-inset-bottom)); } }
 .socials { display: flex; gap: 12px; }
 .socials a { width: 40px; height: 40px; border: 1px solid var(--line); display: grid; place-items: center; }
-.socials a:hover { border-color: var(--ink); }
+@media (hover: hover) { .socials a:hover { border-color: var(--ink); } }
 .socials svg { width: 18px; height: 18px; }
 
 /* ---- pages.css ---- */
@@ -690,7 +726,9 @@ body[data-route] { padding-bottom: 0; }
 .hero-copy { display: grid; align-content: end; gap: 18px; padding: clamp(28px, 6vw, 72px) var(--gutter) clamp(28px, 5vw, 56px); order: 2; background: var(--paper); }
 .hero-copy .display { max-width: 14ch; }
 :lang(th) .hero-copy .display { max-width: 16ch; }
-.hero-copy .lede { max-width: 46ch; }
+/* each sentence (Thai: each phrase) of the headline is one unit that starts its own line when it cannot finish the current one */
+.display .phrase { display: inline-block; }
+.hero-copy .lede { max-width: 46ch; text-wrap: pretty; }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .hero-skip { font-size: 14px; }
 .hero-media { position: relative; order: 1; min-height: 62svh; background: var(--wall); }
@@ -709,6 +747,37 @@ body[data-route] { padding-bottom: 0; }
   .hero-caption { left: auto; right: var(--gutter); bottom: 18px; }
 }
 @media (min-width: 1200px) { .hero-in { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); } }
+/* Phones and small tablets: the first screen shows the headline and the Reserve
+   button above the doorstep bar. The photo takes the height that is left (never
+   under 120px); --hero-fold is the height of eyebrow + headline + buttons, and
+   the lede follows the buttons. */
+@media (max-width: 899px) {
+  .hero { --hero-fold: 300px; --hero-bar: var(--doorstep-h); }
+  .hero-in { min-height: 0; }
+  .hero-media { min-height: 120px; height: calc(100vh - var(--strip-h) - var(--header-h) - var(--hero-bar) - var(--hero-fold)); height: calc(100svh - var(--strip-h) - var(--header-h) - var(--hero-bar) - var(--hero-fold)); max-height: 62svh; }
+  .hero-copy { align-content: start; }
+  .hero-copy > .lede { order: 1; }
+  .hero-copy > .hero-skip { order: 2; }
+  .hero-caption { max-width: calc(100% - 2 * var(--gutter) - 76px); }
+}
+@media (min-width: 768px) and (max-width: 899px) { .hero { --hero-fold: 340px; --hero-bar: 0px; } }
+/* short phones (iPhone SE): tighter copy, a thinner photo band, a smaller
+   sticker and no caption */
+@media (max-width: 899px) and (max-height: 620px) {
+  .hero { --hero-fold: 320px; }
+  .hero-media { min-height: 88px; }
+  .hero-copy { padding-top: 18px; gap: 12px; }
+  .hero-caption { display: none; }
+  .hero-tag { top: 10px; } .hero-tag .heart-tag.lg { width: 52px; height: 49px; } .hero-tag .heart-tag.lg .txt { font-size: 6.5px; }
+}
+/* phones on their side: copy beside the photo, as on a desktop, so the
+   headline and the button are on the first screen */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) {
+  .hero-in { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .hero-copy { order: 1; padding-block: 16px; gap: 12px; }
+  .hero-copy .display, :lang(th) .hero-copy .display { font-size: 34px; max-width: 18ch; }
+  .hero-media { order: 2; height: auto; min-height: 0; max-height: none; }
+}
 .hero-scale { transform: scale(1.04); transform-origin: 50% 40%; animation: heroSettle 1400ms var(--ease) forwards; }
 @keyframes heroSettle { to { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .hero-scale { animation: none; transform: none; } }
@@ -719,7 +788,7 @@ body[data-route] { padding-bottom: 0; }
 @media (min-width: 1100px) { .pgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; } }
 .rail .pcard { width: min(78vw, 300px); }
 @media (min-width: 720px) { .rail .pcard { width: 300px; } }
-@media (max-width: 719px) { .pgrid .pcard-body { padding: 10px 12px 12px; } .pgrid .pcard-name { font-size: 20px; } :lang(th) .pgrid .pcard-name { font-size: 16px; } .pgrid .pcard-meaning { display: none; } .pgrid .pcard-micro { display: none; } .pcard-ruler { display: none; } }
+@media (max-width: 719px) { .pgrid .pcard-body { padding: 10px 12px 12px; } .pgrid .pcard-name { font-size: 20px; } :lang(th) .pgrid .pcard-name { font-size: 16px; } .pgrid .pcard-meaning { display: none; } .pgrid .pcard-micro { display: none; } .pcard-ruler { display: none; } .pgrid .pcard-price { font-size: 18px; white-space: normal; } }
 
 /* ---------- meanings ---------- */
 .meaning-band { background: var(--sage); color: var(--ink); }
@@ -733,7 +802,7 @@ body[data-route] { padding-bottom: 0; }
 .lookup-results { display: grid; gap: 10px; }
 .lookup-row { display: grid; grid-template-columns: 56px 1fr; gap: 14px; align-items: center; padding: 12px; background: var(--surface); box-shadow: var(--sheet); animation: rise var(--t) var(--ease) both; animation-delay: var(--d, 0ms); }
 @media (prefers-reduced-motion: reduce) { .lookup-row { animation: none; } }
-.lookup-row:hover { box-shadow: var(--sheet-lift); }
+@media (hover: hover) { .lookup-row:hover { box-shadow: var(--sheet-lift); } }
 .lookup-thumb { width: 56px; height: 72px; object-fit: cover; background: var(--wall); }
 .lookup-row .headword { font-size: 22px; }
 .card-input { padding: 18px 18px 12px; }
@@ -745,10 +814,10 @@ body[data-route] { padding-bottom: 0; }
 .occ-list { display: grid; gap: 14px; }
 @media (min-width: 720px) { .occ-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
 @media (min-width: 1100px) { .occ-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.occ-card { position: relative; display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: center; background: var(--surface); box-shadow: var(--sheet); padding: 12px; transition: box-shadow var(--t) var(--ease), transform var(--t) var(--ease); }
-.occ-card:hover { box-shadow: var(--sheet-lift); transform: translateY(-2px); }
+.occ-card { position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; align-items: center; background: var(--surface); box-shadow: var(--sheet); padding: 12px; transition: box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease); }
+@media (hover: hover) { .occ-card:hover { box-shadow: var(--sheet-lift); transform: translateY(-2px); } }
 .occ-card .pic { width: 96px; height: 120px; }
-.occ-card .t { font-family: var(--f-display); font-style: italic; font-size: 26px; line-height: 1.1; }
+.occ-card .t { font-family: var(--f-display); font-style: italic; font-size: 26px; line-height: 1.1; overflow-wrap: break-word; }
 :lang(th) .occ-card .t { font-family: var(--f-body); font-style: normal; font-weight: 500; font-size: 20px; line-height: 1.4; }
 .occ-card .tag-line { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .occ-card .d { font-size: 14px; color: var(--ink-2); margin-top: 6px; line-height: 1.55; }
@@ -759,15 +828,18 @@ body[data-route] { padding-bottom: 0; }
 
 /* ---------- flowers page ---------- */
 .toolbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); margin-bottom: 20px; position: sticky; top: var(--header-h); background: var(--paper); z-index: 5; }
+/* on a phone the toolbar wraps to three rows: pinned, it would hide a third of the screen and the focused card under it */
+@media (max-width: 767px), (max-height: 560px) { .toolbar { position: static; } }
+@media (min-width: 768px) and (min-height: 561px) { html:has(.toolbar) { scroll-padding-top: calc(var(--header-h) + 88px); } }
 .toolbar .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.toolbar .select { min-height: 40px; padding: 6px 34px 6px 12px; width: auto; font-size: 14px; }
+.toolbar .select { min-height: 44px; padding: 6px 32px 6px 10px; width: auto; max-width: 100%; font-size: 16px; }
 .seg { display: inline-flex; border: 1px solid var(--line); }
 .seg button { padding: 0 12px; height: 38px; font-size: 14px; font-weight: 500; color: var(--muted); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
 .count-line { font-size: 13px; color: var(--muted); }
 
 /* ---------- product page ---------- */
-.product { display: grid; gap: 28px; }
+.product { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
 @media (min-width: 900px) { .product { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: start; } .product-info { position: sticky; top: calc(var(--header-h) + 24px); } }
 .product-media { position: relative; }
 .product-media .pic { aspect-ratio: var(--ar, 3/4); box-shadow: var(--sheet); }
@@ -784,7 +856,11 @@ body[data-route] { padding-bottom: 0; }
 :lang(th) .product-meaning .lbl { letter-spacing: 0; text-transform: none; }
 .product-meaning .txt { color: var(--ink); line-height: 1.7; }
 .spec { display: grid; gap: 10px; }
-.spec-row { display: grid; grid-template-columns: 110px 1fr; gap: 12px; font-size: 15px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); }
+.spec-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; font-size: 15px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); }
+/* the Thai labels are longer (ระยะเวลาสั่งล่วงหน้า): room for them on one line */
+:lang(th) .spec-row { grid-template-columns: 132px minmax(0, 1fr); }
+.spec-links { display: flex; flex-wrap: wrap; gap: 2px 14px; }
+.spec-links a { white-space: nowrap; }
 .spec-row dt { color: var(--muted); }
 .spec-row dd { margin: 0; }
 .tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -804,7 +880,8 @@ body[data-route] { padding-bottom: 0; }
 @media (min-width: 900px) { .queue-wrap { grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; } }
 .receipt .dotlist li { font-size: 15px; line-height: 1.65; }
 .receipt .dotlist .n { color: var(--ribbon); }
-.receipt-head { font-family: var(--f-display); font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 14px; text-align: center; }
+.receipt-head { font-family: var(--f-display); font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 14px; text-align: center; text-wrap: balance; }
+#main[data-route="/story"] .receipt-head:lang(th) { font-family: var(--f-body); font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none; }
 
 /* ---------- custom promo ---------- */
 .brief-col { display: grid; gap: 20px; align-content: start; }
@@ -814,6 +891,7 @@ body[data-route] { padding-bottom: 0; }
 .spec-card { padding: 22px; display: grid; gap: 14px; transform: rotate(-1deg); }
 .spec-card .line { display: grid; grid-template-columns: 80px 1fr; gap: 10px; font-size: 15px; border-bottom: 1px solid var(--line-soft); padding-bottom: 8px; }
 .spec-card .line span:first-child { font-family: var(--f-display); font-style: italic; font-size: 18px; color: var(--ink-2); }
+:lang(th) .spec-card .line span:first-child { font-family: var(--f-body); font-style: normal; font-size: 15px; font-weight: 500; }
 .spec-card .line .hand { font-size: 22px; }
 .quote { font-family: var(--f-body); font-weight: 400; font-size: clamp(18px, 2vw, 22px); line-height: 1.7; color: var(--ink); border-left: 2px solid var(--heart); padding-left: 16px; }
 .quote cite { display: block; font-style: normal; font-size: 13px; color: var(--muted); margin-top: 8px; }
@@ -823,11 +901,12 @@ body[data-route] { padding-bottom: 0; }
 @media (min-width: 720px) { .held-grid { grid-template-columns: repeat(4, 1fr); } }
 .held-grid .tile { position: relative; display: block; overflow: hidden; background: var(--wall); aspect-ratio: 4/5; }
 .held-grid .tile img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-cine) var(--ease); }
-.held-grid .tile:hover img { transform: scale(1.03); }
-.held-grid .tile.quote-tile { background: var(--wrap); color: var(--paper); display: grid; align-content: end; padding: 18px; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.6; }
-.held-grid .tile.quote-tile small { display: block; font-size: 11px; color: #A9A39A; margin-top: 8px; letter-spacing: .06em; }
+.held-grid .tile.quote-tile { background: var(--wrap); color: var(--paper); display: grid; align-content: end; padding: 18px; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.6; text-wrap: pretty; }
+.held-grid .tile.quote-tile small { display: block; font-size: 12px; color: #A9A39A; margin-top: 8px; letter-spacing: .06em; }
 .held-grid .tile .lab { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px; font-size: 12px; color: var(--paper); background: linear-gradient(transparent, rgba(27,26,26,.65)); opacity: 0; transition: opacity var(--t-fast); }
-.held-grid .tile:hover .lab, .held-grid .tile:focus-visible .lab { opacity: 1; }
+.held-grid .tile:focus-visible .lab { opacity: 1; }
+@media (hover: hover) { .held-grid .tile:hover img { transform: scale(1.03); } .held-grid .tile:hover .lab { opacity: 1; } }
+@media (hover: none) { .held-grid .tile .lab { opacity: 1; } }
 
 /* ---------- distance ---------- */
 .dist { display: grid; gap: 24px; }
@@ -854,8 +933,8 @@ body[data-route] { padding-bottom: 0; }
 .material .swatches i { width: 12px; height: 32px; }
 .voice-list { display: grid; gap: 12px; }
 @media (min-width: 720px) { .voice-list { grid-template-columns: repeat(3, 1fr); } }
-.voice { background: var(--wrap); color: var(--paper); padding: 22px; font-size: 18px; line-height: 1.6; display: grid; align-content: space-between; gap: 18px; min-height: 180px; }
-.voice small { font-size: 11px; color: #A9A39A; letter-spacing: .06em; }
+.voice { background: var(--wrap); color: var(--paper); padding: 22px; font-size: 18px; line-height: 1.6; display: grid; align-content: space-between; gap: 18px; min-height: 180px; text-wrap: pretty; }
+.voice small { font-size: 12px; color: #A9A39A; letter-spacing: .06em; }
 
 /* ---------- contact ---------- */
 .contact-grid { display: grid; gap: 24px; }
@@ -980,6 +1059,9 @@ body[data-route] { padding-bottom: 0; }
 .ig-filters { position: sticky; top: var(--header-h); z-index: 5; background: var(--paper); padding: 10px 0; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
 .ig-filters::-webkit-scrollbar { display: none; }
 .ig-filters .chips { flex-wrap: nowrap; }
+/* the row scrolls sideways; a chip keeps its label on one line instead of squeezing */
+.ig-filters .chip { flex: 0 0 auto; white-space: nowrap; }
+html:has(.ig-filters) { scroll-padding-top: calc(var(--header-h) + 70px); }
 .masonry { columns: 2; column-gap: 8px; }
 @media (min-width: 720px) { .masonry { columns: 3; column-gap: 12px; } }
 @media (min-width: 1100px) { .masonry { columns: 4; column-gap: 12px; } }
@@ -987,21 +1069,23 @@ body[data-route] { padding-bottom: 0; }
 @media (min-width: 720px) { .mtile { margin-bottom: 12px; } }
 .mtile .pic { aspect-ratio: var(--ar, .8); }
 .mtile .pic img { transition: transform var(--t-cine) var(--ease); }
-.mtile:hover .pic img { transform: scale(1.03); }
 .mtile .ov { position: absolute; inset: 0; background: rgba(244,169,177,0); transition: background var(--t-fast); }
-.mtile:hover .ov, .mtile:focus-visible .ov { background: rgba(244,169,177,.14); }
+.mtile:focus-visible .ov { background: rgba(244,169,177,.14); }
 .mtile .lab { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 10px 10px; font-size: 12px; line-height: 1.5; color: var(--paper); background: linear-gradient(transparent, rgba(27,26,26,.72)); opacity: 0; transition: opacity var(--t-fast); }
-.mtile:hover .lab, .mtile:focus-visible .lab { opacity: 1; }
+.mtile:focus-visible .lab { opacity: 1; }
+@media (hover: hover) { .mtile:hover .pic img { transform: scale(1.03); } .mtile:hover .ov { background: rgba(244,169,177,.14); } .mtile:hover .lab { opacity: 1; } }
+/* no hover on a phone: the name and price are always shown */
+@media (hover: none) { .mtile .lab { opacity: 1; } }
 .mtile .kind { position: absolute; right: 8px; top: 8px; width: 28px; height: 28px; border-radius: 50%; background: rgba(27,26,26,.55); color: #fff; display: grid; place-items: center; }
 .mtile .kind svg { width: 14px; height: 14px; }
 .mtile.quote { background: var(--wrap); color: var(--paper); padding: 22px 18px; display: grid; align-content: end; min-height: 220px; font-size: clamp(17px, 1.6vw, 21px); line-height: 1.6; }
-.mtile.quote small { display: block; margin-top: 12px; font-size: 11px; color: #A9A39A; letter-spacing: .06em; }
+.mtile.quote small { display: block; margin-top: 12px; font-size: 12px; color: #A9A39A; letter-spacing: .06em; }
 .mtile.quote .heart-tag { position: absolute; left: 12px; top: 12px; }
-.mtile.quote:hover { background: var(--wrap-2); }
+@media (hover: hover) { .mtile.quote:hover { background: var(--wrap-2); } }
 .ig-foot { display: grid; gap: 12px; justify-items: center; text-align: center; padding-top: 32px; }
 
 /* viewer */
-.viewer { position: fixed; inset: 0; z-index: 330; background: rgba(27,26,26,.96); color: var(--paper); display: grid; grid-template-rows: auto 1fr auto; animation: fadeIn var(--t-fast) forwards; }
+.viewer { position: fixed; inset: 0; z-index: 330; background: rgba(27,26,26,.96); color: var(--paper); display: grid; grid-template-rows: auto 1fr auto; animation: fadeIn var(--t-fast) forwards; --muted: #D9D3C8; --faint: #A9A39A; }
 .viewer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px var(--gutter); }
 .viewer-top .bars { display: flex; gap: 3px; flex: 1; max-width: 520px; }
 .viewer-top .bars i { flex: 1; height: 2px; background: rgba(255,255,255,.25); }
@@ -1036,6 +1120,59 @@ body[data-route] { padding-bottom: 0; }
 .viewer-bottom { display: flex; justify-content: center; gap: 10px; padding: 10px; font-size: 12px; color: #A9A39A; }
 @media (max-width: 899px) { .viewer-bottom { display: none; } .viewer { grid-template-rows: auto 1fr; } }
 @media (prefers-reduced-motion: reduce) { .viewer { animation: none; } }
+
+/* ---- admin.css ---- */
+/* =====================================================================
+   ADMIN — back office on black wrap
+   ===================================================================== */
+.admin { display: grid; gap: 18px; }
+.admin-top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.admin-tabs { display: inline-flex; border: 1px solid var(--line); background: var(--surface); }
+.admin-tabs button { padding: 0 16px; height: 42px; font-weight: 500; color: var(--muted); }
+.admin-tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.admin-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.admin-tools .input { min-height: 42px; width: min(100%, 320px); }
+.admin-tools .select { min-height: 42px; width: auto; }
+.admin-table { display: grid; gap: 8px; }
+.arow { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 12px 14px; background: var(--surface); box-shadow: var(--sheet); cursor: pointer; align-items: center; }
+.arow:hover { box-shadow: var(--sheet-lift); }
+.arow .l { display: grid; gap: 2px; }
+.arow .ref { font-family: var(--f-display); font-size: 16px; letter-spacing: .04em; }
+.arow .who { font-size: 14px; }
+.arow .meta { font-size: 12px; color: var(--muted); }
+.arow .r { display: grid; gap: 6px; justify-items: end; }
+@media (min-width: 900px) { .arow { grid-template-columns: 150px 1.4fr 1fr 1fr auto; } .arow .r { justify-items: end; } }
+.adetail { display: grid; gap: 16px; }
+.adetail .kv { grid-template-columns: 130px 1fr; }
+.adetail .hand { background: #FBFAF7; border: 1px solid #E6E2DA; padding: 14px 16px; }
+.adetail .refimg { max-width: 220px; border: 1px solid var(--line); }
+.status-set { display: flex; flex-wrap: wrap; gap: 6px; }
+.status-set button { font-size: 12px; font-weight: 600; padding: 6px 10px; border: 1px solid var(--line); background: var(--surface); }
+.status-set button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.day-view { display: grid; gap: 14px; }
+.day-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.day-col { display: grid; gap: 8px; }
+.day-slot { display: grid; grid-template-columns: 110px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 14px; }
+.day-slot .t { color: var(--muted); font-variant-numeric: tabular-nums; }
+.day-slot .items { display: grid; gap: 4px; }
+.day-slot .cap { font-size: 12px; color: var(--muted); }
+.settings-grid { display: grid; gap: 16px; }
+@media (min-width: 900px) { .settings-grid { grid-template-columns: 1fr 1fr; } }
+.settings-card { background: var(--surface); box-shadow: var(--sheet); padding: 18px; display: grid; gap: 12px; }
+.settings-card h3 { font-size: 16px; font-weight: 600; }
+.blackouts { display: flex; flex-wrap: wrap; gap: 6px; }
+.blackouts .chip { cursor: pointer; }
+.pin-gate { max-width: 420px; margin-inline: auto; display: grid; gap: 14px; background: var(--surface); box-shadow: var(--sheet-stack); padding: 28px; }
+.backend-pill { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); padding: 6px 10px; border: 1px solid var(--line); }
+.backend-pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--sun); }
+.backend-pill.online i { background: #8FD19E; }
+@media print { #topstrip, #header, #footer, #doorstep, .admin-top, .admin-tools, .status-set, .btn { display: none !important; } body { background: #fff; } .adetail { box-shadow: none; } }
+
+/* Google Sheet delivery status */
+.sheet-state { font-size: 13px; color: var(--muted); border-left: 3px solid var(--line); padding: 6px 10px; margin-bottom: 10px; background: var(--paper-2); }
+.sheet-state.ok { border-left-color: var(--euca); color: var(--ink); }
+.sheet-state.warn { border-left-color: var(--rose); color: var(--ink); }
+.sheet-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
 
 /* ---- privacy.css ---- */
 /* =====================================================================
@@ -1078,7 +1215,7 @@ body[data-route] { padding-bottom: 0; }
 @keyframes bandPass { 0% { transform: translateX(110%) rotate(-3deg); } 100% { transform: translateX(-110%) rotate(-3deg); } }
 @media (prefers-reduced-motion: reduce) {
   .rv-wait { opacity: 1; transform: none; transition: none; }
-  .page-enter { animation: none; }
+  .page-enter, .lang-fade { animation: none; }
   .ribbon-pass { display: none; }
   .pcard, .pcard-media img, .occ-card, .mtile .pic img, .tlink, .btn { transition: none !important; animation: none !important; }
   .hero-scale { animation: none; transform: none; }
@@ -1097,8 +1234,8 @@ body[data-route] { padding-bottom: 0; }
 <div id="topstrip"></div>
 <header id="header"></header>
 <main id="main" tabindex="-1"></main>
+<nav id="doorstep" aria-label="Quick contact"></nav>
 <footer id="footer"></footer>
-<nav id="doorstep" aria-label="Quick actions"></nav>
 <div id="sheets"></div>
 <div id="toasts" aria-live="polite" aria-atomic="true"></div>
 <div id="transition" aria-hidden="true"></div>
@@ -1128,6 +1265,9 @@ LHF.util = (function () {
         else if (tok[0] === '#') el.id = tok.slice(1);
       });
     }
+    /* a textarea shows its value property, never a value attribute, and a select
+       can only take a value once its options exist: both are set after the children */
+    let liveValue;
     if (attrs) {
       for (const k in attrs) {
         const v = attrs[k];
@@ -1135,7 +1275,9 @@ LHF.util = (function () {
         if (typeof v === 'boolean' && (k.indexOf('aria-') === 0 || k === 'aria-selected')) { el.setAttribute(k, v ? 'true' : 'false'); continue; }
         if (v == null || v === false) continue;
         if (k === 'class' || k === 'className') { String(v).split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c)); }
-        else if (k === 'style' && typeof v === 'object') { Object.assign(el.style, v); }
+        else if (k === 'value' && (el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) { liveValue = String(v); }
+        /* CSSStyleDeclaration ignores '--custom' keys on assignment; they need setProperty */
+        else if (k === 'style' && typeof v === 'object') { for (const p in v) { if (p.startsWith('--')) { if (v[p] != null) el.style.setProperty(p, String(v[p])); } else el.style[p] = v[p]; } }
         else if (k === 'data' && typeof v === 'object') { for (const d in v) if (v[d] != null) el.dataset[d] = v[d]; }
         else if (k === 'aria' && typeof v === 'object') { for (const a in v) if (v[a] != null) el.setAttribute('aria-' + a, typeof v[a] === 'boolean' ? String(v[a]) : v[a]); }
         else if (k.startsWith('on') && typeof v === 'function') { el.addEventListener(k.slice(2).toLowerCase(), v); }
@@ -1146,6 +1288,7 @@ LHF.util = (function () {
       }
     }
     append(el, children);
+    if (liveValue !== undefined) el.value = liveValue;
     return el;
   }
   function append(el, children) {
@@ -1450,14 +1593,47 @@ LHF.router = (function () {
   function onLeave(fn) { leaving.push(fn); }
   function runLeave() { const fns = leaving; leaving = []; fns.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } }); }
 
+  /* Every history entry gets an id the first time it renders. An entry that
+     already has one is being revisited with Back or Forward, so its scroll
+     position comes back; a fresh entry (a link, a typed URL) starts at the top.
+     (popstate cannot tell the two apart: fragment links fire it too.) */
+  const entryId = () => { try { return (history.state && history.state.lhf) || ''; } catch (e) { return ''; } };
+  function stamp() {
+    const id = U.uid();
+    try { history.replaceState(Object.assign({}, history.state || {}, { lhf: id }), ''); } catch (e) { return ''; }
+    return entryId() === id ? id : '';
+  }
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+
+  /* An instant jump: html has scroll-behavior: smooth, which would otherwise
+     slide the new page up past the reader. */
+  function jumpTo(y) {
+    const html = document.documentElement, was = html.style.scrollBehavior;
+    html.style.scrollBehavior = 'auto';
+    void getComputedStyle(html).scrollBehavior; /* apply it before the scroll reads it */
+    try { window.scrollTo({ top: y, left: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, y); }
+    html.style.scrollBehavior = was;
+  }
+  /* A full-screen overlay belongs to the page that opened it: leaving the page
+     (Back included) closes it, and with it the scroll lock. */
+  function closeOverlays() {
+    [LHF.viewer && LHF.viewer.close, LHF.ui && LHF.ui.closeSheet, LHF.nav && LHF.nav.closeMenu].forEach((fn) => { try { if (fn) fn(); } catch (e) { console.error(e); } });
+  }
+
   async function render() {
     const { path, query } = parse(location.hash);
     const m = match(path) || match('/404');
     if (!m) return;
-    runLeave();
     const prev = current;
-    if (prev) scrollMemory.set(prev.path, window.scrollY);
-    current = { path, params: m.params, query, route: m.route };
+    /* the same entry drawn again (a language switch): no scroll, no focus move */
+    const rerender = !!prev && (prev.entry ? prev.entry === entryId() : prev.hash === location.hash);
+    if (!rerender) closeOverlays();
+    runLeave();
+    if (prev && prev.entry) scrollMemory.set(prev.entry, window.scrollY);
+    let entry = entryId();
+    const revisit = !!entry && !rerender;
+    if (!entry) entry = stamp();
+    current = { path, params: m.params, query, route: m.route, hash: location.hash, entry };
     for (const fn of beforeHooks) { try { await fn(current, prev); } catch (e) { console.error(e); } }
 
     const run = async () => {
@@ -1468,12 +1644,11 @@ LHF.router = (function () {
       if (node) outlet.appendChild(node);
       outlet.dataset.route = m.route.pattern;
       document.body.dataset.route = (m.route.opts.name || m.route.pattern.replace(/[^a-z]/gi, '') || 'home');
-      const wantScroll = (query.s === 'keep') ? scrollMemory.get(path) : null;
-      if (!(opts_skipScroll(current))) {
-        window.scrollTo({ top: wantScroll != null ? wantScroll : 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-      }
+      if (!rerender && !opts_skipScroll(current)) jumpTo(revisit && scrollMemory.has(entry) ? scrollMemory.get(entry) : 0);
+      /* focus moves to the new page's heading on navigation only: the first load
+         leaves it at the top of the document, so the skip link is the first Tab */
       const focusTarget = outlet.querySelector('[data-autofocus]') || outlet.querySelector('h1');
-      if (focusTarget) { focusTarget.setAttribute('tabindex', '-1'); focusTarget.focus({ preventScroll: true }); }
+      if (focusTarget && prev && !rerender) { focusTarget.setAttribute('tabindex', '-1'); focusTarget.focus({ preventScroll: true }); }
       if (m.route.opts.title) document.title = (typeof m.route.opts.title === 'function' ? m.route.opts.title(m.params) : m.route.opts.title) + ' — ' + LHF.data.shop.name;
       for (const fn of afterHooks) { try { fn(current, prev); } catch (e) { console.error(e); } }
     };
@@ -1536,6 +1711,9 @@ LHF.db = (function () {
       id: b.id, ref: b.ref, type: b.type, date: b.date, windowId: b.windowId, windowLabel: b.windowLabel, fulfil: b.fulfil,
       items: (b.items || []).map((i) => ({ productId: i.productId, name: i.name, nameTh: i.nameTh, qty: i.qty, unit: i.unit, line: i.line, kind: i.kind })),
       custom: c ? { style: c.style, occasion: c.occasion, budgetTier: c.budgetTier, budgetCustom: c.budgetCustom, fromProduct: c.fromProduct, hasReference: !!(c.hasReference || c.reference) } : null,
+      /* the orderer's own name and phone, so the back office on this phone can list the order;
+         never the recipient, the address or the card message */
+      customer: b.customer ? { name: b.customer.name || '', phone: b.customer.phone || '' } : null,
       colourNote: b.colourNote || '', subtotal: b.subtotal, quoteOnly: b.quoteOnly, hasQuote: b.hasQuote, priceFrom: b.priceFrom,
       lang: b.lang, status: b.status, createdAt: b.createdAt,
     };
@@ -1548,7 +1726,7 @@ LHF.db = (function () {
     const now = Date.now();
     const all = lsAll();
     const kept = all.filter((b) => b && b.id && now - (Date.parse(b.createdAt) || 0) < KEEP_MS).map(receipt);
-    if (kept.length !== all.length || all.some((b) => b && (b.customer || b.recipient || b.address || b.card))) { if (kept.length) lsSave(kept); else U.storage.del(LS.bookings); }
+    if (kept.length !== all.length || all.some((b) => b && (b.recipient || b.address || b.card || (b.customer && b.customer.line)))) { if (kept.length) lsSave(kept); else U.storage.del(LS.bookings); }
     U.storage.del(LS.settings);
     const d = LHF.store.get('draft');
     if (!d) return;
@@ -2963,6 +3141,16 @@ LHF.data.strings = {
   'notfound.sub': { th: 'กลับไปหน้าบ้านกันนะคะ', en: 'Head back to the house.' },
   'notfound.home': { th: 'กลับหน้าแรก', en: 'Back home' },
   'error.title': { th: 'มีบางอย่างผิดพลาดค่ะ', en: 'Something went wrong.' },
+  'nav.main': { th: 'เมนูหลัก', en: 'Main' },
+  'nav.home': { th: 'Little House Flower หน้าแรก', en: 'Little House Flower home' },
+  'door.label': { th: 'ติดต่อด่วน', en: 'Quick contact' },
+  'strip.label': { th: 'เวลาเปิดร้านและช่องทางติดต่อ', en: 'Opening hours and contact' },
+  'flowers.viewLabel': { th: 'มุมมอง', en: 'View' },
+  'flowers.listTitle': { th: 'รายการช่อดอกไม้', en: 'Bouquet list' },
+  'product.photo': { th: 'รูปที่ {i} จาก {n}', en: 'Photo {i} of {n}' },
+  'mean.found': { th: 'ดอกไม้ที่สื่อความหมายนี้ {n} ชนิด', en: 'Flowers that carry this meaning: {n}' },
+  'ig.count': { th: 'มี {n} โพสต์ในหมวดนี้', en: '{n} posts in this group' },
+  'ribbon.pause': { th: 'หยุดแถบข้อความที่เลื่อนอยู่', en: 'Pause the moving text' },
   'img.fallback': { th: 'ดูภาพบนอินสตาแกรม', en: 'See the photo on Instagram' },
   'heart.reserved': { th: 'ในคิวของคุณ', en: 'In your booking' },
   'heart.empty': { th: 'ยังไม่มีช่อในคิวค่ะ', en: 'Nothing in your booking yet.' },
@@ -2977,6 +3165,84 @@ LHF.data.strings = {
   'error.sub': { th: 'ลองเปิดหน้านี้อีกครั้ง หรือทัก LINE @littlehouseflower ได้เลยค่ะ', en: 'Please try the page again, or message us on LINE @littlehouseflower.' },
 
   /* --- privacy notice (/privacy) — PDPA; {name} {line} {phone} {email} {months} come from data/settings.js --- */
+  /* back office (reached at #/admin; not linked from the public pages) */
+  'seo.admin': { th: 'หลังร้าน', en: 'Back office' },
+  'nav.admin': { th: 'หลังร้าน', en: 'Back office' },
+  'admin.title': { th: 'หลังร้าน', en: 'Back office' },
+  'admin.sub': { th: 'คิว คำจอง และการตั้งค่า', en: 'Queue, reservations and settings' },
+  'admin.pin': { th: 'รหัสเข้าหลังร้าน', en: 'Back-office code' },
+  'admin.pinHint': { th: 'ใส่รหัสหลังร้าน 4 หลักค่ะ', en: 'Enter the 4-digit back-office code' },
+  'admin.enter': { th: 'เข้า', en: 'Enter' },
+  'admin.wrong': { th: 'รหัสไม่ถูกต้องค่ะ', en: 'Wrong code' },
+  'admin.tab.queue': { th: 'คิว', en: 'Queue' },
+  'admin.tab.day': { th: 'รายวัน', en: 'By day' },
+  'admin.tab.settings': { th: 'ตั้งค่า', en: 'Settings' },
+  'admin.search': { th: 'ค้นหา ชื่อ / เบอร์ / หมายเลข', en: 'Search name / phone / reference' },
+  'admin.filter.status': { th: 'สถานะ', en: 'Status' },
+  'admin.empty': { th: 'ยังไม่มีคำจองค่ะ', en: 'No reservations yet.' },
+  'admin.backend.artifact': { th: 'ฐานข้อมูลออนไลน์ (แชร์ในองค์กร)', en: 'Online store (shared within the organisation)' },
+  'admin.sheet.title': { th: 'Google Sheet ของร้าน', en: 'The shop\u2019s Google Sheet' },
+  'admin.sheet.endpoint': { th: '\u0e25\u0e34\u0e07\u0e01\u0e4c Web app (\u0e25\u0e07\u0e17\u0e49\u0e32\u0e22 /exec)', en: 'Web app URL (ends in /exec)' },
+  'admin.sheet.secret': { th: '\u0e23\u0e2b\u0e31\u0e2a\u0e25\u0e31\u0e1a \u0e15\u0e49\u0e2d\u0e07\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e43\u0e19\u0e2a\u0e04\u0e23\u0e34\u0e1b\u0e15\u0e4c', en: 'Shared secret \u2014 must match the script' },
+  'admin.sheet.enabled': { th: '\u0e2a\u0e48\u0e07\u0e04\u0e33\u0e08\u0e2d\u0e07\u0e40\u0e02\u0e49\u0e32 Google Sheet', en: 'Send reservations to the Google Sheet' },
+  'admin.sheet.live': { th: '\u0e2a\u0e48\u0e07\u0e40\u0e02\u0e49\u0e32 Sheet \u0e2d\u0e22\u0e39\u0e48', en: 'Delivering to the Sheet' },
+  'admin.sheet.off': { th: '\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32\u0e1b\u0e25\u0e32\u0e22\u0e17\u0e32\u0e07', en: 'No endpoint configured yet' },
+  'admin.sheet.blocked': { th: '\u0e2b\u0e19\u0e49\u0e32\u0e19\u0e35\u0e49\u0e2a\u0e48\u0e07\u0e2d\u0e2d\u0e01\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49 \u0e04\u0e49\u0e32\u0e07\u0e2d\u0e22\u0e39\u0e48 {n} \u0e23\u0e32\u0e22\u0e01\u0e32\u0e23', en: 'This page cannot send out \u00b7 {n} waiting' },
+  'admin.sheet.queued': { th: '\u0e23\u0e2d\u0e2a\u0e48\u0e07 {n}', en: '{n} queued' },
+  'admin.sheet.parked': { th: '\u0e2a\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08 {n}', en: '{n} stuck' },
+  'admin.sheet.dropped': { th: '\u0e2b\u0e25\u0e38\u0e14\u0e44\u0e1b {n} \u0e23\u0e32\u0e22\u0e01\u0e32\u0e23 \u0e43\u0e0a\u0e49\u0e1b\u0e38\u0e48\u0e21\u0e14\u0e32\u0e27\u0e19\u0e4c\u0e42\u0e2b\u0e25\u0e14 CSV', en: '{n} dropped \u2014 use the CSV download' },
+  'admin.sheet.lastOk': { th: '\u0e2a\u0e48\u0e07\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08\u0e25\u0e48\u0e32\u0e2a\u0e38\u0e14 {time}', en: 'Last delivered {time}' },
+  'admin.sheet.never': { th: '\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e40\u0e04\u0e22\u0e2a\u0e48\u0e07\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', en: 'Nothing delivered yet' },
+  'admin.sheet.retry': { th: '\u0e25\u0e2d\u0e07\u0e2a\u0e48\u0e07\u0e43\u0e2b\u0e21\u0e48', en: 'Retry now' },
+  'admin.sheet.backfill': { th: '\u0e2a\u0e48\u0e07\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e40\u0e02\u0e49\u0e32 Sheet', en: 'Send everything missing' },
+  'admin.sheet.backfillDone': { th: '\u0e40\u0e02\u0e49\u0e32\u0e04\u0e34\u0e27\u0e2a\u0e48\u0e07\u0e41\u0e25\u0e49\u0e27\u0e04\u0e48\u0e30', en: 'Queued for delivery' },
+  'admin.sheet.help': { th: '\u0e04\u0e33\u0e08\u0e2d\u0e07\u0e08\u0e30\u0e16\u0e39\u0e01\u0e2a\u0e48\u0e07\u0e40\u0e02\u0e49\u0e32 Google Sheet \u0e17\u0e31\u0e19\u0e17\u0e35\u0e17\u0e35\u0e48\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e01\u0e14\u0e2a\u0e48\u0e07 \u0e16\u0e49\u0e32\u0e2a\u0e48\u0e07\u0e44\u0e21\u0e48\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08 \u0e23\u0e30\u0e1a\u0e1a\u0e08\u0e30\u0e25\u0e2d\u0e07\u0e43\u0e2b\u0e21\u0e48\u0e43\u0e2b\u0e49\u0e40\u0e2d\u0e07\u0e41\u0e25\u0e30\u0e04\u0e49\u0e32\u0e07\u0e44\u0e27\u0e49\u0e15\u0e23\u0e07\u0e19\u0e35\u0e49', en: 'Reservations go to the Sheet the moment a customer sends one. Failed deliveries retry on their own and show here.' },
+  'admin.sheet.blockedHelp': { th: '\u0e2b\u0e19\u0e49\u0e32\u0e19\u0e35\u0e49\u0e40\u0e1b\u0e34\u0e14\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19 Claude Artifact \u0e0b\u0e36\u0e48\u0e07\u0e1b\u0e34\u0e14\u0e01\u0e31\u0e49\u0e19\u0e01\u0e32\u0e23\u0e2a\u0e48\u0e07\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e2d\u0e2d\u0e01\u0e17\u0e38\u0e01\u0e17\u0e32\u0e07 \u0e04\u0e33\u0e08\u0e2d\u0e07\u0e22\u0e31\u0e07\u0e16\u0e39\u0e01\u0e40\u0e01\u0e47\u0e1a\u0e04\u0e23\u0e1a\u0e43\u0e19\u0e23\u0e30\u0e1a\u0e1a \u0e41\u0e25\u0e30\u0e08\u0e30\u0e40\u0e02\u0e49\u0e32 Sheet \u0e40\u0e21\u0e37\u0e48\u0e2d\u0e40\u0e1b\u0e34\u0e14\u0e40\u0e27\u0e47\u0e1a\u0e44\u0e0b\u0e15\u0e4c\u0e08\u0e32\u0e01\u0e42\u0e2e\u0e2a\u0e15\u0e4c\u0e08\u0e23\u0e34\u0e07', en: 'This page runs inside a Claude Artifact, which blocks every outbound request. Reservations are still stored in full; they reach the Sheet when the site runs on its own host.' },
+  'admin.backend.local': { th: 'เก็บในเครื่องนี้เท่านั้น', en: 'Stored on this device only' },
+  'admin.export': { th: 'ส่งออก CSV', en: 'Export CSV' },
+  'admin.print': { th: 'พิมพ์ใบคิว', en: 'Print slip' },
+  'admin.notes': { th: 'โน้ตภายใน', en: 'Internal note' },
+  'admin.notesPh': { th: 'เห็นเฉพาะร้าน', en: 'Shop only' },
+  'admin.save': { th: 'บันทึก', en: 'Save' },
+  'admin.saved': { th: 'บันทึกแล้วค่ะ', en: 'Saved' },
+  'admin.payment': { th: 'การชำระเงิน', en: 'Payment' },
+  'admin.pay.unpaid': { th: 'ยังไม่ชำระ', en: 'Unpaid' },
+  'admin.pay.deposit': { th: 'มัดจำแล้ว', en: 'Deposit paid' },
+  'admin.pay.paid': { th: 'ชำระครบ', en: 'Paid' },
+  'admin.cap.title': { th: 'จำนวนคิว', en: 'Capacity' },
+  'admin.cap.orders': { th: 'คิวต่อวัน', en: 'Orders per day' },
+  'admin.cap.custom': { th: 'งานสั่งทำต่อวัน', en: 'Custom orders per day' },
+  'admin.cap.delivery': { th: 'ส่งต่อช่วงเวลา', en: 'Deliveries per window' },
+  'admin.cap.pickup': { th: 'รับต่อช่วงเวลา', en: 'Pick-ups per window' },
+  'admin.cap.cutoff': { th: 'เวลาปิดรับคิวสำหรับวันถัดไป (น.)', en: 'Cut-off hour for the next day' },
+  'admin.cap.lead': { th: 'สั่งล่วงหน้าอย่างน้อย (วัน)', en: 'Minimum lead (days)' },
+  'admin.blackout': { th: 'วันงดรับคิว', en: 'Blackout dates' },
+  'admin.blackout.add': { th: 'เพิ่มวัน', en: 'Add date' },
+  'admin.hd.title': { th: 'โหมดช่วงคิวแน่น', en: 'High-demand mode' },
+  'admin.hd.active': { th: 'เปิดใช้งาน', en: 'Active' },
+  'admin.hd.label': { th: 'ชื่อแคมเปญ', en: 'Campaign name' },
+  'admin.hd.deadline': { th: 'ปิดรับคิววันที่', en: 'Order deadline' },
+  'admin.hd.note': { th: 'ข้อความแจ้งลูกค้า', en: 'Customer notice' },
+  'admin.promo.title': { th: 'โปรโมชันและวันหมดอายุ', en: 'Promotions and expiry' },
+  'admin.promo.review': { th: 'โปรรีวิว 5%', en: '5% review promo' },
+  'admin.promo.priceValid': { th: 'ราคาใช้ได้ถึง', en: 'Prices valid until' },
+  'admin.addr.title': { th: 'ที่อยู่ร้าน', en: 'Shop address' },
+  'admin.addr.show': { th: 'แสดงที่อยู่เต็มบนเว็บ (หลังยืนยันกับร้าน)', en: 'Show the street address publicly (after confirming with the shop)' },
+  'admin.demo': { th: 'หน้านี้แสดงคำจองที่สั่งจากเครื่องนี้ · คำจองทุกรายการจากหน้าเว็บเข้า Google Sheet ของร้าน', en: 'This page shows reservations made on this device · Every reservation from the website arrives in the shop’s Google Sheet' },
+  'admin.day.none': { th: 'ไม่มีคิว', en: 'No queue' },
+  'admin.cardPrint': { th: 'ข้อความการ์ด (สำหรับเขียนมือ)', en: 'Card text (to handwrite)' },
+  'admin.customer': { th: 'ลูกค้า', en: 'Customer' },
+  'admin.recipient': { th: 'ผู้รับ', en: 'Recipient' },
+  'admin.address': { th: 'ที่อยู่', en: 'Address' },
+  'admin.ref': { th: 'รูปเรฟ', en: 'Reference' },
+  'admin.brief': { th: 'โจทย์', en: 'Brief' },
+  'admin.total': { th: 'ยอด', en: 'Total' },
+  'admin.delete': { th: 'ลบ', en: 'Delete' },
+  'admin.confirmDelete': { th: 'ลบคำจองนี้ถาวร?', en: 'Delete this reservation permanently?' },
+  'admin.windows': { th: 'ช่วงเวลา', en: 'Windows' },
+  'admin.budgets': { th: 'ช่วงงบในตัวช่วยจัดช่อ', en: 'Budget tiers in the builder' },
+  'admin.lineTemplate': { th: 'ข้อความสำหรับส่ง LINE', en: 'LINE message text' },
+  'admin.copy': { th: 'คัดลอก', en: 'Copy' },
   'privacy.link': { th: 'นโยบายความเป็นส่วนตัว', en: 'Privacy notice' },
   'privacy.eyebrow': { th: 'ความเป็นส่วนตัว', en: 'Privacy' },
   'privacy.title': { th: 'นโยบายความเป็นส่วนตัว', en: 'Privacy notice' },
@@ -3533,7 +3799,7 @@ LHF.ui = (function () {
   function head(opts) {
     const el = h('div.sec-head', { class: opts.className });
     if (opts.eyebrow) el.appendChild(h('div.eyebrow', opts.eyebrow));
-    if (opts.title) el.appendChild(h(opts.level || 'h2', { class: opts.titleClass || 'h2' }, thaiWrap(opts.title)));
+    if (opts.title) el.appendChild(h(opts.level || 'h2', { class: opts.titleClass || 'h2', id: opts.id }, thaiWrap(opts.title)));
     if (opts.sub) el.appendChild(h('p.lede', opts.sub));
     if (opts.action) el.appendChild(h('div.sec-action', opts.action));
     return el;
@@ -3548,16 +3814,36 @@ LHF.ui = (function () {
   /* ---- Thai line-breaking: insert <wbr> at word boundaries for long headings ---- */
   let segmenter = null;
   try { if (window.Intl && Intl.Segmenter) segmenter = new Intl.Segmenter('th', { granularity: 'word' }); } catch (e) { segmenter = null; }
+  /* compounds the word segmenter splits (ความ|หมาย, การ์ด|ข้อความ) but a Thai
+     reader never would: each is kept on one line */
+  const THAI_KEEP = ['ความหมาย', 'การ์ดข้อความ', 'ล่วงหน้า', 'ครบรอบ', 'เยี่ยมไข้', 'เยอบีร่า', 'รับปริญญา', 'ดอกไม้'];
+  const KEEP_RE = new RegExp('(' + THAI_KEEP.slice().sort((a, b) => b.length - a.length).join('|') + ')');
   function thaiWrap(text) {
     if (typeof text !== 'string') return text;
     if (LHF.i18n.lang !== 'th' || !segmenter || !/[฀-๿]/.test(text)) return text;
     const frag = document.createDocumentFragment();
     let buf = '';
-    for (const seg of segmenter.segment(text)) {
-      if (seg.isWordLike) { if (buf) { frag.appendChild(document.createTextNode(buf)); buf = ''; frag.appendChild(document.createElement('wbr')); } frag.appendChild(document.createTextNode(seg.segment)); }
-      else buf += seg.segment;
-    }
-    if (buf) frag.appendChild(document.createTextNode(buf));
+    const flush = () => { if (buf) { frag.appendChild(document.createTextNode(buf)); buf = ''; } };
+    text.split(KEEP_RE).forEach((part, i) => {
+      if (!part) return;
+      if (i % 2) { if (buf) { flush(); frag.appendChild(document.createElement('wbr')); } frag.appendChild(h('span.nowrap', part)); return; }
+      for (const seg of segmenter.segment(part)) {
+        if (seg.isWordLike) { if (buf) { flush(); frag.appendChild(document.createElement('wbr')); } frag.appendChild(document.createTextNode(seg.segment)); }
+        else buf += seg.segment;
+      }
+    });
+    flush();
+    return frag;
+  }
+  /* A two-sentence headline sets each sentence (Thai: each spaced phrase) as its
+     own unit, so a new sentence never starts at the end of a line ("… The /
+     card is free."). A unit still wraps inside itself when it has to. */
+  function phrases(text) {
+    if (typeof text !== 'string') return text;
+    const parts = LHF.i18n.lang === 'th' ? text.split(/\s+/) : text.replace(/([.!?])\s+/g, '$1\n').split('\n');
+    if (parts.length < 2) return thaiWrap(text);
+    const frag = document.createDocumentFragment();
+    parts.forEach((p, i) => { if (i) frag.appendChild(document.createTextNode(' ')); frag.appendChild(h('span.phrase', thaiWrap(p))); });
     return frag;
   }
 
@@ -3587,7 +3873,15 @@ LHF.ui = (function () {
     opts = opts || {};
     const el = h('div.toast', { role: 'status' }, opts.heart ? heartTag('sm flat') : null, h('span', msg), opts.href ? h('a', { href: opts.href, onClick: () => el.remove() }, opts.label || t('more')) : null);
     U.qs('#toasts').appendChild(el);
-    setTimeout(() => { el.classList.add('is-out'); setTimeout(() => el.remove(), 220); }, opts.ms || 3200);
+    /* a toast with a link stays long enough to reach it by keyboard, and never
+       leaves while the pointer or focus is on it */
+    const life = opts.ms || (opts.href ? 8000 : 3200);
+    let timer;
+    const arm = () => { clearTimeout(timer); timer = setTimeout(() => { el.classList.add('is-out'); setTimeout(() => el.remove(), 220); }, life); };
+    const hold = () => clearTimeout(timer);
+    el.addEventListener('mouseenter', hold); el.addEventListener('mouseleave', arm);
+    el.addEventListener('focusin', hold); el.addEventListener('focusout', arm);
+    arm();
     return el;
   }
 
@@ -3651,7 +3945,30 @@ LHF.ui = (function () {
   /* ---- LINE deep link with prefilled text (LINE OA links cannot prefill; we copy text + open) ---- */
   function lineHref() { return LHF.data.shop.lineUrl; }
 
-  return { icon, heartTag, head, link, btn, thaiWrap, sheet, closeSheet, toast, reveal, openState, openBadge, priceLabel, sizeLabel, leadLabel, lineHref };
+  /* ---- mixed-language text ----
+     Flower headwords, hashtags, district names, reel quotes and the like stay
+     in one language whatever the site language is. Where such an element is
+     wholly in the other script it gets its own lang, so a screen reader reads
+     it with the right voice. Runs after every change to the page. */
+  const LANG_SEL = '.headword, .entry-th, .tag-line, .route li, .zone, .voice > span, .quote-tile > span, .mtile.quote > span, .avatar-row a > span, .eyebrow, .pcard-name, .product-title, .ledger-name, .ribbon-item';
+  const TH_CHARS = /[฀-๿]/, LATIN_CHARS = /[A-Za-z]/;
+  function markLang(root) {
+    const lang = LHF.i18n.lang;
+    U.qsa(LANG_SEL, root).forEach((el) => {
+      const auto = el.hasAttribute('data-lang-auto');
+      if (el.hasAttribute('lang') && !auto) return;
+      const s = el.textContent, th = TH_CHARS.test(s), la = LATIN_CHARS.test(s);
+      const want = lang === 'en' && th && !la ? 'th' : lang === 'th' && la && !th ? 'en' : '';
+      if (want) { el.setAttribute('lang', want); el.setAttribute('data-lang-auto', ''); }
+      else if (auto) { el.removeAttribute('lang'); el.removeAttribute('data-lang-auto'); }
+    });
+  }
+  /* the 5px ribbon sample on /story is a picture of the ribbon, not text to read */
+  function markDecor(root) { U.qsa('.ribbon-mini:not([aria-hidden])', root).forEach((el) => el.setAttribute('aria-hidden', 'true')); }
+  /* the observer's callback is a microtask, so the marks land before paint */
+  if (window.MutationObserver) new MutationObserver(() => { markLang(document); markDecor(document); }).observe(document.body, { childList: true, subtree: true });
+
+  return { icon, heartTag, head, link, btn, thaiWrap, phrases, sheet, closeSheet, toast, reveal, openState, openBadge, priceLabel, sizeLabel, leadLabel, lineHref, markLang };
 })();
 
 /* ---- components/heart.js ---- */
@@ -3698,12 +4015,15 @@ LHF.heart = (function () {
   function count() { const d = LHF.store.draft(); const items = (d.items || []).reduce((a, i) => a + (i.qty || 1), 0); return items + (d.type === 'custom' ? 1 : 0); }
   function badge() {
     const el = h('a.heart-badge.icon-btn', { href: LHF.router.href('/order'), 'aria-label': t('heart.reserved') }, LHF.ui.heartTag('sm'), h('span.count', { hidden: true }));
-    badges.add(el); refresh();
+    /* drop badges from an earlier header; the new one is not in the page yet,
+       so it is kept and filled by nav.mountAll's refresh once it is */
+    badges.forEach((b) => { if (!b.isConnected) badges.delete(b); });
+    badges.add(el);
     return el;
   }
   function refresh(popIt) {
     const n = count();
-    badges.forEach((b) => { if (!b.isConnected) return badges.delete(b); const c = b.querySelector('.count'); c.textContent = n; c.hidden = n === 0; b.setAttribute('aria-label', t('heart.reserved') + (n ? ' (' + n + ')' : '')); if (popIt) { const tag = b.querySelector('.heart-tag'); tag.classList.remove('pop'); void tag.offsetWidth; tag.classList.add('pop'); } });
+    badges.forEach((b) => { if (!b.isConnected) return; const c = b.querySelector('.count'); c.textContent = n; c.hidden = n === 0; b.setAttribute('aria-label', t('heart.reserved') + (n ? ' (' + n + ')' : '')); if (popIt) { const tag = b.querySelector('.heart-tag'); tag.classList.remove('pop'); void tag.offsetWidth; tag.classList.add('pop'); } });
   }
   LHF.store.subscribe('draft', () => refresh());
 
@@ -3748,12 +4068,15 @@ LHF.heart = (function () {
     const ta = h('textarea.textarea.hand', { placeholder: t('mean.lookupPh'), 'aria-label': t('mean.lookupTitle'), rows: 3, maxlength: 200, 'data-autofocus': true, value: prefill || '' });
     const note = h('p.tiny', t('book.card.sub'));
     const noMatch = h('p.small.euca', { hidden: true }, t('mean.noMatch'), ' ', h('a.tlink', { href: LHF.router.href('/custom'), onClick: () => LHF.ui.closeSheet() }, t('nav.custom')));
+    /* results appear as the customer types: a screen reader hears the outcome */
+    const status = h('p.sr-only', { role: 'status' });
     let timer;
     const run = () => {
       const text = ta.value;
       const found = lookup(text);
       U.empty(results);
       noMatch.hidden = !(text.trim().length > 3 && !found.length);
+      status.textContent = found.length ? t('mean.found', { n: found.length }) : (noMatch.hidden ? '' : t('mean.noMatch'));
       found.forEach((e, i) => {
         const p = e.products[0];
         const row = h('li', h('a.lookup-row', { href: p ? LHF.router.href('/flowers/' + p.slug) : LHF.router.href('/meanings'), style: { '--d': i * 60 + 'ms' }, onClick: () => { LHF.store.setDraft({ card: { message: ta.value } }); LHF.ui.closeSheet(); } },
@@ -3764,7 +4087,7 @@ LHF.heart = (function () {
     };
     ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 220); });
     const use = LHF.ui.btn(t('card.sheet.use'), { className: 'btn-primary', onClick: () => { LHF.store.setDraft({ card: { message: ta.value } }); fly(ta); LHF.ui.closeSheet(); LHF.router.navigate('/order', { step: 'card' }); } });
-    const content = h('div.stack', h('div.card-paper.card-input', LHF.ui.heartTag('sm'), ta), note, results, noMatch, h('div.center', use));
+    const content = h('div.stack', h('div.card-paper.card-input', LHF.ui.heartTag('sm'), ta), note, results, noMatch, status, h('div.center', use));
     const s = LHF.ui.sheet({ title: t('card.sheet.title'), sub: t('card.sheet.sub'), content });
     if (prefill) run();
     return s;
@@ -3804,9 +4127,9 @@ LHF.nav = (function () {
 
   function header() {
     const cur = (R.current && R.current.path) || '/';
-    const nav = h('nav.nav-main', { 'aria-label': 'Main' }, LINKS.map((l) => h('a', { href: R.href(l.path), class: cur.startsWith(l.path) ? 'is-active' : '' }, t(l.key))));
+    const nav = h('nav.nav-main', { 'aria-label': t('nav.main') }, LINKS.map((l) => h('a', { href: R.href(l.path), class: cur.startsWith(l.path) ? 'is-active' : '' }, t(l.key))));
     const el = h('div.wrap', h('div.header-in',
-      h('a.logo', { href: R.href('/'), 'aria-label': 'Little House Flowers — home' }, LHF.img.el('logo_sm', { alt: '', eager: true }), h('span.word', 'Little House', h('small', 'Flower · Nonthaburi'))),
+      h('a.logo', { href: R.href('/'), 'aria-label': t('nav.home') }, LHF.img.el('logo_sm', { alt: '', eager: true }), h('span.word', 'Little House', h('small', 'Flower', h('span.where', ' · Nonthaburi')))),
       nav,
       h('div.header-right',
         h('button.icon-btn.only-desktop', { type: 'button', 'aria-label': t('nav.writeCard'), title: t('nav.writeCard'), onClick: () => LHF.heart.cardSheet() }, ui.icon('mail')),
@@ -3820,22 +4143,33 @@ LHF.nav = (function () {
   /* the other language's label, so the menu reads bilingually */
   const other = (key) => { const e = LHF.data.strings[key] || {}; return LHF.i18n.lang === 'th' ? e.en : e.th; };
   let menu = null;
+  function menuContent() {
+    return [
+      h('div.top', h('a.logo', { href: R.href('/'), 'aria-label': t('nav.home'), onClick: closeMenu }, LHF.img.el('logo_sm', { alt: '' }), h('span.word', 'Little House', h('small', 'Flower'))), h('div.center', langSwitch(), h('button.close-x', { type: 'button', 'aria-label': t('nav.close'), onClick: closeMenu }, ui.icon('close')))),
+      h('nav', { 'aria-label': t('nav.main') }, LINKS.map((l) => h('a', { href: R.href(l.path), onClick: closeMenu }, t(l.key), h('small', { lang: LHF.i18n.lang === 'th' ? 'en' : 'th' }, other(l.key)))), h('a', { href: R.href('/order'), onClick: closeMenu }, t('nav.reserve'), h('small', { lang: LHF.i18n.lang === 'th' ? 'en' : 'th' }, other('nav.reserve')))),
+      h('div.facts', h('div', ui.openBadge(), ' · ', t('strip.hours')), h('div', t('strip.zone')), h('div', 'LINE ', S.lineId, ' · ', S.phoneDisplay)),
+      h('div.socials', social('ig'), social('fb'), social('line'))];
+  }
   function openMenu() {
     if (menu) return closeMenu();
     const prev = document.activeElement;
-    menu = h('div.menu-sheet', { role: 'dialog', 'aria-modal': 'true', 'aria-label': t('nav.menu') },
-      h('div.top', h('a.logo', { href: R.href('/'), onClick: closeMenu }, LHF.img.el('logo_sm', { alt: '' }), h('span.word', 'Little House', h('small', 'Flower'))), h('div.center', langSwitch(), h('button.close-x', { type: 'button', 'aria-label': t('nav.close'), onClick: closeMenu }, ui.icon('close')))),
-      h('nav', { 'aria-label': 'Main' }, LINKS.map((l) => h('a', { href: R.href(l.path), onClick: closeMenu }, t(l.key), h('small', { lang: LHF.i18n.lang === 'th' ? 'en' : 'th' }, other(l.key)))), h('a', { href: R.href('/order'), onClick: closeMenu }, t('nav.reserve'), h('small', { lang: LHF.i18n.lang === 'th' ? 'en' : 'th' }, other('nav.reserve')))),
-      h('div.facts', h('div', ui.openBadge(), ' · ', t('strip.hours')), h('div', t('strip.zone')), h('div', 'LINE ', S.lineId, ' · ', S.phoneDisplay)),
-      h('div.socials', social('ig'), social('fb'), social('line')));
+    menu = h('div.menu-sheet', { role: 'dialog', 'aria-modal': 'true', 'aria-label': t('nav.menu') }, menuContent());
     document.body.appendChild(menu);
     document.body.style.overflow = 'hidden';
     const mw = U.qs('.menu-word'); if (mw) mw.setAttribute('aria-expanded', 'true');
     const onKey = (e) => { if (e.key === 'Escape') closeMenu(); };
     document.addEventListener('keydown', onKey);
     menu._untrap = U.trapFocus(menu); menu._onKey = onKey; menu._prev = prev;
-    requestAnimationFrame(() => menu.querySelector('.close-x').focus());
+    requestAnimationFrame(() => { const x = menu && menu.querySelector('.close-x'); if (x) x.focus(); });
   }
+  /* switching language inside the open menu redraws the menu in place, in the
+     new language, with focus back on the language switch */
+  LHF.i18n.onChange(() => {
+    if (!menu) return;
+    U.append(U.empty(menu), menuContent());
+    menu.setAttribute('aria-label', t('nav.menu'));
+    const on = menu.querySelector('.lang-switch [aria-pressed="true"]'); if (on) on.focus();
+  });
   function closeMenu() {
     if (!menu) return;
     document.removeEventListener('keydown', menu._onKey); menu._untrap(); menu.remove(); document.body.style.overflow = '';
@@ -3859,10 +4193,20 @@ LHF.nav = (function () {
 
   function mountAll() {
     const top = U.qs('#topstrip'), head = U.qs('#header'), door = U.qs('#doorstep');
+    /* a language switch rebuilds the header: keep focus on the switch that was used */
+    const a = document.activeElement, keepLang = a && a.closest && a.closest('#header .lang-switch') ? a.getAttribute('lang') : null;
     U.empty(top).appendChild(topstrip());
     U.empty(head).appendChild(header());
     U.empty(door).appendChild(doorstep());
     LHF.heart.refresh();
+    /* landmark names follow the language; the strip sits outside <header>, so
+       it is a landmark of its own */
+    door.setAttribute('aria-label', t('door.label'));
+    top.setAttribute('role', 'complementary'); top.setAttribute('aria-label', t('strip.label'));
+    /* the skip link points at the content, not at the home route */
+    const skip = U.qs('#skiplink'); if (skip) skip.setAttribute('href', '#main');
+    if (menu) { const mw = U.qs('.menu-word'); if (mw) mw.setAttribute('aria-expanded', 'true'); }
+    if (keepLang) { const b = U.qs('#header .lang-switch [lang="' + keepLang + '"]'); if (b) b.focus(); }
   }
   return { mountAll, LINKS, social, closeMenu };
 })();
@@ -3929,14 +4273,14 @@ LHF.cards = (function () {
     const href = R.href('/flowers/' + p.slug);
     const media = p.image
       ? h('div.pcard-media', { style: { '--ar': ratioFor(p), '--pos': p.portrait ? '50% 30%' : '50% 35%' } }, ui.heartTag('sm'), availabilityTag(p), LHF.img.pic(p.image, { eager: opts.eager }),
-          p.size && !opts.noRuler ? h('div.pcard-ruler', h('span', 'H' + p.size.h)) : null)
+          p.size && !opts.noRuler ? h('div.pcard-ruler', { 'aria-hidden': 'true' }, h('span', 'H' + p.size.h)) : null)
       : h('div.pcard-media.pcard-noimg', { style: { '--ar': 0.9 } }, p.thumb ? LHF.img.el(p.thumb, { alt: '' }) : ui.heartTag('lg'), h('span.small', t('product.noPhoto')));
     const el = h('article.pcard', { 'data-id': p.id },
       media,
       h('div.pcard-body',
         h('h3.pcard-name', pick(p.name)),
         h('p.pcard-meaning', meaningLine(p)),
-        h('div.pcard-foot', h('span.pcard-size', p.size ? ui.sizeLabel(p) : (p.pricing === 'quote' ? t('avail.quote') : '')), h('span.pcard-price.price.price-md', ui.priceLabel(p))),
+        h('div.pcard-foot', h('span.pcard-size', p.size ? ui.sizeLabel(p) : ''), h('span.pcard-price.price.price-md', ui.priceLabel(p))),
         opts.micro !== false && LHF.catalog.customisable(p) ? h('div.pcard-micro', p.pricing === 'tiers' ? pick(p.notes) : t('product.customise')) : null),
       h('a.cover', { href, 'aria-label': pick(p.name) }));
     return el;
@@ -3948,7 +4292,13 @@ LHF.cards = (function () {
       p.image ? LHF.img.el(p.image, { alt: '' }) : h('span.thumb-empty', ui.heartTag('sm')),
       h('div', h('div.ledger-name', pick(p.name)), h('div.ledger-meta', (p.flowers || []).slice(0, 4).map((f) => pick(LHF.catalog.flower(f) || {})).join(' · '))),
       h('div.ledger-meta.only-desktop', p.size ? ui.sizeLabel(p) : (p.availability === 'seasonal' ? t('avail.seasonal') : ''), p.leadNote ? h('span', ' · ', t('lead.handmade')) : null),
-      h('div.ledger-price', h('span.price.price-md', ui.priceLabel(p)), p.pricing === 'tiers' ? h('span.sub', '4–7: ' + LHF.i18n.fmtPrice(220) + ' · 8–11: ' + LHF.i18n.fmtPrice(200) + ' · 12+: ' + LHF.i18n.fmtPrice(180)) : (p.pricing === 'range' ? h('span.sub', t('avail.seasonal')) : null)));
+      h('div.ledger-price', h('span.price.price-md', ui.priceLabel(p)), p.pricing === 'tiers' ? h('span.sub', tierLine(p)) : (p.pricing === 'range' ? h('span.sub', t('avail.seasonal')) : null)));
+  }
+  /* the quantity breaks after the first tier, read from the catalogue so the
+     price list and the product page can never disagree */
+  function tierLine(p) {
+    const tiers = p.tiers || [];
+    return tiers.slice(1).map((tr, i) => { const next = tiers[i + 2]; return (next ? tr.min + '–' + (next.min - 1) : tr.min + '+') + ': ' + LHF.i18n.fmtPrice(tr.price); }).join(' · ');
   }
 
   function grid(products, opts) {
@@ -4103,7 +4453,7 @@ LHF.viewer = (function () {
     close();
     const prevFocus = document.activeElement;
     state = { posts, i: index || 0, slide: 0 };
-    const root = h('div.viewer', { role: 'dialog', 'aria-modal': 'true', 'aria-label': t('ig.title') });
+    const root = h('div.viewer', { role: 'dialog', 'aria-modal': 'true', 'aria-label': t('ig.title'), tabindex: -1 });
     document.body.appendChild(root);
     document.body.style.overflow = 'hidden';
     const onKey = (e) => { if (e.key === 'Escape') close(); if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev(); };
@@ -4118,7 +4468,9 @@ LHF.viewer = (function () {
     if (state.prevFocus && state.prevFocus.focus) state.prevFocus.focus({ preventScroll: true });
     state = null;
   }
-  function refocus(sel) { const el = state && state.root.querySelector(sel); if (el) el.focus({ preventScroll: true }); }
+  /* below 900px the arrow buttons are hidden, so focus stays on the dialog itself
+     rather than falling out to the page */
+  function refocus(sel) { if (!state) return; const el = state.root.querySelector(sel); (el && el.offsetParent !== null ? el : state.root).focus({ preventScroll: true }); }
   function next() { if (!state) return; const p = state.posts[state.i]; if (p.images.length > 1 && state.slide < p.images.length - 1) { state.slide++; } else { state.i = (state.i + 1) % state.posts.length; state.slide = 0; } render(); refocus('.viewer-nav.next'); }
   function prev() { if (!state) return; const p = state.posts[state.i]; if (state.slide > 0) { state.slide--; } else { state.i = (state.i - 1 + state.posts.length) % state.posts.length; const q = state.posts[state.i]; state.slide = q.images.length - 1; } render(); refocus('.viewer-nav.prev'); }
 
@@ -4174,7 +4526,7 @@ LHF.pages.home = function () {
     h('div.hero-in',
       h('div.hero-copy',
         h('div.eyebrow', { 'data-reveal': true }, t('hero.eyebrow')),
-        h('h1.display#hero-title', { 'data-reveal': true }, ui.thaiWrap(t('hero.title'))),
+        h('h1.display#hero-title', { 'data-reveal': true }, ui.phrases(t('hero.title'))),
         h('p.lede', { 'data-reveal': true }, t('hero.sub')),
         h('div.hero-ctas', { 'data-reveal': true },
           ui.btn(t('hero.cta'), { className: 'btn-primary btn-lg', href: R.href('/order') }),
@@ -4192,20 +4544,20 @@ LHF.pages.home = function () {
   /* ---- today's bouquets ---- */
   const featured = LHF.catalog.featured().filter((p) => p.image);
   page.appendChild(h('section.section', { 'aria-labelledby': 'today-title' }, h('div.wrap',
-    h('div.sec-head-row', ui.head({ eyebrow: t('home.today.eyebrow'), title: t('home.today.title'), sub: t('home.today.note') }), h('div.only-desktop', ui.link(R.href('/flowers'), t('home.today.all')))),
+    h('div.sec-head-row', ui.head({ eyebrow: t('home.today.eyebrow'), title: t('home.today.title'), sub: t('home.today.note'), id: 'today-title' }), h('div.only-desktop', ui.link(R.href('/flowers'), t('home.today.all')))),
     h('div.rail.rail-bleed', { 'data-reveal-group': true }, featured.map((p, i) => LHF.cards.card(p, { eager: i < 2 }))),
     h('div.only-mobile', { style: { marginTop: '12px' } }, ui.link(R.href('/flowers'), t('home.today.all'))))));
 
   /* ---- meanings ---- */
   const entries = LHF.heart.allEntries().slice(0, 4);
   page.appendChild(h('section.section.meaning-band', { 'aria-labelledby': 'mean-title' }, h('div.wrap',
-    ui.head({ eyebrow: t('home.meaning.eyebrow'), title: t('home.meaning.title'), sub: t('home.meaning.sub') }),
+    ui.head({ eyebrow: t('home.meaning.eyebrow'), title: t('home.meaning.title'), sub: t('home.meaning.sub'), id: 'mean-title' }),
     h('div.entries', { 'data-reveal-group': true }, entries.map(entryCard)),
     h('div', { style: { marginTop: '22px', display: 'flex', gap: '16px', flexWrap: 'wrap' } }, ui.link(R.href('/meanings'), t('home.meaning.all')), h('button.tlink', { type: 'button', onClick: () => LHF.heart.cardSheet() }, t('nav.writeCard'), ui.icon('mail', 16))))));
 
   /* ---- occasions ---- */
   page.appendChild(h('section.section', { 'aria-labelledby': 'occ-title' }, h('div.wrap',
-    ui.head({ eyebrow: t('home.occ.eyebrow'), title: t('home.occ.title') }),
+    ui.head({ eyebrow: t('home.occ.eyebrow'), title: t('home.occ.title'), id: 'occ-title' }),
     h('div.occ-list', { 'data-reveal-group': true }, LHF.catalog.occasions.slice(0, 6).map(occCard)),
     h('div', { style: { marginTop: '18px' } }, ui.link(R.href('/occasions'), t('occ.title'))))));
 
@@ -4226,7 +4578,7 @@ LHF.pages.home = function () {
   const tiles = [];
   heldPosts.forEach((p, i) => { tiles.push(heldTile(p, i)); if (i === 2 && quotes[0]) tiles.push(quoteTile(quotes[0])); if (i === 5 && quotes[1]) tiles.push(quoteTile(quotes[1])); });
   page.appendChild(h('section.section', { 'aria-labelledby': 'held-title' }, h('div.wrap',
-    h('div.sec-head-row', ui.head({ eyebrow: t('home.held.eyebrow'), title: t('home.held.title'), sub: t('home.held.sub') }), h('div.only-desktop', ui.link(R.href('/instagram'), t('home.held.all')))),
+    h('div.sec-head-row', ui.head({ eyebrow: t('home.held.eyebrow'), title: t('home.held.title'), sub: t('home.held.sub'), id: 'held-title' }), h('div.only-desktop', ui.link(R.href('/instagram'), t('home.held.all')))),
     h('div.held-grid', { 'data-reveal-group': true }, tiles.slice(0, 8)),
     h('div.only-mobile', { style: { marginTop: '12px' } }, ui.link(R.href('/instagram'), t('home.held.all'))))));
 
@@ -4248,7 +4600,16 @@ LHF.pages.home = function () {
     const items = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => h('span.ribbon-item', i === 0 ? h('span.serif', t('ribbon.0')) : t('ribbon.' + i), h('i.dot')));
     const copy = items.map((n) => { const c = n.cloneNode(true); c.setAttribute('aria-hidden', 'true'); return c; });
     const track = h('div.ribbon-track', items, copy);
-    return h('div.ribbon', { role: 'region', 'aria-label': t('ribbon.label') }, track);
+    /* moving text has to be stoppable by touch and keyboard, not only by hover */
+    const box = h('div.ribbon', { role: 'region', 'aria-label': t('ribbon.label') }, track);
+    const toggle = h('button.ribbon-toggle', { type: 'button', 'aria-label': t('ribbon.pause'), 'aria-pressed': 'false', onClick: () => {
+      const paused = !box.classList.contains('is-paused');
+      box.classList.toggle('is-paused', paused);
+      toggle.setAttribute('aria-pressed', String(paused));
+      U.empty(toggle).appendChild(ui.icon(paused ? 'play' : 'pause', 16));
+    } }, ui.icon('pause', 16));
+    box.appendChild(toggle);
+    return box;
   }
   function entryCard(e) {
     const p = e.products[0];
@@ -4259,7 +4620,7 @@ LHF.pages.home = function () {
   }
   function occCard(o) {
     const n = LHF.catalog.filter({ occasion: o.id, includeSeasonal: true }).length;
-    return h('article.occ-card', LHF.img.pic(o.image, { decorative: true }), h('div', h('div.t', pick(o)), h('div.tag-line', o.tag), h('div.d', pick(o.blurb)), h('div.tiny', { style: { marginTop: '6px' } }, n ? t(n === 1 ? 'occ.count1' : 'occ.count', { n }) : t('occ.noneYet'))), h('a.cover', { href: R.href('/occasions/' + o.id), 'aria-label': pick(o) }));
+    return h('article.occ-card', LHF.img.pic(o.image, { decorative: true }), h('div', h('h3.t', pick(o)), h('div.tag-line', o.tag), h('div.d', pick(o.blurb)), h('div.tiny', { style: { marginTop: '6px' } }, n ? t(n === 1 ? 'occ.count1' : 'occ.count', { n }) : t('occ.noneYet'))), h('a.cover', { href: R.href('/occasions/' + o.id), 'aria-label': pick(o) }));
   }
   function heldTile(p, i) {
     return h('a.tile', { href: R.href('/instagram', { post: p.id }), 'aria-label': pick(p.label) }, LHF.img.el(p.images[0], { alt: '' }), h('span.lab', pick(p.label)));
@@ -4275,7 +4636,11 @@ LHF.pages.home = function () {
    ===================================================================== */
 LHF.pages.flowers = function (params, query) {
   const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, R = LHF.router, pick = (o) => LHF.i18n.pick(o), C = LHF.catalog;
-  const state = { view: query.view || (LHF.store.get('ui').flowersView || 'cards'), category: query.category || '', occasion: query.occasion || '', color: query.color || '' };
+  /* the URL is the filter state; a value that is not in the catalogue falls
+     back to "all", never to an empty grid */
+  const known = (list, v) => (v && list.some((o) => o.id === v) ? v : '');
+  const VIEWS = ['cards', 'ledger'];
+  const state = { view: VIEWS.includes(query.view) ? query.view : (VIEWS.includes(LHF.store.get('ui').flowersView) ? LHF.store.get('ui').flowersView : 'cards'), category: known(C.categories, query.category), occasion: known(C.occasions, query.occasion), color: known(C.colors, query.color) };
   const page = h('div.page.page-enter', h('div.wrap'));
   const wrap = page.firstChild;
   wrap.appendChild(h('div.section-tight', ui.head({ eyebrow: t('home.today.eyebrow'), title: t('flowers.title'), sub: t('flowers.sub'), level: 'h1', titleClass: 'h1' })));
@@ -4284,13 +4649,15 @@ LHF.pages.flowers = function (params, query) {
     const s = h('select.select', { 'aria-label': label, onChange: (e) => { state[name] = e.target.value; sync(); } }, h('option', { value: '' }, label + ': ' + t('filter.all')), list.map((o) => h('option', { value: o.id, selected: state[name] === o.id }, pick(o))));
     return s;
   };
-  const seg = h('div.seg', { role: 'group', 'aria-label': 'view' },
+  const seg = h('div.seg', { role: 'group', 'aria-label': t('flowers.viewLabel') },
     h('button', { type: 'button', 'aria-pressed': state.view === 'cards', onClick: () => { state.view = 'cards'; sync(); } }, t('flowers.view.cards')),
     h('button', { type: 'button', 'aria-pressed': state.view === 'ledger', onClick: () => { state.view = 'ledger'; sync(); } }, t('flowers.view.ledger')));
   const toolbar = h('div.toolbar', h('div.filters', sel('category', C.categories, t('filter.category')), sel('occasion', C.occasions, t('filter.occasion')), sel('color', C.colors, t('filter.color')), h('button.btn.btn-ghost.btn-sm', { type: 'button', onClick: () => { state.category = state.occasion = state.color = ''; sync(); } }, t('filter.clear'))), seg);
   wrap.appendChild(toolbar);
   const countLine = h('div.count-line', { 'aria-live': 'polite' });
   const body = h('div');
+  /* the card names are h3: give them the h2 the outline expects */
+  wrap.appendChild(h('h2.sr-only', t('flowers.listTitle')));
   wrap.appendChild(countLine); wrap.appendChild(body);
 
   function list() {
@@ -4302,12 +4669,14 @@ LHF.pages.flowers = function (params, query) {
     toolbar.querySelectorAll('select').forEach((s) => { const n = ['category', 'occasion', 'color'][Array.from(toolbar.querySelectorAll('select')).indexOf(s)]; s.value = state[n]; });
     const items = list();
     countLine.textContent = items.length + ' · ' + (state.view === 'cards' ? t('flowers.view.cards') : t('flowers.view.ledger'));
+    /* every filter change reaches the URL, an empty result included; the
+       router's entry id in history.state is kept so Back restores the scroll */
+    try { history.replaceState(history.state, '', R.href('/flowers', { view: state.view, category: state.category, occasion: state.occasion, color: state.color })); } catch (e) {}
     U.empty(body);
     if (!items.length) { body.appendChild(h('div.empty', t('flowers.empty'), h('div', { style: { marginTop: '12px' } }, ui.btn(t('nav.custom'), { className: 'btn-primary', href: R.href('/custom') })))); return; }
     if (state.view === 'cards') body.appendChild(LHF.cards.grid(items));
     else body.appendChild(h('div.ledger', items.map(LHF.cards.ledgerRow)));
     ui.reveal(body);
-    try { history.replaceState(null, '', R.href('/flowers', { view: state.view, category: state.category, occasion: state.occasion, color: state.color })); } catch (e) {}
   }
   sync();
   wrap.appendChild(h('div.section-tight', h('div.notice', ui.heartTag('sm flat'), h('span', t('queue.3'), ' ', h('a.tlink', { href: R.href('/custom') }, t('nav.custom'), ui.icon('arrow', 14))))));
@@ -4333,14 +4702,15 @@ LHF.pages.product = function (params) {
   function showImg(key) { current = key; U.empty(picWrap); picWrap.appendChild(p.image ? LHF.img.pic(key, { eager: true }) : h('div.pcard-noimg', { style: { aspectRatio: '4/5' } }, p.thumb ? LHF.img.el(p.thumb) : ui.heartTag('lg'), h('span', t('product.noPhoto')), ui.btn('Instagram', { href: LHF.data.shop.instagram, target: '_blank', icon: 'ig', className: 'btn-sm' }))); mediaBox.querySelectorAll('.product-thumbs button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.key === key)); }
   mediaBox.appendChild(ui.heartTag());
   mediaBox.appendChild(picWrap); picWrap.classList.add('product-pic');
-  if ((p.images || []).length > 1) mediaBox.appendChild(h('div.product-thumbs', p.images.map((k) => h('button', { type: 'button', 'data-key': k, 'aria-pressed': k === current, onClick: () => showImg(k) }, LHF.img.el(k, { alt: '' })))));
+  if ((p.images || []).length > 1) mediaBox.appendChild(h('div.product-thumbs', p.images.map((k, i) => h('button', { type: 'button', 'data-key': k, 'aria-pressed': k === current, 'aria-label': t('product.photo', { i: i + 1, n: p.images.length }), onClick: () => showImg(k) }, LHF.img.el(k, { alt: '' })))));
   showImg(current);
   const igPosts = LHF.posts.forProduct(p.id);
 
   /* info */
   let qty = 1;
   const qtyOut = h('output', { 'aria-label': t('product.qty') }, qty);
-  const priceEl = h('span.price.price-lg', ui.priceLabel(p));
+  /* the total changes with the quantity: announce it */
+  const priceEl = h('span.price.price-lg', { 'aria-live': p.pricing === 'tiers' ? 'polite' : null }, ui.priceLabel(p));
   const unitLine = h('div.tiny');
   function refreshPrice() { if (p.pricing === 'tiers') { const unit = LHF.engine.tierPrice(p, qty); priceEl.textContent = LHF.i18n.fmtPrice(unit * qty); unitLine.textContent = qty + ' × ' + LHF.i18n.fmtPrice(unit); } }
   const counter = p.pricing === 'tiers' ? h('div.center', { style: { gap: '12px' } }, h('span.label', t('product.qty')), h('div.counter', h('button', { type: 'button', 'aria-label': t('product.qtyDown'), onClick: () => { qty = Math.max(1, qty - 1); qtyOut.value = qty; refreshPrice(); } }, ui.icon('minus')), qtyOut, h('button', { type: 'button', 'aria-label': t('product.qtyUp'), onClick: () => { qty = Math.min(p.maxQty || 20, qty + 1); qtyOut.value = qty; refreshPrice(); } }, ui.icon('plus'))), unitLine) : null;
@@ -4357,11 +4727,11 @@ LHF.pages.product = function (params) {
     counter,
     p.meaning ? h('div.product-meaning', h('div.lbl', t('product.meaning') + ' · ' + t('product.meaningNote')), h('div.txt', pick(p.meaning))) : null,
     h('dl.spec',
-      h('div.spec-row', h('dt', t('product.flowers')), h('dd', (p.flowers || []).map((f) => pick(C.flower(f) || {})).join(' · '))),
+      h('div.spec-row', h('dt', t('product.flowers')), h('dd', (p.flowers || []).map((f, i) => [i ? ' · ' : null, h('span.nowrap', pick(C.flower(f) || {}))]))),
       p.wrap ? h('div.spec-row', h('dt', t('product.wrap')), h('dd', pick(p.wrap))) : null,
       p.variants ? h('div.spec-row', h('dt', t('product.variants')), h('dd', pick(p.variants))) : null,
       h('div.spec-row', h('dt', t('product.colors')), h('dd', h('div.center', { style: { gap: '8px', flexWrap: 'wrap' } }, (p.colors || []).map((c) => { const col = C.color(c); return h('span.center', { style: { gap: '6px', fontSize: '14px' } }, h('i.swatch', { style: { background: col.hex, width: '16px', height: '16px' } }), pick(col)); })))),
-      h('div.spec-row', h('dt', t('product.occasions')), h('dd', (p.occasions || []).map((o) => h('a.link', { href: R.href('/occasions/' + o), style: { marginRight: '10px' } }, pick(C.occasion(o) || {}))))),
+      h('div.spec-row', h('dt', t('product.occasions')), h('dd', h('div.spec-links', (p.occasions || []).map((o) => h('a.link', { href: R.href('/occasions/' + o) }, pick(C.occasion(o) || {})))))),
       h('div.spec-row', h('dt', t('lead.label')), h('dd', p.availability === 'quote' ? t('lead.ask') : (p.leadNote ? t('lead.handmade') : t('lead.days1')))),
       p.notes ? h('div.spec-row', h('dt', t('product.notes')), h('dd', pick(p.notes))) : null),
     C.customisable(p) ? h('div.notice', ui.heartTag('sm flat'), h('span', t('product.customise'))) : null,
@@ -4540,7 +4910,9 @@ LHF.pages.custom = function (params, query) {
    ===================================================================== */
 LHF.pages.instagram = function (params, query) {
   const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, R = LHF.router, pick = (o) => LHF.i18n.pick(o), P = LHF.posts, S = LHF.data.shop;
-  let filter = query.tag || 'all';
+  /* the chosen chip lives in the URL (?tag=), so a reload, a shared link or a
+     language switch keeps it; an unknown tag falls back to all posts */
+  let filter = P.filters.some((f) => f.id === query.tag) ? query.tag : 'all';
   let shown = 14;
   const page = h('div.page.page-enter', h('div.wrap.section-tight'));
   const wrap = page.firstChild;
@@ -4548,8 +4920,16 @@ LHF.pages.instagram = function (params, query) {
     h('div.ig-profile', LHF.img.el('logo_sm', { alt: '' }), h('div.meta', h('b', S.name), ' · @littlehouseflower', h('br'), h('a.link', { href: S.instagram, target: '_blank', rel: 'noopener' }, 'Instagram'), ' · ', h('a.link', { href: S.facebook, target: '_blank', rel: 'noopener' }, 'Facebook')), ui.btn('@littlehouseflower', { href: S.instagram, target: '_blank', icon: 'ig', className: 'btn-sm' })),
     h('div', h('div.tiny', { style: { marginBottom: '8px' } }, t('ig.highlights')), h('div.avatar-row', P.highlights.map((hl) => h('a', { href: hl.url, target: '_blank', rel: 'noopener' }, LHF.img.el(hl.image, { alt: hl.label }), h('span', hl.label)))))));
 
-  const chips = h('div.chips', P.filters.map((f) => h('button.chip', { type: 'button', 'aria-pressed': filter === f.id, onClick: () => { filter = f.id; shown = 14; chips.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c.textContent === pick(f))); render(); } }, pick(f))));
+  const status = h('p.sr-only', { role: 'status' });
+  const chips = h('div.chips', P.filters.map((f) => h('button.chip', { type: 'button', 'aria-pressed': filter === f.id, onClick: () => {
+    filter = f.id; shown = 14;
+    chips.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c.textContent === pick(f)));
+    try { history.replaceState(history.state, '', R.href('/instagram', { tag: filter === 'all' ? '' : filter })); } catch (e) {}
+    render();
+    status.textContent = t('ig.count', { n: items().length });
+  } }, pick(f))));
   wrap.appendChild(h('div.ig-filters', chips));
+  wrap.appendChild(status);
   const grid = h('div.masonry');
   const more = h('div.ig-foot');
   wrap.appendChild(grid); wrap.appendChild(more);
@@ -4571,7 +4951,8 @@ LHF.pages.instagram = function (params, query) {
         h('span.lab', pick(p.label), p.productId ? ' · ' + ui.priceLabel(LHF.catalog.byId(p.productId)) : ''));
       grid.appendChild(tile);
     });
-    if (list.length > shown) more.appendChild(ui.btn(t('ig.loadMore'), { onClick: () => { shown += 12; render(); } }));
+    /* keyboard focus moves to the first new post instead of falling to the page */
+    if (list.length > shown) more.appendChild(ui.btn(t('ig.loadMore'), { onClick: () => { const before = grid.children.length; shown += 12; render(); const first = grid.children[before]; if (first) first.focus(); } }));
     more.appendChild(h('p.small.muted', t('ig.follow')));
     more.appendChild(h('div.socials', LHF.nav.social('ig'), LHF.nav.social('fb'), LHF.nav.social('line')));
   }
@@ -5247,6 +5628,145 @@ LHF.pages.confirm = function (params) {
   }
 };
 
+/* ---- pages/admin.js ---- */
+/* =====================================================================
+   ADMIN — queue ledger (live), day view by window, settings (capacity,
+   blackouts, high-demand mode, promos, address toggle). Demo PIN gate.
+   ===================================================================== */
+LHF.pages.admin = function (params, query) {
+  const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, R = LHF.router, pick = (o) => LHF.i18n.pick(o), E = LHF.engine;
+  const STATUS = ['new', 'confirmed', 'preparing', 'ready', 'out', 'done', 'cancelled'];
+  const page = h('div.page.page-enter', h('div.wrap.section-tight'));
+  const wrap = page.firstChild;
+  let ok = false; try { ok = sessionStorage.getItem('lhf.admin') === '1'; } catch (e) {}
+  if (!ok) { wrap.appendChild(gate()); return page; }
+  let tab = query.tab || 'queue', rows = [], search = '', statusFilter = '', settings = LHF.store.get('settings') || LHF.data.bookingDefaults, day = U.todayISO();
+  const content = h('div');
+  const backendPill = h('span.backend-pill', h('i'), '…');
+  const tabs = h('div.admin-tabs', { role: 'tablist' }, ['queue', 'day'].map((k) => h('button', { type: 'button', role: 'tab', 'aria-selected': tab === k, onClick: () => { tab = k; tabs.querySelectorAll('button').forEach((b) => b.setAttribute('aria-selected', b.textContent === t('admin.tab.' + k))); render(); } }, t('admin.tab.' + k))));
+  wrap.appendChild(h('div.admin', ui.head({ eyebrow: t('nav.admin'), title: t('admin.title'), sub: t('admin.sub'), level: 'h1', titleClass: 'h1' }), h('div.notice', ui.heartTag('sm flat'), h('span', t('admin.demo'))), h('div.admin-top', tabs, backendPill), content));
+  LHF.db.ready.then((b) => { backendPill.classList.toggle('online', b === 'artifact'); backendPill.lastChild.textContent = t('admin.backend.' + b); });
+  LHF.db.getSettings().then((s) => { settings = s; LHF.store.set('settings', s); if (tab === 'settings') render(); });
+  const unsub = LHF.db.subscribeBookings((list) => { rows = list; if (tab !== 'settings') render(); }, (e) => ui.toast(String(e.message || e.code)));
+  R.onLeave(unsub);
+  render();
+  return page;
+
+  function gate() {
+    const inp = h('input.input', { type: 'password', inputmode: 'numeric', autocomplete: 'off', 'data-autofocus': true, 'aria-label': t('admin.pin') });
+    const err = h('div.error', { role: 'alert', hidden: true }, t('admin.wrong'));
+    return h('form.pin-gate', { onSubmit: (e) => { e.preventDefault(); if (inp.value === '2020') { try { sessionStorage.setItem('lhf.admin', '1'); } catch (x) {} R.render(); } else { err.hidden = false; inp.select(); } } }, ui.heartTag('lg'), h('h1.h2', t('admin.title')), h('div.field', h('label', t('admin.pin')), inp, h('div.hint', t('admin.pinHint')), err), ui.btn(t('admin.enter'), { className: 'btn-primary', type: 'submit' }));
+  }
+  function render() { U.empty(content); content.appendChild({ queue: queueView, day: dayView, settings: settingsView }[tab]()); }
+  /* every write reports success or failure — silence would let staff believe an
+     order was confirmed when it was not */
+  async function write(fn, okMsg) {
+    try { await fn(); ui.toast(okMsg || t('admin.saved')); return true; }
+    catch (e) { console.error(e); ui.toast(e && e.code === 'quota_exceeded' ? t('book.err.quota') : t('book.err.network')); return false; }
+  }
+
+  /* ---------- queue ---------- */
+  function queueView() {
+    const list = rows.filter((b) => (!statusFilter || b.status === statusFilter) && (!search || [b.ref, b.customer && (b.customer || {}).name, b.customer && (b.customer || {}).phone, b.recipient && (b.recipient || {}).name].join(' ').toLowerCase().includes(search.toLowerCase())));
+    const tools = h('div.admin-tools', h('input.input', { placeholder: t('admin.search'), 'aria-label': t('admin.search'), value: search, onInput: U.debounce((e) => { search = e.target.value; render(); }, 200) }), h('select.select', { 'aria-label': t('admin.filter.status'), onChange: (e) => { statusFilter = e.target.value; render(); } }, h('option', { value: '' }, t('admin.filter.status') + ': ' + t('filter.all')), STATUS.map((s) => h('option', { value: s, selected: statusFilter === s }, t('status.' + s)))), ui.btn(t('admin.export'), { className: 'btn-sm', icon: 'copy', onClick: () => exportCsv(list) }));
+    const table = h('div.admin-table', list.length ? list.map(row) : h('div.empty', t('admin.empty')));
+    return h('div.stack', tools, table);
+  }
+  function row(b) {
+    return h('div.arow', { tabindex: 0, role: 'button', onClick: () => detail(b), onKeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); detail(b); } } },
+      h('div.l', h('div.ref', b.ref), h('div.meta', LHF.i18n.fmtDate((b.createdAt || '').slice(0, 10), 'short'))),
+      h('div.l', h('div.who', (b.customer || {}).name), h('div.meta', U.fmtPhone((b.customer || {}).phone) + (b.fulfil === 'delivery' ? ' · ' + t('book.how.delivery') : ' · ' + t('book.how.pickup')))),
+      h('div.l', h('div.who', LHF.i18n.fmtDate(b.date, 'short') + ' · ' + (b.windowLabel || '')), h('div.meta', b.type === 'custom' ? t('custom.summary') : b.items.map((i) => (i.qty > 1 ? i.qty + '×' : '') + i.name).join(', '))),
+      h('div.l', h('div.who.price.price-sm', b.quoteOnly ? t('price.quote') : LHF.i18n.fmtPrice(b.subtotal)), h('div.meta', t('admin.pay.' + ((b.payment || {}).status || 'unpaid')))),
+      h('div.r', h('span.status', { 'data-s': b.status }, t('status.' + b.status))));
+  }
+  function detail(b) {
+    const notes = h('textarea.textarea', { rows: 3, placeholder: t('admin.notesPh'), value: b.notes || '' });
+    const statusSet = h('div.status-set', STATUS.map((s) => h('button', { type: 'button', 'aria-pressed': b.status === s, onClick: async () => { if (await write(() => LHF.db.updateBooking(b.id, { status: s }))) { b.status = s; statusSet.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.textContent === t('status.' + s)))); } } }, t('status.' + s))));
+    const paySel = h('select.select', { 'aria-label': t('admin.payment'), onChange: async (e) => { const v = e.target.value; if (!await write(() => LHF.db.updateBooking(b.id, { payment: { status: v } }))) e.target.value = (b.payment || {}).status || 'unpaid'; else b.payment = { status: v }; } }, ['unpaid', 'deposit', 'paid'].map((s) => h('option', { value: s, selected: ((b.payment || {}).status || 'unpaid') === s }, t('admin.pay.' + s))));
+    const lineText = ['สวัสดีค่ะ คุณ' + (b.customer || {}).name + ' ทางร้าน Little House Flower รับคิว ' + b.ref + ' แล้วนะคะ', 'วันที่ ' + LHF.i18n.fmtDate(b.date, 'weekday') + ' ' + (b.windowLabel || ''), (b.fulfil === 'delivery' ? 'จัดส่ง: ' + [b.address && (b.address || {}).line, b.address && (b.address || {}).district].filter(Boolean).join(' ') : 'มารับเองที่ร้าน'), b.quoteOnly ? 'ทางร้านจะแจ้งราคาให้นะคะ' : 'ยอดค่าดอกไม้ ' + LHF.i18n.fmtPrice(b.subtotal) + (b.fulfil === 'delivery' ? ' + ค่าส่งตามระยะทาง' : ''), 'ขอบคุณค่ะ 🙏💙'].join('\n');
+    const content = h('div.adetail',
+      h('div.between', h('div.ref', { style: { fontSize: '22px' } }, b.ref), h('span.status', { 'data-s': b.status }, t('status.' + b.status))),
+      statusSet,
+      h('dl.kv', kv(t('book.step.when'), LHF.i18n.fmtDate(b.date, 'weekday') + ' · ' + (b.windowLabel || '')), kv(t('book.step.how'), t('book.how.' + b.fulfil)), kv(t('admin.customer'), (b.customer || {}).name + ' · ' + U.fmtPhone((b.customer || {}).phone) + ((b.customer || {}).line ? ' · LINE ' + (b.customer || {}).line : '')), kv(t('admin.recipient'), b.recipient ? (b.recipient || {}).name + ' · ' + U.fmtPhone((b.recipient || {}).phone || '') + (b.anonymous ? ' · ' + t('book.who.anon') : '') : '—'), b.address ? kv(t('admin.address'), [(b.address || {}).line, (b.address || {}).district, (b.address || {}).province, (b.address || {}).note].filter(Boolean).join(' · ')) : null, kv(t('book.step.what'), b.type === 'custom' ? t('custom.summary') : b.items.map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + i.name + ' (' + LHF.i18n.fmtPrice(i.line) + ')').join(', ')), b.colourNote ? kv(t('book.what.colour'), b.colourNote) : null, kv(t('admin.total'), b.quoteOnly ? t('price.quote') : LHF.i18n.fmtPrice(b.subtotal)), kv(t('admin.payment'), paySel)),
+      b.custom ? h('div', h('div.label', t('admin.brief')), h('dl.kv', kv(t('custom.step.style'), t('custom.style.' + (b.custom.style || 'bouquet'))), kv(t('custom.step.occasion'), pick(LHF.catalog.occasion(b.custom.occasion) || {}) || '—'), kv(t('custom.step.budget'), b.custom.budgetCustom ? LHF.i18n.fmtPrice(b.custom.budgetCustom) : (function () { const tr = (settings.budgetTiers || []).find((x) => x.id === b.custom.budgetTier); return tr ? LHF.i18n.fmtPrice(tr.min) + (tr.max ? ' – ' + LHF.i18n.fmtPrice(tr.max) : '+') : '—'; })()), kv(t('custom.step.feel'), b.custom.feel || '—'), kv(t('custom.step.flowers'), (b.custom.flowers || []).map((f) => pick(LHF.catalog.flower(f) || {})).join(', ') || '—'), kv(t('custom.step.notes'), b.custom.notes || '—')), b.custom.reference ? h('div', h('div.label', t('admin.ref')), h('img.refimg', { src: b.custom.reference, alt: b.custom.referenceName || 'reference' })) : null) : null,
+      h('div', h('div.label', t('admin.cardPrint')), h('div.hand', b.card && (b.card || {}).message ? (b.card || {}).message : '—')),
+      h('div.field', h('label', { for: 'admin-notes' }, t('admin.notes')), notes, h('div.center', ui.btn(t('admin.save'), { className: 'btn-sm btn-primary', onClick: () => write(() => LHF.db.updateBooking(b.id, { notes: notes.value })) }))),
+      h('div.field', h('label', t('admin.lineTemplate')), h('textarea.textarea', { rows: 5, readonly: true, value: lineText }), h('div.center', ui.btn(t('admin.copy'), { className: 'btn-sm', icon: 'copy', onClick: () => navigator.clipboard.writeText(lineText).then(() => ui.toast(t('done.copied'))).catch(() => {}) }), ui.btn('LINE', { className: 'btn-sm', icon: 'line', href: LHF.data.shop.lineUrl, target: '_blank' }))),
+      h('div.center', { style: { justifyContent: 'space-between', marginTop: '8px' } }, ui.btn(t('admin.print'), { className: 'btn-sm', onClick: () => window.print() }), ui.btn(t('admin.delete'), { className: 'btn-sm btn-ghost rose', onClick: async () => { if (confirm(t('admin.confirmDelete'))) { if (await write(() => LHF.db.deleteBooking(b.id))) ui.closeSheet(); } } })));
+    ui.sheet({ title: (b.customer || {}).name, sub: LHF.i18n.fmtDate(b.date, 'weekday'), content, wide: true });
+  }
+  function kv(k, v) { return h('div', { style: { display: 'contents' } }, h('dt', k), h('dd', v)); }
+
+  /* ---------- day view ---------- */
+  function dayView() {
+    const c = E.ctx(settings);
+    const list = rows.filter((b) => b.date === day && b.status !== 'cancelled');
+    const cols = ['delivery', 'pickup'].map((f) => h('div.day-col', h('div.h4', t('book.how.' + f)), E.windowsFor(day, f, c, { windows: countWindows(list) }).map((w) => { const its = list.filter((b) => b.fulfil === f && b.windowId === w.id); return h('div.day-slot', h('div.t', w.start + '–' + w.end, h('div.cap', its.length + '/' + (f === 'delivery' ? settings.maxDeliveryPerWindow : settings.maxPickupPerWindow))), h('div.items', its.length ? its.map((b) => h('a', { href: '#', onClick: (e) => { e.preventDefault(); detail(b); } }, b.ref + ' · ' + (b.customer || {}).name + ' · ' + (b.type === 'custom' ? t('custom.summary') : b.items.map((i) => i.name).join(', ')))) : h('span.muted', t('admin.day.none')))); })));
+    return h('div.day-view', h('div.day-head', ui.btn('‹', { className: 'btn-sm', attrs: { 'aria-label': t('ig.prev') }, onClick: () => { day = U.addDays(day, -1); render(); } }), h('div.h3', LHF.i18n.fmtDate(day, 'weekday'), h('span.small.muted', ' · ' + list.length + '/' + settings.maxOrdersPerDay)), ui.btn('›', { className: 'btn-sm', attrs: { 'aria-label': t('ig.next') }, onClick: () => { day = U.addDays(day, 1); render(); } })), h('div.settings-grid', cols));
+  }
+  function countWindows(list) { const m = {}; list.forEach((b) => { if (b.windowId) m[b.windowId] = (m[b.windowId] || 0) + 1; }); return m; }
+
+  /* ---------- settings ---------- */
+  function settingsView() {
+    const s = JSON.parse(JSON.stringify(settings));
+    const num = (key, label) => h('label.field', h('span.label', label), h('input.input', { type: 'number', min: 1, value: s[key], onInput: (e) => { s[key] = Number(e.target.value); } }));
+    const black = h('div.blackouts');
+    const renderBlack = () => { U.empty(black); (s.blackoutDates || []).forEach((d) => black.appendChild(h('button.chip', { type: 'button', onClick: () => { s.blackoutDates = s.blackoutDates.filter((x) => x !== d); renderBlack(); } }, LHF.i18n.fmtDate(d, 'short'), ' ×'))); };
+    renderBlack();
+    const dateIn = h('input.input', { type: 'date', min: U.todayISO() });
+    const hd = s.highDemand || { active: false, label: {}, note: {}, deadline: '' };
+    const save = async () => { s.highDemand = hd; await write(async () => { settings = await LHF.db.saveSettings(s); }); };
+    return h('div.settings-grid',
+      h('div.settings-card', h('h3', t('admin.cap.title')), num('maxOrdersPerDay', t('admin.cap.orders')), num('maxCustomPerDay', t('admin.cap.custom')), num('maxDeliveryPerWindow', t('admin.cap.delivery')), num('maxPickupPerWindow', t('admin.cap.pickup')), num('cutoffHour', t('admin.cap.cutoff')), num('leadTimeDays', t('admin.cap.lead')), ui.btn(t('admin.save'), { className: 'btn-primary', onClick: save })),
+      h('div.settings-card', h('h3', t('admin.blackout')), black, h('div.center', dateIn, ui.btn(t('admin.blackout.add'), { className: 'btn-sm', onClick: () => { if (dateIn.value && !(s.blackoutDates || []).includes(dateIn.value)) { s.blackoutDates = (s.blackoutDates || []).concat([dateIn.value]).sort(); renderBlack(); } } })), ui.btn(t('admin.save'), { className: 'btn-primary', onClick: save })),
+      h('div.settings-card', h('h3', t('admin.hd.title')), h('label.check', h('input', { type: 'checkbox', checked: !!hd.active, onChange: (e) => { hd.active = e.target.checked; } }), h('span.box', ui.icon('check')), h('span', t('admin.hd.active'))), h('div.field-row', h('div.field', h('label', t('admin.hd.label') + ' (TH)'), h('input.input', { value: (hd.label || {}).th || '', onInput: (e) => { hd.label = Object.assign({}, hd.label, { th: e.target.value }); } })), h('div.field', h('label', t('admin.hd.label') + ' (EN)'), h('input.input', { value: (hd.label || {}).en || '', onInput: (e) => { hd.label = Object.assign({}, hd.label, { en: e.target.value }); } }))), h('div.field', h('label', t('admin.hd.deadline')), h('input.input', { type: 'date', value: hd.deadline || '', onInput: (e) => { hd.deadline = e.target.value; } })), h('div.field-row', h('div.field', h('label', t('admin.hd.note') + ' (TH)'), h('input.input', { value: (hd.note || {}).th || '', onInput: (e) => { hd.note = Object.assign({}, hd.note, { th: e.target.value }); } })), h('div.field', h('label', t('admin.hd.note') + ' (EN)'), h('input.input', { value: (hd.note || {}).en || '', onInput: (e) => { hd.note = Object.assign({}, hd.note, { en: e.target.value }); } }))), ui.btn(t('admin.save'), { className: 'btn-primary', onClick: save })),
+      h('div.settings-card', h('h3', t('admin.promo.title')), h('label.check', h('input', { type: 'checkbox', checked: s.reviewPromo !== false, onChange: (e) => { s.reviewPromo = e.target.checked; } }), h('span.box', ui.icon('check')), h('span', t('admin.promo.review'))), h('div.field', h('label', t('admin.promo.priceValid')), h('input.input', { type: 'date', value: s.priceValidUntil || LHF.data.policies.priceValidUntil, onInput: (e) => { s.priceValidUntil = e.target.value; } })), h('h3', t('admin.addr.title')), h('label.check', h('input', { type: 'checkbox', checked: !!s.showStreetAddress, onChange: (e) => { s.showStreetAddress = e.target.checked; } }), h('span.box', ui.icon('check')), h('span', t('admin.addr.show'))), h('div.tiny', pick(LHF.data.shop.address)), ui.btn(t('admin.save'), { className: 'btn-primary', onClick: save })));
+  }
+
+  function sheetCard(s, save) {
+    const cur = s.sheet || {};
+    const baked = window.__LHF_SHEET || {};
+    const line = h('div.sheet-state', { role: 'status' });
+    const ep = h('input.input', { type: 'url', placeholder: 'https://script.google.com/.../exec', value: cur.endpoint || baked.endpoint || '', onInput: (e) => { s.sheet = Object.assign({}, s.sheet, { endpoint: e.target.value.trim() }); } });
+    const sec = h('input.input', { value: cur.secret || baked.secret || '', onInput: (e) => { s.sheet = Object.assign({}, s.sheet, { secret: e.target.value.trim() }); } });
+    const on = h('input', { type: 'checkbox', checked: cur.enabled !== false, onChange: (e) => { s.sheet = Object.assign({}, s.sheet, { enabled: e.target.checked }); } });
+    function paint(st) {
+      U.empty(line);
+      const bits = [];
+      if (st.blocked) bits.push(t('admin.sheet.blocked', { n: st.owed }));
+      else if (!st.configured) bits.push(t('admin.sheet.off'));
+      else bits.push(t('admin.sheet.live'));
+      if (!st.blocked && st.queued) bits.push(t('admin.sheet.queued', { n: st.queued }));
+      if (!st.blocked && st.parked) bits.push(t('admin.sheet.parked', { n: st.parked }));
+      if (st.dropped) bits.push(t('admin.sheet.dropped', { n: st.dropped }));
+      if (!st.blocked && st.configured) bits.push(st.lastOkAt ? t('admin.sheet.lastOk', { time: new Date(st.lastOkAt).toLocaleString('sv-SE').slice(0, 16) }) : t('admin.sheet.never'));
+      /* green only when there is genuinely nothing outstanding — a queue or a
+         dropped row must never sit behind an all-clear */
+      line.className = 'sheet-state' + (st.blocked || st.dropped || st.parked ? ' warn' : st.configured && !st.queued ? ' ok' : '');
+      line.appendChild(h('span', bits.join(' \u00b7 ')));
+    }
+    paint(LHF.sink.status());
+    R.onLeave(LHF.sink.onChange(paint));
+    return h('div.settings-card', h('h3', t('admin.sheet.title')), line,
+      h('div.field', h('label', t('admin.sheet.endpoint')), ep),
+      h('div.field', h('label', t('admin.sheet.secret')), sec),
+      h('label.check', on, h('span.box', ui.icon('check')), h('span', t('admin.sheet.enabled'))),
+      h('div.sheet-acts',
+        ui.btn(t('admin.save'), { className: 'btn-primary', onClick: save }),
+        ui.btn(t('admin.sheet.retry'), { className: 'btn-sm', onClick: () => paint(LHF.sink.flush()) }),
+        ui.btn(t('admin.sheet.backfill'), { className: 'btn-sm', onClick: () => { paint(LHF.sink.sendAll(rows)); ui.toast(t('admin.sheet.backfillDone')); } })),
+      h('p.tiny', t(LHF.sink.blocked ? 'admin.sheet.blockedHelp' : 'admin.sheet.help')));
+  }
+
+  /* the same builder that feeds the Sheet, so the download cannot drift from it */
+  async function exportCsv(list) {
+    const csv = LHF.sink.csv(list);
+    try { const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; if (dl) { await dl.save({ filename: 'lhf-bookings.csv', data: '﻿' + csv }); return; } } catch (e) { if (e && e.code === 'declined') return; }
+    try { await navigator.clipboard.writeText(csv); ui.toast(t('done.copied')); } catch (e) {}
+  }
+};
+
 /* ---- pages/misc.js ---- */
 /* =====================================================================
    MEANINGS page · PRIVACY notice · 404 · error
@@ -5330,6 +5850,7 @@ LHF.pages.error = function (e) {
   /* "sent" only for the booking this browser just sent; any other link gets a neutral title,
      since the page may have to say it cannot find the booking */
   R.add('/order/done/:id', (p) => LHF.pages.confirm(p), { name: 'done', title: (p) => { const b = LHF.store.get('lastOrder'); return b && b.id === p.id ? t('seo.done') : t('seo.booking'); } });
+  R.add('/admin', (p, q) => LHF.pages.admin(p, q), { name: 'admin', title: () => t('seo.admin'), noTransition: true });
   R.add('/privacy', () => LHF.pages.privacy(), { name: 'privacy', title: () => t('seo.privacy') });
   R.add('/404', () => LHF.pages.notfound(), { name: 'notfound', title: () => t('seo.notfound') });
 
@@ -5378,12 +5899,15 @@ LHF.pages.error = function (e) {
     LHF.store.set('settings', LHF.data.bookingDefaults);
     LHF.db.getSettings().then((s) => { LHF.store.set('settings', s); LHF.sink.start(); }).catch(() => LHF.sink.start());
     R.start(U.qs('#main'));
-    /* loader: brief, capped, skipped on repeat visits in this session */
+    /* loader: up only while the first view's fonts are still arriving (checked
+       after the first frame, when their loads have started), capped, with no
+       minimum; skipped for good once this browser has seen it, because every
+       tap from LINE opens a fresh session */
     const loader = U.qs('#loader');
-    let seen = false; try { seen = sessionStorage.getItem('lhf.seen') === '1'; } catch (e) {}
-    const done = () => { loader.classList.add('is-done'); try { sessionStorage.setItem('lhf.seen', '1'); } catch (e) {} };
+    let seen = false; try { seen = localStorage.getItem('lhf.seen') === '1' || sessionStorage.getItem('lhf.seen') === '1'; } catch (e) {}
+    const done = () => { loader.classList.add('is-done'); try { localStorage.setItem('lhf.seen', '1'); } catch (e) {} };
     if (seen || U.reducedMotion()) { loader.style.transition = 'none'; done(); }
-    else { const cap = U.wait(1100); const fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(); Promise.race([Promise.all([fonts, U.wait(700)]), cap]).then(done); }
+    else { const fonts = U.nextFrame().then(() => (document.fonts && document.fonts.ready) || null); Promise.race([fonts, U.wait(1100)]).then(done); }
     /* keep every open-now badge honest (top strip, menu, /contact), minute by minute */
     setInterval(() => { U.qsa('span.open.is-open, span.open.is-soon, span.open.is-closed').forEach((el) => el.replaceWith(LHF.ui.openBadge())); }, 60000);
   }
