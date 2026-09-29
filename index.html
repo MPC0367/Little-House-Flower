@@ -873,7 +873,8 @@ body[data-route] { padding-bottom: 0; }
 .book-summary { display: grid; gap: 8px; }
 .book-summary .row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line-soft); font-size: 15px; align-items: baseline; }
 .book-summary .row.total { border-bottom: 0; border-top: 1px solid var(--ink); padding-top: 10px; font-weight: 500; }
-.book-summary .row .k { color: var(--muted); }
+.book-summary .row .k { color: var(--muted); flex: 0 0 auto; white-space: nowrap; }
+.book-summary .row > span:last-child { min-width: 0; text-align: right; overflow-wrap: break-word; }
 .book-summary .row .edit { font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: .2em; margin-left: 8px; }
 .book-items { display: grid; gap: 10px; }
 .book-item { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; padding: 10px; border: 1px solid var(--line); background: var(--surface); }
@@ -928,13 +929,28 @@ body[data-route] { padding-bottom: 0; }
 .stamp .heart-tag { animation: stampIn 420ms var(--ease) both; }
 @media (prefers-reduced-motion: reduce) { .stamp .heart-tag { animation: none; } }
 @keyframes stampIn { from { transform: rotate(-20deg) scale(1.5); opacity: 0; } to { transform: rotate(-8deg) scale(1); opacity: 1; } }
-.status-track { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: 11px; color: var(--muted); text-align: center; }
-.status-track span { position: relative; padding-top: 12px; }
-.status-track span::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--line-soft); }
-.status-track span.done::before { background: var(--heart); }
-.status-track span.done { color: var(--ink); font-weight: 600; }
 .fly-card { position: fixed; z-index: 360; width: 48px; height: 60px; background: #FBFAF7; border: 1px solid #E6E2DA; box-shadow: 2px 3px 0 var(--paper-2), 0 10px 20px -10px rgba(47,28,21,.4); pointer-events: none; }
 .fly-card::after { content: ''; position: absolute; left: 8px; right: 8px; top: 12px; height: 26px; background: repeating-linear-gradient(transparent 0 6px, #ECE7DE 6px 7px); }
+
+/* order flow: step list, brief row, honest failure, next steps, print */
+.step-labels li.cur { color: var(--ink); font-weight: 600; }
+/* the chosen window sits on pink: full ink keeps its time readable (4.5:1) */
+.window.is-on { color: var(--ink); }
+.book-item .item-acts { display: grid; justify-items: end; }
+.book-item .item-acts .remove { min-height: 36px; display: inline-flex; align-items: center; }
+.send-fail { display: grid; gap: 10px; padding: 16px 18px; background: #F8E7E8; color: var(--ribbon); border-left: 3px solid var(--rose); }
+.send-fail .h4 { color: var(--ribbon); }
+.send-fail-acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.done-next { width: 100%; display: grid; gap: 14px; justify-items: center; padding: clamp(18px, 3vw, 28px); background: var(--surface); box-shadow: var(--sheet); }
+.done-steps { width: 100%; max-width: 520px; text-align: left; }
+.done-steps li { font-size: 15px; line-height: 1.65; }
+.done-steps .n { color: var(--ribbon); }
+.receipt-contact { margin-top: 14px; text-align: center; color: var(--muted); }
+@media print {
+  body[data-route="done"] #topstrip, body[data-route="done"] #header, body[data-route="done"] #footer, body[data-route="done"] #doorstep, body[data-route="done"] .done-actions, body[data-route="done"] .done-next .btn { display: none !important; }
+  body[data-route="done"] .receipt, body[data-route="done"] .done-next { box-shadow: none; }
+  body[data-route="done"] .stamp .heart-tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 
 /* ---- instagram.css ---- */
 /* =====================================================================
@@ -1464,7 +1480,10 @@ LHF.router = (function () {
 /* =====================================================================
    db — persistence adapter.
    Backend A: the Artifact realtime document store (claude.use('db')).
-   Backend B: localStorage (local preview / capability absent).
+   Backend B: localStorage (the public site). Here the shop's Google Sheet is
+   the record, so this browser keeps only a receipt copy of its own orders —
+   no names, numbers, address, card or photo, and nothing past 30 days — and
+   it never counts capacity or reads rules saved on one device.
    Both expose the same async API so pages never branch on the backend.
 
    Collections:  bookings/{id}      one document per order or request
@@ -1490,9 +1509,44 @@ LHF.db = (function () {
   })();
 
   /* ---------- local backend helpers ---------- */
-  const lsAll = () => U.storage.get(LS.bookings, []);
+  const lsAll = () => { const a = U.storage.get(LS.bookings, []); return Array.isArray(a) ? a : []; };
   const lsSave = (arr) => U.storage.set(LS.bookings, arr);
   function lsNotify() { const all = lsAll(); listeners.forEach((fn) => fn(all)); }
+
+  /* What this phone keeps of an order it sent: enough to show the receipt again. */
+  const KEEP_MS = 30 * 864e5;
+  function receipt(b) {
+    const c = b.custom || null;
+    return {
+      id: b.id, ref: b.ref, type: b.type, date: b.date, windowId: b.windowId, windowLabel: b.windowLabel, fulfil: b.fulfil,
+      items: (b.items || []).map((i) => ({ productId: i.productId, name: i.name, nameTh: i.nameTh, qty: i.qty, unit: i.unit, line: i.line, kind: i.kind })),
+      custom: c ? { style: c.style, occasion: c.occasion, budgetTier: c.budgetTier, budgetCustom: c.budgetCustom, fromProduct: c.fromProduct, hasReference: !!(c.hasReference || c.reference) } : null,
+      colourNote: b.colourNote || '', subtotal: b.subtotal, quoteOnly: b.quoteOnly, hasQuote: b.hasQuote, priceFrom: b.priceFrom,
+      lang: b.lang, status: b.status, createdAt: b.createdAt,
+    };
+  }
+  /* On every visit: drop receipts older than 30 days, strip anything personal an
+     older version of the site stored, forget rules an old admin form saved here,
+     and take the personal part out of a draft abandoned for more than 36 hours so
+     a shared phone never hands the next person someone else's details. */
+  function tidyLocal() {
+    const now = Date.now();
+    const all = lsAll();
+    const kept = all.filter((b) => b && b.id && now - (Date.parse(b.createdAt) || 0) < KEEP_MS).map(receipt);
+    if (kept.length !== all.length || all.some((b) => b && (b.customer || b.recipient || b.address || b.card))) { if (kept.length) lsSave(kept); else U.storage.del(LS.bookings); }
+    U.storage.del(LS.settings);
+    const d = LHF.store.get('draft');
+    if (!d) return;
+    const stale = !LHF.store.draftIsFresh();
+    const drop = stale ? ['consent', 'customer', 'recipient', 'address', 'card', 'sameAsMe', 'anonymous', 'attempt'] : ['consent'];
+    const photo = stale && d.custom && d.custom.reference;
+    if (!drop.some((k) => d[k] != null) && !photo) return;
+    const clean = Object.assign({}, d);
+    drop.forEach((k) => { delete clean[k]; });
+    if (photo) clean.custom = Object.assign({}, d.custom, { reference: null, referenceName: '' });
+    LHF.store.set('draft', clean);
+  }
+  ready.then((b) => { if (b === 'local') { try { tidyLocal(); } catch (e) { console.warn('tidy failed', e); } } });
 
   /* ---------- settings ---------- */
   async function getSettings() {
@@ -1505,14 +1559,16 @@ LHF.db = (function () {
         return JSON.parse(JSON.stringify(defaults));
       }
     } catch (e) { console.warn('settings read failed', e); }
-    return deepMerge(defaults, U.storage.get(LS.settings, {}));
+    /* Off the artifact the rules are the ones in data/settings.js. A form on one
+       phone used to save capacity, closed dates and the Sheet address that only
+       that phone obeyed, so nothing saved in a browser is read any more. */
+    return JSON.parse(JSON.stringify(defaults));
   }
   async function saveSettings(s) {
     await ready;
     const clean = JSON.parse(JSON.stringify(s));
     clean.updatedAt = new Date().toISOString();
     if (ns) { await ns.doc('settings/booking').set(clean); }
-    else U.storage.set(LS.settings, clean);
     LHF.store.set('settings', clean);
     return clean;
   }
@@ -1544,6 +1600,10 @@ LHF.db = (function () {
   }
   /* day load map for a date range → {date: {orders, custom, windows:{id:n}}} */
   async function loadMap(fromISO, toISO) {
+    await ready;
+    /* one browser's own orders say nothing about the shop's day: without a shared
+       store there is no count to show, and the date rules alone decide */
+    if (!ns) return {};
     const rows = await bookingsBetween(fromISO, toISO);
     const map = {};
     rows.forEach((b) => {
@@ -1559,7 +1619,7 @@ LHF.db = (function () {
   async function createBooking(booking, checkFn) {
     await ready;
     const id = booking.id || U.uid();
-    const doc = Object.assign({}, booking, { id, createdAt: new Date().toISOString(), status: booking.status || 'new' });
+    const doc = Object.assign({}, booking, { id, createdAt: booking.createdAt || new Date().toISOString(), status: booking.status || 'new' });
     if (ns) {
       /* Short lease: the work under it takes milliseconds, and the lease cannot be
          released explicitly, so keep it near the 1 s floor and retry politely. */
@@ -1578,10 +1638,13 @@ LHF.db = (function () {
       await ns.doc('bookings/' + id).set(doc);
       return doc;
     }
-    const all = lsAll();
-    const load = {}; all.filter((b) => b.date === doc.date && b.status !== 'cancelled').forEach((b) => { const m = load[b.date] || (load[b.date] = { orders: 0, custom: 0, windows: {} }); m.orders++; if (b.type === 'custom') m.custom++; if (b.windowId) m.windows[b.windowId] = (m.windows[b.windowId] || 0) + 1; });
-    if (checkFn) { const err = checkFn(load[doc.date] || { orders: 0, custom: 0, windows: {} }); if (err) throw Object.assign(new Error(err), { code: err }); }
-    all.push(doc); lsSave(all); lsNotify();
+    /* local: the order has already reached the Sheet; this is the receipt copy,
+       checked against the date rules only (this browser cannot see capacity) */
+    if (checkFn) { const err = checkFn({ orders: 0, custom: 0, windows: {} }); if (err) throw Object.assign(new Error(err), { code: err }); }
+    const all = lsAll().filter((b) => b.id !== id);
+    all.push(receipt(doc));
+    if (!lsSave(all)) throw Object.assign(new Error('storage'), { code: 'quota_exceeded', doc });
+    lsNotify();
     return doc;
   }
   async function updateBooking(id, patch) {
@@ -1617,30 +1680,88 @@ LHF.db = (function () {
     lsSave(lsAll().filter((b) => b.id !== id)); lsNotify();
   }
 
-  return { ready, get backend() { return backend; }, getSettings, saveSettings, bookingsOn, bookingsBetween, loadMap, createBooking, updateBooking, getBooking, listBookings, subscribeBookings, deleteBooking };
+  return { ready, get backend() { return backend; }, get sharedCapacity() { return backend === 'artifact'; }, getSettings, saveSettings, bookingsOn, bookingsBetween, loadMap, createBooking, updateBooking, getBooking, listBookings, subscribeBookings, deleteBooking };
 })();
 
 /* ---- core/booking-engine.js ---- */
 /* =====================================================================
    booking engine — pure rules (no DOM, no IO). Fed by settings + load.
    ===================================================================== */
+
+/* The shop's clock. Lead time, the 18:00 cut-off, same-day windows and the
+   calendar's "today" all run on Bangkok time, whatever zone the visitor's phone
+   is set to: someone ordering from London must not be offered a slot that
+   closed hours ago in Nonthaburi. */
+LHF.time = (function () {
+  const TZ = 'Asia/Bangkok';
+  let fmt = null;
+  try { fmt = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); } catch (e) { fmt = null; }
+  const pad = (n) => (n < 10 ? '0' : '') + n;
+  /* now(at?) → {y, m, d, hh, mi, dow, minutes, iso} for the instant `at` (default: this moment) */
+  function now(at) {
+    const ms = at == null ? Date.now() : at instanceof Date ? at.getTime() : Number(at);
+    let y = 0, m = 0, d = 0, hh = 0, mi = 0;
+    if (fmt) {
+      const p = {};
+      fmt.formatToParts(new Date(ms)).forEach((x) => { p[x.type] = x.value; });
+      y = +p.year; m = +p.month; d = +p.day; hh = (+p.hour) % 24; mi = +p.minute;
+    }
+    if (!(y > 0)) {
+      /* Bangkok has kept UTC+7, with no daylight saving, since 1920 */
+      const b = new Date(ms + 7 * 3600e3);
+      y = b.getUTCFullYear(); m = b.getUTCMonth() + 1; d = b.getUTCDate(); hh = b.getUTCHours(); mi = b.getUTCMinutes();
+    }
+    return { y, m, d, hh, mi, dow: new Date(Date.UTC(y, m - 1, d)).getUTCDay(), minutes: hh * 60 + mi, iso: y + '-' + pad(m) + '-' + pad(d) };
+  }
+  const today = (at) => now(at).iso;
+  /* a date and 'HH:MM' on the shop's clock → that instant (for calendar files) */
+  function toUTC(dateISO, hhmm) {
+    const [y, m, d] = String(dateISO).split('-').map(Number);
+    const [hh, mi] = String(hhmm || '00:00').split(':').map(Number);
+    return new Date(Date.UTC(y, m - 1, d, (hh || 0) - 7, mi || 0));
+  }
+  return { TZ, now, today, toUTC };
+})();
+
 LHF.engine = (function () {
   const U = LHF.util;
 
-  /* 'now' is injectable for tests */
+  /* 'now' is injectable for tests; today and hour are read on the shop's clock */
   function ctx(settings, now) {
-    now = now || new Date();
+    const n = LHF.time.now(now);
     const hours = LHF.data.shop.hours;
-    return { settings, now, today: U.iso(now), hour: now.getHours() + now.getMinutes() / 60, open: parseInt(hours.open, 10), close: parseInt(hours.close, 10) };
+    return { settings, now: now || new Date(), today: n.iso, hour: n.hh + n.mi / 60, open: parseInt(hours.open, 10), close: parseInt(hours.close, 10), horizon: horizon(n.iso, (settings && settings.monthsAhead) || 3) };
+  }
+  /* the calendar offers this month and the next three; nothing past that is bookable */
+  function horizon(todayISO, monthsAhead) {
+    const [y, m] = todayISO.split('-').map(Number);
+    return U.iso(new Date(y, m + monthsAhead, 0));
   }
 
   /* Earliest selectable date given lead time and cut-off. */
+  const leadOf = (c, opts) => Math.max(0, Number(opts && opts.leadDays != null ? opts.leadDays : c.settings.leadTimeDays || 0));
   function earliestDate(c, opts) {
-    const lead = Math.max(0, Number(opts && opts.leadDays != null ? opts.leadDays : c.settings.leadTimeDays || 0));
+    const lead = leadOf(c, opts);
     let d = U.addDays(c.today, lead);
     // after the cut-off hour, tomorrow is no longer bookable online
     if (lead > 0 && c.hour >= (c.settings.cutoffHour || 24)) d = U.addDays(d, 1);
     return d;
+  }
+
+  /* A written brief rides with the order once it was sent on from /custom, even if
+     a bouquet was added afterwards (drafts older than the `ready` flag only carry
+     type 'custom'). */
+  const hasBrief = (d) => !!(d && d.custom && (d.type === 'custom' || d.custom.ready));
+
+  /* One lead time for the whole order: the longest of the shop's minimum, each
+     bouquet in it, and the brief (two days, or the lead of the product the brief
+     asks about). The calendar, the step checks and the final send all use it. */
+  function leadFor(d, settings) {
+    const C = LHF.catalog;
+    const own = (id) => Number((C.byId(id) || {}).leadDays) || 1;
+    const parts = [Number((settings || {}).leadTimeDays) || 1].concat((d.items || []).map((it) => own(it.productId)));
+    if (hasBrief(d)) { const from = d.custom.fromProduct; parts.push(from && C.byId(from) ? own(from) : 2); }
+    return Math.max.apply(null, parts);
   }
 
   /* Status of a single date. load = {orders, custom, windows} or undefined */
@@ -1648,11 +1769,13 @@ LHF.engine = (function () {
     opts = opts || {};
     const s = c.settings;
     if (dateISO < c.today) return { ok: false, reason: 'past' };
+    if (c.horizon && dateISO > c.horizon) return { ok: false, reason: 'horizon' };
     if ((s.blackoutDates || []).includes(dateISO)) return { ok: false, reason: 'closed' };
     /* while a high-demand campaign is on, its deadline actually closes later dates */
     if (s.highDemand && s.highDemand.active && s.highDemand.deadline && dateISO > s.highDemand.deadline) return { ok: false, reason: 'closed' };
     const earliest = earliestDate(c, opts);
-    if (dateISO < earliest) return { ok: false, reason: dateISO === c.today ? 'today' : 'leadtime' };
+    /* 'cutoff': the lead time alone would allow it, but today's 18:00 has passed */
+    if (dateISO < earliest) return { ok: false, reason: dateISO === c.today ? 'today' : dateISO >= U.addDays(c.today, leadOf(c, opts)) ? 'cutoff' : 'leadtime' };
     const orders = load ? load.orders : 0;
     const custom = load ? load.custom : 0;
     /* 0 means "closed today", not "unlimited" */
@@ -1661,8 +1784,10 @@ LHF.engine = (function () {
     const capCustom = Number(s.maxCustomPerDay);
     if (opts.type === 'custom' && Number.isFinite(capCustom) && custom >= capCustom) return { ok: false, reason: 'full' };
     const remaining = Number.isFinite(cap) ? cap - orders : null;
-    return { ok: true, remaining, low: remaining != null && remaining <= Math.max(2, Math.ceil(cap * 0.2)) };
+    /* "few left" only means something when the count covers everyone's orders */
+    return { ok: true, remaining, low: !!load && remaining != null && remaining <= lowAt(cap) };
   }
+  const lowAt = (cap) => Math.max(2, Math.ceil(cap * 0.2));
 
   /* Windows for a date + fulfilment ('delivery' | 'pickup') with capacity. */
   function windowsFor(dateISO, fulfil, c, load) {
@@ -1680,48 +1805,91 @@ LHF.engine = (function () {
     });
   }
 
-  /* Calendar matrix: array of weeks, each 7 cells {iso, inMonth} (Sunday first) */
+  /* Calendar matrix: array of weeks, each 7 cells {iso, inMonth} (Sunday first).
+     Exactly the weeks that hold a day of the month, never a row of next month only. */
   function monthMatrix(year, month) {
     const first = new Date(year, month, 1);
     const start = new Date(year, month, 1 - first.getDay());
+    const rows = Math.ceil((first.getDay() + new Date(year, month + 1, 0).getDate()) / 7);
     const weeks = [];
-    for (let w = 0; w < 6; w++) {
+    for (let w = 0; w < rows; w++) {
       const row = [];
       for (let d = 0; d < 7; d++) {
         const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate() + w * 7 + d);
         row.push({ iso: U.iso(cur), inMonth: cur.getMonth() === month, day: cur.getDate() });
       }
       weeks.push(row);
-      if (row[6].inMonth === false && new Date(start.getFullYear(), start.getMonth(), start.getDate() + w * 7 + 7).getMonth() !== month && w >= 3) break;
     }
     return weeks;
   }
 
   /* Order reference: LH + yymmdd + 4 chars, e.g. LH260905-K7MQ */
   function orderRef(dateISO) {
-    const d = (dateISO || U.todayISO()).replace(/-/g, '').slice(2);
+    const d = (dateISO || LHF.time.today()).replace(/-/g, '').slice(2);
     return 'LH' + d + '-' + U.rnd(4);
   }
 
   /* ---- price summary ---- */
+  /* How a product's price may be stated on an order today:
+     'firm'  the shop's own price, inside its validity date
+     'from'  a starting price ('from' and 'range'); the shop confirms the total
+     'quote' no price, or the date the shop's prices were good until has passed */
+  function priceKind(p, today) {
+    if (!p || p.pricing === 'quote' || !(Number(p.price) > 0)) return 'quote';
+    const until = p.priceValidUntil || (LHF.data.policies || {}).priceValidUntil;
+    if (until && (today || LHF.time.today()) > until) return 'quote';
+    return p.pricing === 'from' || p.pricing === 'range' ? 'from' : 'firm';
+  }
   function priceSummary(draft) {
+    const today = LHF.time.today();
     /* a draft saved before a catalogue change can name a product that no longer exists */
     const items = (draft.items || []).map((it) => {
       const p = LHF.catalog.byId(it.productId);
       if (!p) return null;
-      const unit = tierPrice(p, it.qty || 1);
-      return { product: p, qty: it.qty || 1, unit, line: unit * (it.qty || 1), options: it.options || {} };
+      /* a quantity stacked by re-adding, or edited in storage, stays inside the product's range */
+      const qty = U.clamp(Math.floor(Number(it.qty)) || 1, 1, p.maxQty || 20);
+      const kind = priceKind(p, today);
+      const unit = kind === 'quote' ? 0 : tierPrice(p, qty);
+      return { product: p, qty, unit, line: unit * qty, kind, options: it.options || {} };
     }).filter(Boolean);
     const subtotal = items.reduce((a, b) => a + b.line, 0);
-    const quoteOnly = items.some((i) => i.product && i.product.pricing === 'quote') || draft.type === 'custom';
+    const brief = hasBrief(draft);
+    /* hasQuote: part of the order has no price yet. priceFrom: every price is known
+       but at least one is a starting price, so the total is "from". Either way the
+       shop confirms the total, and the Sheet row says so. */
+    const hasQuote = brief || items.some((i) => i.kind === 'quote');
+    const priceFrom = !hasQuote && items.some((i) => i.kind === 'from');
     const promo = LHF.data.policies.reviewDiscountPct;
-    return { items, subtotal, quoteOnly, deliveryNote: draft.fulfil === 'delivery' ? 'delivery.byDistance' : null, reviewDiscountPct: promo };
+    return { items, subtotal, brief, hasQuote, priceFrom, quoteOnly: hasQuote || priceFrom, deliveryNote: draft.fulfil === 'delivery' ? 'delivery.byDistance' : null, reviewDiscountPct: promo };
   }
   function tierPrice(p, qty) {
     if (!p.tiers) return p.price || 0;
     let unit = p.price;
     p.tiers.forEach((t) => { if (qty >= t.min) unit = t.price; });
     return unit;
+  }
+
+  /* ---- phones ----
+     The orderer may be anywhere (children abroad order for their parents): a Thai
+     mobile, a Thai landline, or + country code with 8–15 digits. The recipient is
+     called by the rider, so the recipient needs a Thai mobile. Thai and full-width
+     digits count; +66 and 66 fold into the leading 0. */
+  function normPhone(s) {
+    let v = String(s || '').replace(/[๐-๙]/g, (ch) => String(ch.charCodeAt(0) - 0x0E50)).replace(/[０-９]/g, (ch) => String(ch.charCodeAt(0) - 0xFF10)).trim();
+    const intl = /^(\+|00)/.test(v);
+    v = v.replace(/\D/g, '');
+    if (!intl) return /^66[689]\d{8}$/.test(v) ? '0' + v.slice(2) : v;
+    if (v.startsWith('00')) v = v.slice(2);
+    if (v.startsWith('66')) return '0' + v.slice(2).replace(/^0/, '');
+    return '+' + v;
+  }
+  const isMobileTH = (s) => /^0[689]\d{8}$/.test(normPhone(s));
+  const isCustomerPhone = (s) => { const n = normPhone(s); return /^0[689]\d{8}$/.test(n) || /^0[2-7]\d{7}$/.test(n) || /^\+[1-9]\d{7,14}$/.test(n); };
+  function fmtPhone(s) {
+    const n = normPhone(s);
+    if (/^0\d{9}$/.test(n)) return n.slice(0, 3) + ' ' + n.slice(3, 6) + ' ' + n.slice(6);
+    if (/^0\d{8}$/.test(n)) return n.slice(0, 2) + ' ' + n.slice(2, 5) + ' ' + n.slice(5);
+    return n || String(s || '');
   }
 
   /* ---- validation ---- */
@@ -1737,10 +1905,10 @@ LHF.engine = (function () {
     if (!step || step === 'when') { need('date', d.date); need('fulfil', d.fulfil); need('windowId', d.windowId); }
     if (!step || step === 'who') {
       need('customerName', d.customer && d.customer.name && d.customer.name.trim().length >= 2);
-      if (!(d.customer && U.isThaiMobile(d.customer.phone))) e.customerPhone = d.customer && d.customer.phone ? 'phone' : 'required';
+      if (!(d.customer && isCustomerPhone(d.customer.phone))) e.customerPhone = d.customer && d.customer.phone ? 'phone' : 'required';
       if (d.fulfil === 'delivery') {
         need('recipientName', d.recipient && d.recipient.name);
-        if (!(d.recipient && U.isThaiMobile(d.recipient.phone))) e.recipientPhone = d.recipient && d.recipient.phone ? 'phone' : 'required';
+        if (!(d.recipient && isMobileTH(d.recipient.phone))) e.recipientPhone = d.recipient && d.recipient.phone ? 'mobile' : 'required';
         need('addressLine', d.address && d.address.line && d.address.line.trim().length >= 6);
         need('district', d.address && d.address.district);
         need('province', d.address && d.address.province);
@@ -1751,32 +1919,36 @@ LHF.engine = (function () {
     return e;
   }
 
-  return { ctx, earliestDate, dateStatus, windowsFor, monthMatrix, orderRef, priceSummary, tierPrice, validate };
+  return { ctx, horizon, earliestDate, dateStatus, lowAt, windowsFor, monthMatrix, orderRef, priceSummary, priceKind, tierPrice, validate, leadFor, hasBrief, normPhone, isMobileTH, isCustomerPhone, fmtPhone };
 })();
 
 /* ---- core/sink.js ---- */
 /* =====================================================================
-   sink — one-way delivery of a finished reservation to the shop's Google
-   Sheet, through the Apps Script Web App in google/Code.gs.
+   sink — delivery of a finished reservation to the shop's Google Sheet,
+   through the Apps Script Web App in google/Code.gs.
 
    Three facts shape the whole file:
 
-   1. The customer's confirmation must never depend on this. The booking is
-      already durable in LHF.db before send() is called; delivery is an
-      errand run afterwards, and a failed errand is the shop's problem to
-      see in the back office, never the customer's to read on screen.
+   1. The customer is told an order reached the shop only after the script
+      answers with JSON ok === true. deliver() is awaited by the order page;
+      anything else (no endpoint, a network error, a timeout, an HTML error
+      page, {ok:false}) comes back as a failure the customer reads on screen,
+      with LINE and the phone as the other ways in. A queued message is not a
+      delivered one, and the shop cannot see a queue that lives on the
+      customer's phone.
 
    2. Inside a published Claude Artifact the browser blocks every outbound
-      request to every host, silently — no error, no console entry. There we
-      deliver nothing and, crucially, store nothing: the reservation is
-      already in the artifact's own database, so copying the customer's name,
-      phone and address into their localStorage would be pure exposure with
-      no purpose. We only count what the Sheet is still owed.
+      request to every host, silently. There the artifact's own database is
+      the record (see db.js), so we deliver nothing and store nothing here;
+      we only count what the Sheet is still owed.
 
-   3. The endpoint is a build-time value (window.__LHF_SHEET, written by
-      build.py from sheet.json), not only an admin setting. Off the artifact
-      there is no shared settings document, so a first-time visitor's browser
-      would otherwise have no idea where to post.
+   3. The endpoint comes from sheet.json, fetched from the deployed folder
+      (and retried, and awaited before a send), over the value baked in at
+      build time. Nothing typed into a browser can repoint it.
+
+   The outbox below is legacy: an older version of the site queued rows in
+   visitors' browsers and posted them in the background. It still drains
+   what is left there, once, strictly, and deletes what is a week old.
    ===================================================================== */
 LHF.sink = (function () {
   const U = LHF.util;
@@ -1788,6 +1960,7 @@ LHF.sink = (function () {
   const BASE_MS = 4000;
   const CAP_MS = 10 * 60000;
   const SENT_KEEP = 400;            // refs remembered so a backfill cannot double-send
+  const TIMEOUT_MS = 25000;         // Apps Script cold starts can take several seconds
 
   const listeners = new Set();
   let timer = null, running = false;
@@ -1797,69 +1970,109 @@ LHF.sink = (function () {
   const blocked = !!(window.claude && typeof window.claude.use === 'function');
 
   const thai = (k) => { const e = (LHF.data.strings || {})[k]; return (e && e.th) || ''; };
-  const load = () => U.storage.get(BOX, []);
+  const load = () => { const q = U.storage.get(BOX, []); return Array.isArray(q) ? q : []; };
   const save = (q) => U.storage.set(BOX, q);
   const state = () => Object.assign({ lastOkAt: 0, lastErr: '', dropped: 0, owed: 0, sent: {} }, U.storage.get(ST, {}));
   const setState = (patch) => { const s = Object.assign(state(), patch); U.storage.set(ST, s); return s; };
 
-  /* Endpoint precedence: the back-office field (this device) beats sheet.json fetched
-     from the deployed folder, which beats the value baked in at build time. The
-     middle one exists so the shop can repoint the site by editing one small file in
-     the repository instead of rebuilding a four-megabyte bundle. */
-  let runtime = null;
+  /* Endpoint precedence: sheet.json fetched from the deployed folder beats the
+     value baked in at build time, so the shop can repoint the site by editing
+     one small file in the repository instead of rebuilding a four-megabyte
+     bundle. Settings saved in a browser are never consulted. */
+  let runtime = null, cfgLoading = null;
   function cfg() {
-    const baked = Object.assign({}, window.__LHF_SHEET || {}, runtime || {});
-    const s = ((LHF.store.get('settings') || {}).sheet) || {};
-    const endpoint = String(s.endpoint != null && s.endpoint !== '' ? s.endpoint : (baked.endpoint || '')).trim();
-    const secret = String(s.secret != null && s.secret !== '' ? s.secret : (baked.secret || ''));
-    const on = s.enabled != null ? !!s.enabled : baked.enabled !== false;
-    /* The destination is allow-listed in code, not left to the settings form: the
-       settings document is readable by anyone who reaches the admin page, so an
-       unvalidated URL field would be a one-line exfiltration switch for every
-       future customer's name, phone and address. localhost is for development. */
+    const baked = window.__LHF_SHEET || {};
+    const rt = runtime || {};
+    const endpoint = String(rt.endpoint || baked.endpoint || '').trim();
+    const secret = String(rt.endpoint ? rt.secret || '' : baked.secret || '');
+    const on = runtime ? rt.enabled !== false : baked.enabled !== false;
+    /* The destination is allow-listed in code: an unvalidated URL would be a
+       one-line switch for sending every customer's name, phone and address
+       somewhere else. localhost is for development. */
     if (!on || !/^(https:\/\/script\.google(usercontent)?\.com\/|http:\/\/(localhost|127\.0\.0\.1)[:/])/.test(endpoint)) return null;
     return { endpoint, secret };
+  }
+  /* sheet.json, fetched once per visit; a failed or slow fetch is tried again
+     (three tries), and a send waits for it rather than giving up at once */
+  function loadConfig() {
+    if (runtime || blocked) return Promise.resolve(runtime);
+    if (!cfgLoading) {
+      cfgLoading = (async () => {
+        for (let i = 0; i < 3 && !runtime; i++) {
+          if (i) await U.wait(700 * i);
+          try {
+            const r = await Promise.race([fetch('sheet.json', { cache: 'no-store' }), U.wait(8000).then(() => { throw new Error('timeout'); })]);
+            const j = r.ok ? await r.json() : null;
+            if (j && typeof j === 'object') runtime = { enabled: j.enabled !== false, endpoint: String(j.endpoint || ''), secret: String(j.secret || '') };
+            else if (r.status === 404) break;   // no file deployed: the baked value stands
+          } catch (e) { /* offline or blocked: try again */ }
+        }
+        cfgLoading = null;
+        emit();
+        return runtime;
+      })();
+    }
+    return cfgLoading;
   }
 
   /* ---------- the row ----------------------------------------------------
      One named field per Sheet column. Named, never positional: an older copy
      of the site in somebody's cache must not be able to shift every column
-     by one. google/Code.gs maps these onto the header it owns. */
+     by one. google/Code.gs maps these onto the header it owns, so the names
+     below never change; anything new rides inside an existing text field. */
+  const CAP = { name: 120, line: 40, address: 500, landmark: 200, district: 80, card: 200, brief: 2000, items: 1000 };
+  const clip = (v, n) => { const s = String(v == null ? '' : v).trim(); return s.length > n ? s.slice(0, n) + '…' : s; };
+  /* A cell that starts with = + - @ (or a tab or return) is run as a formula by
+     Sheets and by spreadsheet apps opening an export. A leading apostrophe
+     makes it plain text, and Sheets does not show the apostrophe. */
+  const safe = (v) => (typeof v === 'string' && /^[=+\-@\t\r]/.test(v) ? "'" + v : v);
+  /* Thai numbers keep their leading 0 as 081-234-5678 (bare digits would be
+     read as the number 812345678); a +country number becomes '+… via safe() */
+  function phoneCell(s) {
+    const n = LHF.engine.normPhone(s);
+    if (/^0\d{9}$/.test(n)) return n.slice(0, 3) + '-' + n.slice(3, 6) + '-' + n.slice(6);
+    if (/^0\d{8}$/.test(n)) return n.slice(0, 2) + '-' + n.slice(2, 5) + '-' + n.slice(5);
+    return clip(n, 20);
+  }
+  const STATUS_TH = { new: 'รอยืนยัน' };
   function fields(b) {
     b = b || {};
     const cust = b.customer || {}, rec = b.recipient || {}, addr = b.address || null;
     const c = b.custom || null;
-    const items = (b.items || []).map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + i.name).join(' + ');
-    return {
+    /* the florist reads Thai, whatever language the customer ordered in */
+    const items = (b.items || []).map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + (i.nameTh || thName(LHF.catalog.byId(i.productId)) || i.name) + (i.kind === 'from' ? ' (ราคาเริ่มต้น)' : i.kind === 'quote' ? ' (สอบถามราคา)' : '')).join(' + ');
+    const row = {
       received: bkkStamp(b.createdAt),
       ref: b.ref || '',
-      status: thai('status.' + (b.status || 'new')) || (b.status || 'new'),
+      status: thai('status.' + (b.status || 'new')) || STATUS_TH[b.status || 'new'] || (b.status || 'new'),
       dateNeeded: b.date || '',
       window: b.windowLabel || '',
       fulfil: thai('book.how.' + b.fulfil) || b.fulfil || '',
-      items: items,
-      brief: c ? brief(c, b) : '',
+      items: clip(items, CAP.items),
+      brief: clip(brief(b), CAP.brief),
       budget: c ? budget(c) : '',
       subtotal: Number(b.subtotal) > 0 ? Number(b.subtotal) : '',
-      quoteNeeded: b.quoteOnly ? 'ต้องยืนยันราคา' : '',
-      customerName: cust.name || '',
-      customerPhone: U.normalizePhone(cust.phone),
+      quoteNeeded: b.quoteOnly ? (b.priceFrom ? 'ต้องยืนยันราคา · ยอดนี้เป็นราคาเริ่มต้น' : 'ต้องยืนยันราคา') : '',
+      customerName: clip(cust.name, CAP.name),
+      customerPhone: phoneCell(cust.phone),
       /* the site lets the customer say "the recipient is me"; the shop should
          still see a name and a number in those columns, not two blanks */
-      recipientName: rec.name || cust.name || '',
-      recipientPhone: U.normalizePhone(rec.phone || cust.phone),
+      recipientName: clip(rec.name || cust.name, CAP.name),
+      recipientPhone: phoneCell(rec.phone || cust.phone),
       /* the landmark rides with the address: it is what the rider actually needs,
          and it does not deserve a column of its own in front of the florist */
-      address: addr ? [addr.line, addr.note].filter(Boolean).join(' · ') : '',
-      district: addr ? addr.district || '' : '',
+      address: addr ? [clip(addr.line, CAP.address), clip(addr.note, CAP.landmark)].filter(Boolean).join(' · ') : '',
+      district: addr ? clip(addr.district, CAP.district) : '',
       province: addr ? provinceLabel(addr.province) : '',
-      card: (b.card && b.card.message) || '',
+      card: clip(b.card && b.card.message, CAP.card),
       anonymous: b.anonymous ? 'ไม่ระบุชื่อผู้ส่ง' : '',
       lang: b.lang || '',
-      notes: b.notes || '',
+      notes: clip(b.notes, CAP.brief),
       id: b.id || '',
-      customerLine: cust.line || '',
+      customerLine: clip(cust.line, CAP.line),
     };
+    Object.keys(row).forEach((k) => { row[k] = safe(row[k]); });
+    return row;
   }
   const FIELDS = ['received', 'ref', 'status', 'dateNeeded', 'window', 'fulfil', 'items', 'brief', 'budget', 'subtotal', 'quoteNeeded', 'customerName', 'customerPhone', 'recipientName', 'recipientPhone', 'address', 'district', 'province', 'card', 'anonymous', 'lang', 'notes', 'id', 'customerLine'];
   const HEAD = ['เวลาที่รับคำจอง / Received', 'รหัสจอง / Ref', 'สถานะ / Status', 'วันที่ใช้ / Date needed', 'ช่วงเวลา / Time window', 'รับเอง–ส่ง / Pickup or delivery', 'รายการ / Items', 'โจทย์พิเศษ / Custom brief', 'งบประมาณ / Budget', 'ยอดรวม / Subtotal', 'ต้องยืนยันราคา / Quote needed', 'ชื่อผู้สั่ง / Customer', 'เบอร์ผู้สั่ง / Customer phone', 'ชื่อผู้รับ / Recipient', 'เบอร์ผู้รับ / Recipient phone', 'ที่อยู่จัดส่ง / Delivery address', 'เขต–อำเภอ / District', 'จังหวัด / Province', 'ข้อความการ์ด / Card message', 'ไม่ระบุชื่อผู้ส่ง / Anonymous', 'ภาษา / Language', 'หมายเหตุร้าน / Shop notes', 'รหัสภายใน / Booking id', 'LINE ผู้สั่ง / Customer LINE'];
@@ -1872,7 +2085,7 @@ LHF.sink = (function () {
   }
   function provinceLabel(id) {
     const p = (LHF.data.delivery.provinces || []).find((x) => x.id === id);
-    return p ? p.th : id || '';
+    return p ? p.th : clip(id, 60);
   }
   function budget(c) {
     if (Number(c.budgetCustom) > 0) return String(Math.round(c.budgetCustom));
@@ -1881,22 +2094,128 @@ LHF.sink = (function () {
     if (!tr) return '';
     return tr.max ? tr.min + '–' + tr.max : tr.min + '+';
   }
-  /* The reference image never leaves the site — only the fact that one exists. */
-  function brief(c, b) {
+  const thName = (p) => (p && p.name ? (typeof p.name === 'object' ? p.name.th || p.name.en : p.name) : '');
+  /* Everything the customer asked for in words: the brief, the product or post
+     it started from, the colour and wrap they want, and whether they have a
+     reference photo. The photo itself is never uploaded; the customer sends it
+     on LINE with the reservation number, and the row says so. */
+  function brief(b) {
+    const c = b.custom || null;
     const parts = [];
-    if (c.style) parts.push('แบบ: ' + (thai('custom.style.' + c.style) || c.style));
-    if (c.occasion) parts.push('โอกาส: ' + occasionLabel(c.occasion));
-    if ((c.flowers || []).length) parts.push('ดอกไม้: ' + c.flowers.map(flowerLabel).join(', '));
-    if (c.feel) parts.push('ฟีล: ' + c.feel);
-    if (c.notes) parts.push('โน้ต: ' + c.notes);
-    if (b && b.colourNote) parts.push('สี: ' + b.colourNote);
-    if (c.reference) parts.push('มีรูปอ้างอิงแนบไว้ในระบบ' + (c.referenceName ? ' (' + c.referenceName + ')' : ''));
+    if (c) {
+      const p = c.fromProduct && LHF.catalog.byId(c.fromProduct);
+      if (p) parts.push('ช่อที่สนใจ: ' + thName(p) + ' (' + p.id + ')');
+      const post = c.fromPost && LHF.posts && LHF.posts.byId ? LHF.posts.byId(c.fromPost) : null;
+      if (post) parts.push('โพสต์ที่อ้างถึง: ' + post.url);
+      if (c.style) parts.push('แบบ: ' + (thai('custom.style.' + c.style) || c.style));
+      if (c.occasion) parts.push('โอกาส: ' + occasionLabel(c.occasion));
+      if ((c.flowers || []).length) parts.push('ดอกไม้: ' + c.flowers.map(flowerLabel).join(', '));
+      if (c.feel) parts.push('ฟีล: ' + clip(c.feel, 300));
+      if (c.notes) parts.push('โน้ต: ' + clip(c.notes, 1000));
+    }
+    if (b.colourNote) parts.push('สี–กระดาษ: ' + clip(b.colourNote, 300));
+    if (c && (c.hasReference || c.reference)) parts.push('ลูกค้ามีรูปเรฟ จะส่งทาง LINE พร้อมหมายเลขคำจอง');
     return parts.join('\n');
   }
   const occasionLabel = (id) => { const o = LHF.catalog && LHF.catalog.occasion ? LHF.catalog.occasion(id) : null; return (o && o.th) || id; };
   const flowerLabel = (id) => { const f = (LHF.catalog && LHF.catalog.flowers) ? LHF.catalog.flowers[id] : null; return (f && f.th) || id; };
 
-  /* ---------- outbox ---------- */
+  /* ---------- delivery, awaited by the order page ----------
+     Resolves {ok:true, ack} only when the script answers JSON with ok === true.
+     Everything else resolves {ok:false, reason}: no_endpoint, network, timeout,
+     http_5xx, bad_response (an HTML or empty body), or the script's own error. */
+  async function deliver(booking, opts) {
+    opts = opts || {};
+    if (blocked) return { ok: false, reason: 'blocked' };
+    await loadConfig();
+    const c = cfg();
+    if (!c) return { ok: false, reason: 'no_endpoint' };
+    const body = JSON.stringify({ v: 1, secret: c.secret, source: 'web', hp: String(opts.hp || ''), reservations: [fields(booking)] });
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    let timedOut = false, clock = null;
+    const attempt = (async () => {
+      /* exactly one header, and a simple one: any other header makes this a
+         preflighted request, and an Apps Script Web App cannot answer OPTIONS.
+         No keepalive: it caps the body at 64 KB and outlives the page. */
+      const res = await fetch(c.endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body, redirect: 'follow', signal: ctl ? ctl.signal : undefined });
+      let ack = null;
+      try { ack = JSON.parse(await res.text()); } catch (e) { ack = null; }
+      return { res, ack };
+    })();
+    const expire = new Promise((resolve) => { clock = setTimeout(() => { timedOut = true; if (ctl) ctl.abort(); resolve(null); }, opts.timeoutMs || TIMEOUT_MS); });
+    try {
+      const got = await Promise.race([attempt, expire]);
+      if (!got) { setState({ lastErr: 'timeout' }); return { ok: false, reason: 'timeout' }; }
+      const { res, ack } = got;
+      if (ack && ack.ok === true) {
+        markSent(booking.id || booking.ref);
+        setState({ lastOkAt: Date.now(), lastErr: '' });
+        return { ok: true, ack };
+      }
+      const reason = ack && ack.ok === false ? String(ack.error || 'rejected') : !res.ok ? 'http_' + res.status : 'bad_response';
+      setState({ lastErr: reason });
+      return { ok: false, reason };
+    } catch (e) {
+      const reason = timedOut ? 'timeout' : 'network';
+      setState({ lastErr: reason });
+      return { ok: false, reason };
+    } finally { clearTimeout(clock); }
+  }
+  function markSent(key) {
+    if (!key) return;
+    const s = state();
+    const sent = s.sent || {};
+    sent[key] = 1;
+    const keys = Object.keys(sent);
+    if (keys.length > SENT_KEEP) keys.slice(0, keys.length - SENT_KEEP).forEach((k) => { delete sent[k]; });
+    setState({ sent: sent });
+  }
+
+  /* ---------- the same order in words, for LINE, the clipboard and the calendar ---------- */
+  function summary(b) {
+    const t = (k, p) => LHF.i18n.t(k, p), pick = (o) => LHF.i18n.pick(o), I = LHF.i18n, E = LHF.engine;
+    const priceOf = (i) => (i.kind === 'quote' ? t('price.quote') : i.kind === 'from' ? t('price.from', { price: I.fmtPrice(i.line) }) : I.fmtPrice(i.line));
+    const c = b.custom || null;
+    const lines = ['Little House Flower · ' + t('done.ref') + ' ' + b.ref];
+    (b.items || []).forEach((i) => lines.push('• ' + (i.qty > 1 ? i.qty + ' × ' : '') + (pick((LHF.catalog.byId(i.productId) || {}).name) || i.name) + ' — ' + priceOf(i)));
+    if (c) {
+      const p = c.fromProduct && LHF.catalog.byId(c.fromProduct);
+      lines.push('• ' + t('custom.summary') + ': ' + [p ? pick(p.name) : '', t('custom.style.' + (c.style || 'bouquet')), c.occasion ? pick(LHF.catalog.occasion(c.occasion) || {}) : '', budgetLabel(c)].filter(Boolean).join(' · '));
+      if (c.feel) lines.push('  ' + c.feel);
+      if (c.notes) lines.push('  ' + c.notes);
+    }
+    if (b.colourNote) lines.push(t('book.sum.colour') + ': ' + b.colourNote);
+    lines.push(t('book.step.when') + ': ' + I.fmtDate(b.date, 'weekday') + (b.windowLabel ? ' · ' + b.windowLabel : ''));
+    const a = b.address;
+    lines.push(t('book.step.how') + ': ' + (b.fulfil ? t('book.how.' + b.fulfil) : '') + (b.fulfil === 'delivery' && a ? ' — ' + [a.line, a.district, pick((LHF.data.delivery.provinces || []).find((p) => p.id === a.province) || {}), a.note].filter(Boolean).join(' ') : ''));
+    if (b.customer && b.customer.name) lines.push(t('book.who.you') + ': ' + b.customer.name + ' · ' + E.fmtPhone(b.customer.phone) + (b.customer.line ? ' · LINE ' + b.customer.line : ''));
+    if (b.fulfil === 'delivery' && b.recipient && b.recipient.name) lines.push(t('book.who.recipient') + ': ' + b.recipient.name + ' · ' + E.fmtPhone(b.recipient.phone || (b.customer || {}).phone) + (b.anonymous ? ' · ' + t('book.who.anon') : ''));
+    if (b.card && b.card.message) lines.push(t('book.step.card') + ': ' + b.card.message);
+    lines.push(t('book.review.total') + ': ' + totalLabel(b));
+    if (c && (c.hasReference || c.reference)) lines.push(t('done.photo.line'));
+    return lines.join('\n');
+  }
+  function budgetLabel(c) {
+    const I = LHF.i18n;
+    if (Number(c.budgetCustom) > 0) return I.fmtPrice(c.budgetCustom);
+    const tiers = ((LHF.store.get('settings') || {}).budgetTiers) || LHF.data.bookingDefaults.budgetTiers;
+    const tr = tiers.find((x) => x.id === c.budgetTier);
+    return tr ? (tr.max ? I.fmtPrice(tr.min) + ' – ' + I.fmtPrice(tr.max) : I.fmtPrice(tr.min) + '+') : '';
+  }
+  /* the total as the customer may be told it: exact, "from", or confirmed on LINE */
+  function totalLabel(b) {
+    const t = (k, p) => LHF.i18n.t(k, p), I = LHF.i18n;
+    const delivery = b.fulfil === 'delivery' ? ' + ' + t('book.review.delivery').toLowerCase() : '';
+    if (b.hasQuote || (b.quoteOnly && !b.priceFrom)) return t('book.review.quoteNote');
+    if (b.priceFrom) return t('book.review.fromTotal', { price: I.fmtPrice(b.subtotal) }) + delivery;
+    return I.fmtPrice(b.subtotal) + delivery;
+  }
+  /* LINE's own "message this account" link, with the text already typed in */
+  const lineUrl = (text) => 'https://line.me/R/oaMessage/' + encodeURIComponent(LHF.data.shop.lineId) + '/?' + encodeURIComponent(text || '');
+
+  /* ---------- legacy outbox ---------- */
+  /* Inside the artifact this only counts what the Sheet is owed. Elsewhere new
+     orders never come through here; it stays for API compatibility. */
   function send(booking) {
     if (!booking || !booking.ref) return status();
     if (blocked) { setState({ owed: state().owed + 1 }); emit(); return status(); }
@@ -1928,13 +2247,14 @@ LHF.sink = (function () {
     return status();
   }
 
-  /* Age and count limits only. Nothing is discarded for being merely stale in
-     the queue, and every discard is counted — a silent drop would let the back
-     office show a green light over a Sheet that is missing an order. */
+  /* Age and count limits. A row a week old is a dead letter that still holds a
+     customer's name, number and address, so it is deleted, not kept parked; a
+     weeks-old order must never land in the Sheet as if it were new. Every
+     discard is counted. */
   function prune(q) {
     const now = Date.now();
     let dropped = 0;
-    q.forEach((x) => { if (!x.parked && now - x.at > MAX_AGE_MS) x.parked = 'expired'; });
+    q = q.filter((x) => { const dead = !x || now - x.at > MAX_AGE_MS; if (dead) dropped++; return !dead; });
     if (q.length > MAX_ITEMS) {
       const parked = q.filter((x) => x.parked), live = q.filter((x) => !x.parked);
       const over = q.length - MAX_ITEMS;
@@ -1950,9 +2270,19 @@ LHF.sink = (function () {
 
   async function pump() {
     if (blocked || running) return;
+    if (!load().some((x) => !x.parked)) return;
     const c = cfg();
     if (!c) { schedule(); return; }
     if (navigator.onLine === false) { schedule(); return; }
+    /* one tab at a time: two open tabs must not post the same row twice */
+    if (navigator.locks && typeof navigator.locks.request === 'function') {
+      try { await navigator.locks.request('lhf-sink', { ifAvailable: true }, (lock) => (lock ? pumpOnce(c) : schedule())); } catch (e) { schedule(); }
+      return;
+    }
+    await pumpOnce(c);
+  }
+  async function pumpOnce(c) {
+    if (running) return;
     running = true;
     try {
       const q = load();
@@ -1964,29 +2294,23 @@ LHF.sink = (function () {
       try {
         const res = await fetch(c.endpoint, {
           method: 'POST',
-          /* exactly one header, and a simple one: any other header makes this a
-             preflighted request, and an Apps Script Web App cannot answer OPTIONS */
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ v: 1, secret: c.secret, source: 'web', reservations: [due.data] }),
+          body: JSON.stringify({ v: 1, secret: c.secret, source: 'web', hp: '', reservations: [due.data] }),
           redirect: 'follow',
-          keepalive: true,
         });
-        ok = res.ok;
         let ack = null;
-        try { ack = JSON.parse(await res.text()); } catch (e) { ack = null; }   // an opaque or HTML body still means 2xx
-        if (ack && ack.ok === false) { ok = false; if (ack.error === 'bad_secret' || ack.error === 'no_reservations') permanent = ack.error; }
+        try { ack = JSON.parse(await res.text()); } catch (e) { ack = null; }
+        /* delivered means the script said so: an HTML error page or an empty 200 is not */
+        ok = !!(ack && ack.ok === true);
+        if (ack && ack.ok === false && (ack.error === 'bad_secret' || ack.error === 'no_reservations')) permanent = ack.error;
       } catch (e) { ok = false; }
 
       const fresh = load();
       const item = fresh.find((x) => x.key === due.key);
       if (!item) return;
       if (ok) {
-        const s = state();
-        const sent = s.sent || {};
-        sent[due.key] = 1;
-        const keys = Object.keys(sent);
-        if (keys.length > SENT_KEEP) keys.slice(0, keys.length - SENT_KEEP).forEach((k) => { delete sent[k]; });
-        setState({ lastOkAt: Date.now(), lastErr: '', sent: sent });
+        markSent(due.key);
+        setState({ lastOkAt: Date.now(), lastErr: '' });
         save(fresh.filter((x) => x.key !== due.key));
       } else {
         item.attempts = due.attempts;
@@ -2011,11 +2335,12 @@ LHF.sink = (function () {
     timer = setTimeout(pump, U.clamp(soonest - Date.now(), 1000, CAP_MS));
   }
 
-  /* "retry now" from the back office: un-park everything and try again */
+  /* back online: retry rows that only ran out of attempts. Never a rejected
+     secret, and never anything a week old (prune has already deleted those). */
   function flush() {
     if (blocked) return status();
-    const q = load();
-    q.forEach((x) => { x.parked = ''; x.attempts = 0; x.next = Date.now(); });
+    const q = prune(load());
+    q.forEach((x) => { if (x.parked === 'attempts') { x.parked = ''; x.attempts = 0; x.next = Date.now(); } });
     save(q);
     setState({ lastErr: '' });
     emit(); pump();
@@ -2041,7 +2366,7 @@ LHF.sink = (function () {
 
   /* one column list for the Sheet and for the download, so they cannot drift */
   function csv(list) {
-    const esc = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const esc = (v) => '"' + String(safe(v == null ? '' : v)).replace(/"/g, '""') + '"';
     const rows = (list || []).map((b) => { const f = fields(b); return FIELDS.map((k) => esc(f[k])).join(','); });
     return '﻿' + [HEAD.map(esc).join(',')].concat(rows).join('\r\n');
   }
@@ -2051,19 +2376,16 @@ LHF.sink = (function () {
 
   function start() {
     if (blocked) return;
-    /* same-origin, so it works from a GitHub Pages sub-path and fails harmlessly
-       from file:// or anywhere the file is simply absent */
-    fetch('sheet.json', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { if (j && typeof j === 'object') { runtime = { enabled: j.enabled !== false, endpoint: j.endpoint || '', secret: j.secret || '' }; emit(); pump(); } })
-      .catch(() => {});
     window.addEventListener('online', () => { flush(); });
-    /* a browser reopened days later still owes the Sheet its rows */
-    save(prune(load()));
-    schedule(); pump();
+    /* a browser reopened days later may still hold rows from the old queue */
+    const q = load();
+    if (q.length) save(prune(q));
+    /* same-origin, so it works from a GitHub Pages sub-path; fetched now so a
+       send later in this visit does not wait for it */
+    loadConfig().then(() => { schedule(); pump(); });
   }
 
-  return { send, sendAll, flush, status, onChange, csv, fields, start, FIELDS: FIELDS.slice(), HEAD: HEAD.slice(), get blocked() { return blocked; } };
+  return { send, sendAll, deliver, loadConfig, flush, status, onChange, csv, fields, summary, totalLabel, lineUrl, start, FIELDS: FIELDS.slice(), HEAD: HEAD.slice(), get blocked() { return blocked; } };
 })();
 
 /* ---- data/settings.js ---- */
@@ -2367,7 +2689,7 @@ LHF.data.strings = {
   'custom.ref.add': { th: 'เพิ่มรูปเรฟ', en: 'Add a reference photo' },
   'custom.ref.replace': { th: 'เปลี่ยนรูป', en: 'Replace' },
   'custom.ref.remove': { th: 'ลบรูป', en: 'Remove' },
-  'custom.ref.hint': { th: 'JPG / PNG / WEBP / HEIC · รูปจะส่งให้ร้านเท่านั้น ไม่แสดงสาธารณะ', en: 'JPG / PNG / WEBP / HEIC · sent to the shop only, never shown publicly' },
+  'custom.ref.hint': { th: 'JPG / PNG / WEBP / HEIC · รูปเรฟไม่ได้ส่งไปพร้อมคำจองนะคะ จองเสร็จแล้ว รบกวนส่งรูปให้ร้านทาง LINE พร้อมหมายเลขคำจองค่ะ', en: 'JPG / PNG / WEBP / HEIC · The photo isn’t sent with the reservation. Once you’ve booked, send it to us on LINE with your reservation number.' },
   'custom.ref.error': { th: 'อ่านไฟล์รูปไม่ได้ค่ะ ลองไฟล์อื่นนะคะ', en: 'We couldn’t read that image. Try another file.' },
   'custom.ref.big': { th: 'รูปใหญ่เกินไป ระบบย่อให้แล้วค่ะ', en: 'Large image, resized automatically.' },
   'custom.seasonal': { th: 'เนื่องจากเป็นงานแฮนด์เมด หน้าตาและดอกไม้จะเป็นไปตามฤดูกาลค่ะ', en: 'Everything is handmade, so the flowers follow the season.' },
@@ -2430,15 +2752,65 @@ LHF.data.strings = {
   'book.card.count': { th: '{n}/200', en: '{n}/200' },
   'book.card.preview': { th: 'ตัวอย่างการ์ด (ลายมือจริงของร้านจะต่างจากนี้ค่ะ)', en: 'Preview — the shop’s real handwriting will differ' },
   'book.review.title': { th: 'ตรวจสอบอีกครั้งนะคะ', en: 'One last look' },
-  'book.review.sub': { th: 'ส่งคำจองแล้ว ทางร้านจะทักไปยืนยันคิวและแจ้งยอดทาง LINE ค่ะ', en: 'After you send it, we message you on LINE to confirm the queue and the total.' },
+  'book.review.sub': { th: 'ตรวจรายละเอียดให้เรียบร้อย แล้วกดส่งคำจองได้เลยค่ะ หลังส่งแล้ว รบกวนส่งหมายเลขคำจองให้ร้านทาง LINE ร้านจะยืนยันคิวและยอดรวมกับคุณทางนั้นค่ะ', en: 'Check everything, then send it. Afterwards, send us your reservation number on LINE and we confirm the queue and the total with you there.' },
   'book.review.items': { th: 'รายการ', en: 'Items' },
   'book.review.subtotal': { th: 'รวมค่าดอกไม้', en: 'Flowers' },
   'book.review.delivery': { th: 'ค่าส่ง', en: 'Delivery' },
   'book.review.deliveryNote': { th: 'คิดตามระยะทาง Lalamove แจ้งยอดทาง LINE', en: 'By distance via Lalamove, confirmed on LINE' },
   'book.review.pickupNote': { th: 'มารับเอง — ไม่มีค่าส่ง', en: 'Pick-up — no delivery fee' },
   'book.review.quoteNote': { th: 'ทางร้านคิดราคาตามชนิดดอกไม้ และแจ้งราคาทาง LINE ค่ะ', en: 'Priced by flower type and confirmed on LINE.' },
-  'book.review.review5': { th: 'มีโปรรีวิวรับส่วนลด 5% ค่ะ', en: 'Review promo: 5% off' },
-  'book.review.consent': { th: 'ยินยอมให้ทางร้านจัดเก็บและใช้ข้อมูลติดต่อและที่อยู่เพื่อดำเนินการคำจองนี้เท่านั้น', en: 'I agree that the shop keeps and uses my contact details and address for this reservation only.' },
+  'book.review.review5': { th: 'ร้านมีโปรรีวิวรับส่วนลด 5% สอบถามเงื่อนไขกับร้านได้ค่ะ', en: 'We run a review promo for 5% off. Ask us for the conditions.' },
+  'book.review.consent': { th: 'ยินยอมให้ร้านใช้ชื่อ เบอร์โทร และที่อยู่ที่กรอกไว้ เพื่อจัดเตรียมและส่งคำจองนี้ และติดต่อคุณและผู้รับเกี่ยวกับคำจองนี้ค่ะ', en: 'I agree that the shop may use the names, phone numbers and address given here to prepare and deliver this order, and to contact me and the recipient about it.' },
+  'book.privacyLink': { th: 'อ่านนโยบายความเป็นส่วนตัว', en: 'Read the privacy policy' },
+  'book.who.privacy': { th: 'ร้านใช้ข้อมูลที่กรอกเพื่อจัดเตรียมและส่งคำจองนี้ และติดต่อคุณกับผู้รับเรื่องคำจองเท่านั้น ข้อมูลเก็บใน Google Sheets ที่ร้านใช้รับคำจอง และลบภายใน 12 เดือนหลังวันส่ง ถ้าให้ร้านส่ง ชื่อ เบอร์ และที่อยู่ผู้รับจะส่งต่อให้ผู้ให้บริการขนส่ง เช่น Lalamove ค่ะ', en: 'We use these details only to prepare and deliver this order and to contact you and the recipient about it. They are kept in the Google Sheets the shop uses for orders and deleted within 12 months of the delivery date. For deliveries, the recipient’s name, phone and address go to the courier, such as Lalamove.' },
+  'book.who.rName': { th: 'ชื่อผู้รับ', en: 'Recipient’s name' },
+  'book.who.rPhone': { th: 'เบอร์มือถือผู้รับ', en: 'Recipient’s mobile' },
+  'book.who.phoneHint': { th: 'มือถือ เบอร์บ้าน หรือเบอร์ต่างประเทศพร้อม + รหัสประเทศ', en: 'Thai mobile or landline, or + and your country code' },
+  'book.err.mobile': { th: 'ผู้รับต้องมีเบอร์มือถือไทยที่ติดต่อได้นะคะ (10 หลัก ขึ้นต้นด้วย 06 08 หรือ 09) คนส่งจะโทรหาเบอร์นี้ค่ะ', en: 'The recipient needs a Thai mobile number (10 digits, starting 06, 08 or 09). The rider calls it.' },
+  'book.err.day': { th: 'รบกวนเลือกวันก่อนนะคะ', en: 'Please choose a date.' },
+  'book.err.window': { th: 'รบกวนเลือกช่วงเวลานะคะ', en: 'Please choose a time window.' },
+  'book.err.address': { th: 'รบกวนกรอกที่อยู่จัดส่งนะคะ (บ้านเลขที่ ซอย ถนน)', en: 'Please enter the delivery address (house number, soi, road).' },
+  'book.err.province': { th: 'รบกวนเลือกจังหวัดนะคะ', en: 'Please choose a province.' },
+  'book.err.district': { th: 'รบกวนระบุเขตหรืออำเภอนะคะ', en: 'Please enter the district.' },
+  'book.err.first': { th: 'รบกวนกรอกขั้นนี้ให้ครบก่อนนะคะ', en: 'Please finish this step first.' },
+  'book.what.dateDropped': { th: 'ตอนนี้คำจองต้องสั่งล่วงหน้า {n} วัน วันที่เลือกไว้เลยใช้ไม่ได้แล้ว รบกวนเลือกวันใหม่นะคะ', en: 'Your order now needs {n} days’ notice, so the date you picked no longer works. Please choose a new one.' },
+  'book.when.cutoff': { th: 'เลยเวลาปิดรับคิว {h} น. ของวันนี้แล้ว เลือกวันถัดไปได้เลยค่ะ ถ้าด่วน ทักถามคิวทาง LINE นะคะ', en: 'Today’s {h} cut-off has passed, so please pick a later day. If it’s urgent, ask us on LINE.' },
+  'book.progress': { th: 'ขั้นตอนการจอง', en: 'Reservation steps' },
+  'book.progress.done': { th: 'เสร็จแล้ว:', en: 'Done:' },
+  'book.remove': { th: 'เอาออก', en: 'Remove' },
+  'book.sum.colour': { th: 'สี / กระดาษ', en: 'Colour and wrap' },
+  'book.review.total': { th: 'ยอด', en: 'Total' },
+  'book.review.fromTotal': { th: 'ตั้งแต่ {price}', en: 'From {price}' },
+  'book.review.address': { th: 'ที่อยู่', en: 'Address' },
+  'book.review.fromNote': { th: 'ยอดนี้เป็นราคาเริ่มต้น ร้านจะแจ้งยอดจริงทาง LINE ก่อนเริ่มจัดดอกไม้ค่ะ', en: 'This is a starting price. We confirm the actual total on LINE before we begin.' },
+  'book.review.photo': { th: 'รูปเรฟยังไม่ถูกส่งไปพร้อมคำจองนะคะ ส่งคำจองแล้ว รบกวนส่งรูปให้ร้านทาง LINE พร้อมหมายเลขคำจองค่ะ', en: 'Your reference photo isn’t sent with the reservation. After sending, share it with us on LINE with your reservation number.' },
+  'book.review.policy': { th: 'การชำระเงิน ค่าส่ง การเปลี่ยนดอกไม้ตามฤดูกาล และการยกเลิก ทางร้านจะคุยและยืนยันกับคุณทาง LINE ก่อนเริ่มจัดดอกไม้ค่ะ', en: 'Payment, the delivery fee, any flower substitutions and cancellation are agreed with you on LINE before we start on your order.' },
+  'book.fail.title': { th: 'คำจองนี้ยังไม่ถึงร้านค่ะ', en: 'Your reservation hasn’t reached the shop yet' },
+  'book.fail.body': { th: 'ระบบส่งคำจองไปที่ร้านไม่สำเร็จ แต่ข้อมูลที่กรอกไว้ยังอยู่ครบค่ะ กดส่งอีกครั้ง ส่งคำจองทาง LINE (มีข้อความเตรียมไว้ให้แล้ว) หรือโทรหาร้านได้เลยนะคะ', en: 'We couldn’t get it to the shop, but everything you entered is still here. Try again, send the reservation on LINE (the message is written for you), or call us.' },
+  'book.fail.retry': { th: 'ส่งอีกครั้ง', en: 'Try again' },
+  'book.fail.line': { th: 'ส่งคำจองทาง LINE', en: 'Send it on LINE' },
+  'book.fail.call': { th: 'โทร {phone}', en: 'Call {phone}' },
+  'cal.prevMonth': { th: 'เดือนก่อนหน้า', en: 'Previous month' },
+  'cal.nextMonth': { th: 'เดือนถัดไป', en: 'Next month' },
+  'cal.selected': { th: 'วันที่เลือก', en: 'Selected' },
+  'cal.past': { th: 'ผ่านไปแล้ว', en: 'Past' },
+  'cal.horizon': { th: 'ยังไม่เปิดรับคิว', en: 'Not open for booking yet' },
+  'cal.cutoff': { th: 'เลยเวลาปิดรับคิว {h} น. ของวันนี้แล้ว', en: 'Today’s {h} cut-off has passed' },
+  'custom.about': { th: 'ช่อที่คุณสนใจ', en: 'You’re asking about' },
+  'custom.about.remove': { th: 'เอาออก', en: 'Remove' },
+  'done.next.title': { th: 'ร้านยืนยันคำจองทาง LINE', en: 'The shop confirms on LINE' },
+  'done.photo': { th: 'อย่าลืมแนบรูปเรฟในแชต LINE ด้วยนะคะ', en: 'Remember to attach your reference photo in the LINE chat.' },
+  'done.photo.line': { th: 'รูปเรฟ: จะแนบตามมาในแชตนี้', en: 'Reference photo: I’ll send it in this chat.' },
+  'done.step1': { th: 'ส่งหมายเลขคำจองให้ร้านทาง LINE (กดปุ่มด้านบน ข้อความพิมพ์ไว้ให้แล้ว)', en: 'Send your reservation number to the shop on LINE (the button above writes the message for you).' },
+  'done.step2': { th: 'ร้านยืนยันคิว ยอดรวม ค่าส่ง และวิธีชำระเงินกับคุณทาง LINE ก่อนเริ่มจัดดอกไม้', en: 'The shop confirms the queue, the total, delivery and payment with you on LINE before starting.' },
+  'done.step3.pickup': { th: 'มารับที่ร้าน {when}', en: 'Collect it from the shop: {when}.' },
+  'done.step3.delivery': { th: 'ร้านส่งถึงผู้รับ {when}', en: 'We deliver to the recipient: {when}.' },
+  'done.call': { th: 'โทรหาร้าน {phone}', en: 'Call the shop on {phone}' },
+  'done.copyByHand': { th: 'เบราว์เซอร์นี้คัดลอกอัตโนมัติไม่ได้ กดค้างที่ข้อความเพื่อคัดลอกได้เลยค่ะ', en: 'This browser won’t copy automatically. Press and hold the text to copy it.' },
+  'done.calendarSaved': { th: 'ดาวน์โหลดไฟล์ปฏิทินแล้วค่ะ เปิดไฟล์เพื่อเพิ่มลงปฏิทินนะคะ', en: 'Calendar file downloaded. Open it to add the event.' },
+  'done.elsewhere.title': { th: 'คำจองนี้บันทึกไว้ในเครื่องที่ใช้จองค่ะ', en: 'This reservation is saved on the phone it was made on' },
+  'done.elsewhere.sub': { th: 'รายละเอียดคำจองเปิดดูได้เฉพาะในโทรศัพท์เครื่องที่ใช้จอง (เก็บไว้ 30 วัน) ถ้าต้องการตรวจสอบหรือแก้ไข ทักร้านทาง LINE พร้อมหมายเลขคำจองได้เลยค่ะ', en: 'The details open only on the phone that made the booking, for 30 days. To check or change it, message the shop on LINE with your reservation number.' },
+  'done.elsewhere.line': { th: 'ทักร้านทาง LINE', en: 'Message the shop on LINE' },
   'book.review.submit': { th: 'ส่งคำจองให้ทางร้าน', en: 'Send the reservation' },
   'book.review.sending': { th: 'กำลังส่ง…', en: 'Sending…' },
   'book.edit': { th: 'แก้ไข', en: 'Edit' },
@@ -2448,8 +2820,7 @@ LHF.data.strings = {
   'book.restore.yes': { th: 'ทำต่อ', en: 'Continue' },
   'book.restore.no': { th: 'เริ่มใหม่', en: 'Start over' },
   'book.err.required': { th: 'รบกวนกรอกช่องนี้นะคะ', en: 'Please fill this in.' },
-  'book.err.phone': { th: 'รบกวนใส่เบอร์โทรที่ติดต่อได้นะคะ (10 หลัก)', en: 'We’ll need a phone number we can reach you on (10 digits).' },
-  'book.err.date': { th: 'รบกวนเลือกวันและช่วงเวลานะคะ', en: 'Please choose a date and time window.' },
+  'book.err.phone': { th: 'รบกวนใส่เบอร์ที่ติดต่อได้นะคะ: มือถือ 10 หลัก เบอร์บ้าน 9 หลัก หรือเบอร์ต่างประเทศที่ขึ้นต้นด้วย + และรหัสประเทศ', en: 'Please enter a number we can reach: a Thai mobile (10 digits), a Thai landline (9 digits), or + and your country code.' },
   'book.err.items': { th: 'รบกวนเลือกช่อหรือตั้งงบก่อนนะคะ', en: 'Please choose a bouquet or set a budget first.' },
   'book.err.consent': { th: 'รบกวนกดยินยอมก่อนส่งนะคะ', en: 'Please tick the consent box.' },
   'book.err.long': { th: 'ข้อความยาวเกิน 200 ตัวอักษรค่ะ', en: 'Over 200 characters.' },
@@ -2461,16 +2832,14 @@ LHF.data.strings = {
   'book.err.quota': { th: 'ระบบจองเต็มชั่วคราว รบกวนทัก LINE @littlehouseflower นะคะ', en: 'The booking store is full for now. Please LINE @littlehouseflower.' },
 
   /* --- confirmation --- */
-  'done.title': { th: 'รับคำจองแล้วค่ะ', en: 'Reservation received' },
-  'done.sub': { th: 'ทางร้านจะทักไปยืนยันคิวและแจ้งขั้นตอนชำระเงินทาง LINE นะคะ', en: 'We’ll message you on LINE to confirm the queue and share the payment steps.' },
+  'done.title': { th: 'ส่งคำจองถึงร้านแล้วค่ะ', en: 'Your reservation has been sent' },
+  'done.sub': { th: 'คำจองเข้าไปอยู่ในรายการของร้านแล้ว แต่ยังไม่ได้ยืนยันนะคะ ขั้นต่อไปคือส่งหมายเลขคำจองให้ร้านทาง LINE ค่ะ', en: 'It is in the shop’s order list but not confirmed yet. Next, send your reservation number to the shop on LINE.' },
   'done.ref': { th: 'หมายเลขคำจอง', en: 'Reservation reference' },
-  'done.status': { th: 'สถานะ', en: 'Status' },
   'done.calendar': { th: 'บันทึกลงปฏิทิน', en: 'Add to calendar' },
-  'done.line': { th: 'ทัก LINE พร้อมหมายเลขคำจอง', en: 'Open LINE with your reference' },
+  'done.line': { th: 'ส่งหมายเลขคำจองทาง LINE', en: 'Send your reference on LINE' },
   'done.copy': { th: 'คัดลอกสรุป', en: 'Copy summary' },
   'done.copied': { th: 'คัดลอกแล้วค่ะ', en: 'Copied' },
   'done.again': { th: 'สำรองคิวอีกช่อ', en: 'Reserve another' },
-  'done.notFound': { th: 'ไม่พบคำจองนี้ค่ะ', en: 'Reservation not found.' },
   'done.card': { th: 'การ์ดที่ร้านจะเขียนให้', en: 'The card we’ll write' },
 
   'status.new': { th: 'รอยืนยัน', en: 'Awaiting confirmation' },
@@ -2480,7 +2849,6 @@ LHF.data.strings = {
   'status.out': { th: 'ออกจากบ้านแล้ว', en: 'Left the house' },
   'status.done': { th: 'ถึงมือแล้ว', en: 'In their hands' },
   'status.cancelled': { th: 'ยกเลิก', en: 'Cancelled' },
-  'status.note': { th: 'ชื่อสถานะเหล่านี้เป็นคำที่เว็บไซต์นี้ใช้เอง', en: 'Status names are this website’s own' },
 
   /* --- instagram --- */
   'ig.title': { th: 'คนถือช่อ', en: 'Held' },
@@ -3559,65 +3927,125 @@ LHF.cards = (function () {
    ===================================================================== */
 LHF.calendar = (function () {
   const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, E = LHF.engine;
+  let seq = 0;
 
-  /* opts: {settings, loadMap, value, type, leadDays, onSelect, monthsAhead} */
+  /* opts: {settings, loadMap, value, type, leadDays, onSelect, onBlocked, monthsAhead, showLoad}
+     showLoad: only when the day counts cover everyone's orders (a shared store);
+     one browser's own orders say nothing about how full the shop's day is. */
   function create(opts) {
     const c = E.ctx(opts.settings);
     const today = U.parseISO(c.today);
-    let year = today.getFullYear(), month = today.getMonth();
-    if (opts.value) { const v = U.parseISO(opts.value); year = v.getFullYear(); month = v.getMonth(); }
-    let selected = opts.value || null;
     const monthsAhead = opts.monthsAhead || 3;
+    const minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const maxMonth = new Date(today.getFullYear(), today.getMonth() + monthsAhead, 1);
+    /* open on the chosen day, else on the month of the first day that can be
+       booked (late on the 31st that is already next month) */
+    let open = U.parseISO(opts.value || E.earliestDate(c, { leadDays: opts.leadDays }));
+    if (open < minMonth) open = minMonth;
+    if (open > new Date(maxMonth.getFullYear(), maxMonth.getMonth() + 1, 0)) open = maxMonth;
+    let year = open.getFullYear(), month = open.getMonth();
+    let selected = opts.value || null;
+    const titleId = 'cal-title-' + (++seq);
     const root = h('div.cal', { role: 'group', 'aria-label': t('book.when.title') });
+    /* built once: the live region then announces each month change, and focus
+       on a month button survives paging */
+    const title = h('div.cal-title', { id: titleId, 'aria-live': 'polite' });
+    const prev = h('button', { type: 'button', 'aria-label': t('cal.prevMonth'), onClick: () => page(-1, prev) }, ui.icon('chevL'));
+    const next = h('button', { type: 'button', 'aria-label': t('cal.nextMonth'), onClick: () => page(1, next) }, ui.icon('chevR'));
+    root.appendChild(h('div.cal-head', title, h('div.cal-nav', prev, next)));
+    let grid = h('div'), legend = h('div');
+    root.append(grid, legend);
+
+    function page(delta, btn) {
+      const d = new Date(year, month + delta, 1);
+      if (d < minMonth || d > maxMonth) return;
+      year = d.getFullYear(); month = d.getMonth();
+      render();
+      /* a month button that just became disabled cannot hold focus: hand it on */
+      const to = !btn.disabled ? btn : !(btn === prev ? next : prev).disabled ? (btn === prev ? next : prev) : grid.querySelector('[tabindex="0"]');
+      if (to) to.focus({ preventScroll: true });
+    }
+    function moveTo(iso) {
+      const d = U.parseISO(iso);
+      const m0 = new Date(d.getFullYear(), d.getMonth(), 1);
+      if (m0 < minMonth || m0 > maxMonth) return;
+      if (d.getFullYear() !== year || d.getMonth() !== month) { year = d.getFullYear(); month = d.getMonth(); render(); }
+      focusDay(iso);
+    }
+    function focusDay(iso) {
+      const b = grid.querySelector('[data-iso="' + iso + '"]');
+      if (!b) return;
+      U.qsa('[data-iso]', grid).forEach((x) => { x.tabIndex = -1; });
+      b.tabIndex = 0; b.focus({ preventScroll: true });
+    }
 
     function render() {
-      U.empty(root);
       const first = new Date(year, month, 1);
-      const minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const maxMonth = new Date(today.getFullYear(), today.getMonth() + monthsAhead, 1);
-      const head = h('div.cal-head',
-        h('div.cal-title', { 'aria-live': 'polite' }, LHF.i18n.monthName(month) + ' ' + LHF.i18n.yearLabel(year)),
-        h('div.cal-nav',
-          h('button', { type: 'button', 'aria-label': t('ig.prev'), disabled: first <= minMonth, onClick: () => { month--; if (month < 0) { month = 11; year--; } render(); const b = root.querySelector('.cal-nav button'); if (b && !b.disabled) b.focus({ preventScroll: true }); } }, ui.icon('chevL')),
-          h('button', { type: 'button', 'aria-label': t('ig.next'), disabled: first >= maxMonth, onClick: () => { month++; if (month > 11) { month = 0; year++; } render(); const b = root.querySelectorAll('.cal-nav button')[1]; if (b && !b.disabled) b.focus({ preventScroll: true }); } }, ui.icon('chevR'))));
-      root.appendChild(head);
-      const grid = h('div.cal-grid', { role: 'grid' });
+      title.textContent = LHF.i18n.monthName(month) + ' ' + LHF.i18n.yearLabel(year);
+      prev.disabled = first <= minMonth;
+      next.disabled = first >= maxMonth;
+      const g = h('div.cal-grid', { role: 'grid', 'aria-labelledby': titleId });
       const headRow = h('div.cal-row', { role: 'row' });
       for (let i = 0; i < 7; i++) headRow.appendChild(h('div.cal-dow', { role: 'columnheader' }, LHF.i18n.dayMin(i)));
-      grid.appendChild(headRow);
+      g.appendChild(headRow);
       const weeks = E.monthMatrix(year, month);
       const cells = [];
       /* exactly one tab stop per render: the selection, else today, else the first open day */
       let tabStop = null;
-      weeks.forEach((w) => { const row = h('div.cal-row', { role: 'row' }); grid.appendChild(row); w.forEach((cell) => {
+      weeks.forEach((w) => { const row = h('div.cal-row', { role: 'row' }); g.appendChild(row); w.forEach((cell) => {
         if (!cell.inMonth) { row.appendChild(h('div.cal-day.out', { role: 'gridcell', 'aria-hidden': 'true' }, cell.day)); return; }
         const st = E.dateStatus(cell.iso, c, opts.loadMap ? opts.loadMap[cell.iso] : null, { type: opts.type, leadDays: opts.leadDays });
         const isToday = cell.iso === c.today;
-        const cls = ['cal-day', st.ok ? 'ok' : 'no', isToday ? 'today' : '', st.low ? 'low' : '', selected === cell.iso ? 'sel' : '', (!st.ok && st.reason === 'today') ? 'urgent' : ''].filter(Boolean).join(' ');
-        const label = LHF.i18n.fmtDate(cell.iso, 'weekday') + (st.ok ? '' : ' — ' + reasonLabel(st));
-        const btn = h('button.' + cls.split(' ').join('.'), { type: 'button', role: 'gridcell', 'aria-label': label, 'aria-selected': selected === cell.iso, 'aria-disabled': !st.ok, tabindex: -1, 'data-iso': cell.iso, onClick: () => { if (!st.ok) { if (opts.onBlocked) opts.onBlocked(cell.iso, st); return; } selected = cell.iso; render(); if (opts.onSelect) opts.onSelect(cell.iso, st); } }, cell.day);
+        const low = !!(opts.showLoad && st.ok && st.low);
+        const cls = ['cal-day', st.ok ? 'ok' : 'no', isToday ? 'today' : '', low ? 'low' : '', selected === cell.iso ? 'sel' : '', (!st.ok && st.reason === 'today') ? 'urgent' : ''].filter(Boolean).join(' ');
+        const why = st.ok ? (low ? t('book.when.low', { n: st.remaining }) : '') : reasonLabel(st);
+        const label = LHF.i18n.fmtDate(cell.iso, 'weekday') + (why ? ' — ' + why : '');
+        const btn = h('button.' + cls.split(' ').join('.'), { type: 'button', role: 'gridcell', 'aria-label': label, 'aria-selected': selected === cell.iso, 'aria-disabled': !st.ok, 'aria-current': isToday ? 'date' : null, tabindex: -1, 'data-iso': cell.iso, onClick: () => {
+          if (!st.ok) { if (opts.onBlocked) opts.onBlocked(cell.iso, st); return; }
+          selected = cell.iso; render(); focusDay(cell.iso);
+          if (opts.onSelect) opts.onSelect(cell.iso, st);
+        } }, cell.day);
         cells.push(btn);
         if (selected === cell.iso) tabStop = btn;
         else if (!tabStop && !selected && isToday && st.ok) tabStop = btn;
         row.appendChild(btn);
       }); });
+      /* always six weeks tall, so paging never makes the page jump; the spare
+         week is blank and hidden from assistive technology */
+      for (let i = weeks.length * 7; i < 42; i++) g.appendChild(h('div.cal-day.out', { 'aria-hidden': 'true' }));
       const stop = tabStop || cells.find((b) => b.classList.contains('ok')) || cells[0];
       if (stop) stop.tabIndex = 0;
-      grid.addEventListener('keydown', (e) => {
+      /* arrows and PageUp/PageDown cross into the neighbouring month */
+      g.addEventListener('keydown', (e) => {
         const cur = document.activeElement; if (!cur || !cur.dataset.iso) return;
-        const i = cells.indexOf(cur); let n = null;
-        if (e.key === 'ArrowRight') n = cells[i + 1]; if (e.key === 'ArrowLeft') n = cells[i - 1]; if (e.key === 'ArrowDown') n = cells[i + 7]; if (e.key === 'ArrowUp') n = cells[i - 7];
-        if (e.key === 'Home') n = cells[0]; if (e.key === 'End') n = cells[cells.length - 1];
-        if (n) { e.preventDefault(); cells.forEach((x) => x.tabIndex = -1); n.tabIndex = 0; n.focus(); }
+        const iso = cur.dataset.iso;
+        const d = U.parseISO(iso);
+        let to = null;
+        const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 7, ArrowUp: -7 }[e.key];
+        if (step) to = U.addDays(iso, step);
+        else if (e.key === 'PageDown' || e.key === 'PageUp') { const m = new Date(d.getFullYear(), d.getMonth() + (e.key === 'PageDown' ? 1 : -1), 1); to = U.iso(new Date(m.getFullYear(), m.getMonth(), Math.min(d.getDate(), new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate()))); }
+        else if (e.key === 'Home') to = U.iso(new Date(year, month, 1));
+        else if (e.key === 'End') to = U.iso(new Date(year, month + 1, 0));
+        if (!to) return;
+        e.preventDefault();
+        moveTo(to);
       });
-      root.appendChild(grid);
-      root.appendChild(h('div.cal-legend', h('span', h('i', { style: { background: 'var(--paper)', border: '1px solid var(--line)' } }), t('avail.available')), h('span', h('i', { style: { background: 'var(--rose)' } }), t('book.when.low', { n: '≤2' })), h('span', h('i', { style: { background: 'var(--heart)' } }), t('book.step.when'))));
+      const s = opts.settings || {};
+      const lg = h('div.cal-legend',
+        h('span', h('i', { style: { background: 'var(--paper)', border: '1px solid var(--line)' } }), t('avail.available')),
+        opts.showLoad ? h('span', h('i', { style: { background: 'var(--rose)' } }), t('book.when.low', { n: '≤' + E.lowAt(Number(s.maxOrdersPerDay)) })) : null,
+        h('span', h('i', { style: { background: 'var(--heart)' } }), t('cal.selected')));
+      grid.replaceWith(g); grid = g;
+      legend.replaceWith(lg); legend = lg;
     }
     function reasonLabel(st) {
       if (st.reason === 'full') return t('book.when.full');
       if (st.reason === 'closed') return t('book.when.closed');
       if (st.reason === 'today') return t('ribbon.3');
-      if (st.reason === 'leadtime') return t('lead.days1');
+      if (st.reason === 'cutoff') return t('cal.cutoff', { h: String(((opts.settings || {}).cutoffHour) || 18) + ':00' });
+      if (st.reason === 'leadtime') return t('lead.days', { n: opts.leadDays || 1 });
+      if (st.reason === 'past') return t('cal.past');
+      if (st.reason === 'horizon') return t('cal.horizon');
       return '';
     }
     render();
@@ -3945,11 +4373,33 @@ LHF.pages.custom = function (params, query) {
   const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, R = LHF.router, pick = (o) => LHF.i18n.pick(o), C = LHF.catalog;
   const settings = LHF.store.get('settings') || LHF.data.bookingDefaults;
   const draft = LHF.store.draft();
-  const b = Object.assign({ occasion: query.occasion || '', style: 'bouquet', budgetTier: '', budgetCustom: '', feel: '', flowers: [], reference: null, referenceName: '', notes: '', fromProduct: query.product || '', fromPost: query.ref || '' }, draft.type === 'custom' ? (draft.custom || {}) : {});
-  if (b.fromProduct && !b.style) { const p = C.byId(b.fromProduct); if (p) b.style = p.category === 'basket' ? 'basket' : p.category === 'box' ? 'box' : p.category === 'money' ? 'money' : p.category === 'wreath' ? 'wreath' : p.category === 'wedding' ? 'wedding' : 'bouquet'; }
+  /* The brief lives in the draft while it is written, and stays there when a
+     bouquet is added afterwards, so coming back always restores it. A link from
+     a product or a post names what the brief is about, and wins over whatever an
+     older brief pointed at; the style follows the product's own category. */
+  const b = Object.assign({ occasion: '', style: 'bouquet', budgetTier: '', budgetCustom: '', feel: '', flowers: [], reference: null, referenceName: '', notes: '', fromProduct: '', fromPost: '' }, draft.custom || {});
+  if (query.occasion) b.occasion = query.occasion;
+  const asked = query.product ? C.byId(query.product) : null;
+  if (asked) { b.fromProduct = asked.id; b.fromPost = ''; b.style = ['basket', 'box', 'money', 'wreath', 'wedding', 'garland'].includes(asked.category) ? asked.category : 'bouquet'; }
+  else if (query.ref && LHF.posts && LHF.posts.byId(query.ref)) { b.fromPost = query.ref; b.fromProduct = ''; }
+  if (asked || query.ref || query.occasion) persist();
+  let secSeq = 0;
   const page = h('div.page.page-enter', h('div.wrap.section-tight'));
   const wrap = page.firstChild;
   wrap.appendChild(ui.head({ eyebrow: t('home.custom.eyebrow'), title: t('custom.title'), sub: t('custom.sub'), level: 'h1', titleClass: 'h1' }));
+
+  /* what the brief is about, when it started from a product or a post */
+  const about = h('div.book-item.brief-about', { hidden: true });
+  function renderAbout() {
+    U.empty(about);
+    const p = b.fromProduct ? C.byId(b.fromProduct) : null;
+    const post = !p && b.fromPost && LHF.posts ? LHF.posts.byId(b.fromPost) : null;
+    about.hidden = !(p || post);
+    if (!p && !post) return;
+    const img = p ? p.image || p.thumb : (post.images || [])[0];
+    about.append(img ? LHF.img.el(img, { alt: '' }) : h('span.thumb-empty', ui.heartTag('sm flat')), h('div', h('div.m', t('custom.about')), h('div.n', p ? pick(p.name) : pick(post.label) || 'Instagram')), h('button.remove', { type: 'button', onClick: () => { b.fromProduct = ''; b.fromPost = ''; persist(); renderAbout(); } }, t('custom.about.remove')));
+  }
+  renderAbout();
 
   const form = h('form.book-sheet', { novalidate: true, onSubmit: (e) => { e.preventDefault(); submit(); } });
   const errBox = h('div.notice.rose', { hidden: true, role: 'alert' });
@@ -3970,14 +4420,18 @@ LHF.pages.custom = function (params, query) {
   const budgetChips = h('div.chips', tiers.map((tr) => h('button.chip', { type: 'button', 'aria-pressed': b.budgetTier === tr.id, onClick: (e) => { b.budgetTier = tr.id; b.budgetCustom = ''; budgetInput.value = ''; budgetChips.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c === e.currentTarget)); persist(); } }, tr.max ? LHF.i18n.fmtPrice(tr.min) + ' – ' + LHF.i18n.fmtPrice(tr.max) : LHF.i18n.fmtPrice(tr.min) + '+')));
 
   /* feel */
-  const feel = h('textarea.textarea', { rows: 2, 'aria-label': t('custom.step.feel'), placeholder: t('custom.feel.ph'), value: b.feel, onInput: (e) => { b.feel = e.target.value; persist(); } });
+  const feel = h('textarea.textarea', { rows: 2, maxlength: 300, 'aria-label': t('custom.step.feel'), placeholder: t('custom.feel.ph'), onInput: (e) => { b.feel = e.target.value; persist(); } });
+  feel.value = b.feel || '';
 
   /* flowers */
   const flowerIds = Object.keys(C.flowers).filter((k) => k !== 'banknotes');
   const flChips = h('div.chips', flowerIds.map((f) => h('button.chip', { type: 'button', 'aria-pressed': b.flowers.includes(f), onClick: (e) => { const i = b.flowers.indexOf(f); if (i > -1) b.flowers.splice(i, 1); else if (b.flowers.length < 3) b.flowers.push(f); else return; e.currentTarget.setAttribute('aria-pressed', b.flowers.includes(f)); persist(); } }, pick(C.flowers[f]))));
 
-  /* reference upload (compressed to ≤ ~150 KB data URL; sent to the shop only) */
-  const fileInput = h('input', { type: 'file', accept: 'image/*,.heic,.heif', class: 'sr-only', onChange: (e) => handleFile(e.target.files[0]) });
+  /* Reference photo: it stays on this phone (compressed to ≤ ~150 KB) and is never
+     uploaded. It reminds the customer, and the shop's row notes that one exists;
+     the customer sends it on LINE with the reservation number. The file input is
+     reached through the drop zone only, so it is not a second, invisible tab stop. */
+  const fileInput = h('input', { type: 'file', accept: 'image/*,.heic,.heif', class: 'sr-only', tabindex: -1, 'aria-hidden': 'true', onChange: (e) => handleFile(e.target.files[0]) });
   const preview = h('div.upload-preview', { hidden: true });
   const drop = h('div.upload-drop', { tabindex: 0, role: 'button', 'aria-label': t('custom.ref.add'), onClick: () => fileInput.click(), onKeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } }, onDragover: (e) => { e.preventDefault(); drop.classList.add('is-over'); }, onDragleave: () => drop.classList.remove('is-over'), onDrop: (e) => { e.preventDefault(); drop.classList.remove('is-over'); handleFile(e.dataTransfer.files[0]); } }, ui.icon('plus'), h('div', t('custom.ref.add')), h('div.tiny', t('custom.ref.hint')));
   function renderPreview() { U.empty(preview); preview.hidden = !b.reference; if (!b.reference) return; preview.appendChild(h('img', { src: b.reference, alt: b.referenceName || 'reference' })); preview.appendChild(h('div.stack', { style: { display: 'grid', gap: '6px' } }, h('div.small', b.referenceName), h('div.center', ui.btn(t('custom.ref.replace'), { className: 'btn-sm', onClick: () => fileInput.click() }), ui.btn(t('custom.ref.remove'), { className: 'btn-sm btn-ghost', onClick: () => { b.reference = null; b.referenceName = ''; renderPreview(); persist(); } })))); }
@@ -4008,9 +4462,11 @@ LHF.pages.custom = function (params, query) {
   }
   renderPreview();
 
-  const notes = h('textarea.textarea', { rows: 3, 'aria-label': t('custom.step.notes'), placeholder: t('custom.notes.ph'), value: b.notes, onInput: (e) => { b.notes = e.target.value; persist(); } });
+  const notes = h('textarea.textarea', { rows: 3, maxlength: 1000, 'aria-label': t('custom.step.notes'), placeholder: t('custom.notes.ph'), onInput: (e) => { b.notes = e.target.value; persist(); } });
+  notes.value = b.notes || '';
 
   form.append(
+    about,
     errBox,
     section(t('custom.step.style'), styleCards, styleNote),
     section(t('custom.step.occasion'), occChips),
@@ -4023,7 +4479,8 @@ LHF.pages.custom = function (params, query) {
   wrap.appendChild(h('div.book', form));
   return page;
 
-  function section(title, ...kids) { return h('div.stack', { style: { display: 'grid', gap: '10px' } }, h('h2.h4', title), kids); }
+  /* each question is a named group, so its chips and radios are announced with it */
+  function section(title, ...kids) { const id = 'brief-q' + (++secSeq); return h('div.stack', { role: 'group', 'aria-labelledby': id, style: { display: 'grid', gap: '10px' } }, h('h2.h4', { id }, title), kids); }
   /* keep the brief without discarding bouquets already in the queue; the type
      only flips to 'custom' when the brief is actually submitted */
   function persist() { LHF.store.setDraft({ custom: Object.assign({}, b) }); }
@@ -4031,7 +4488,8 @@ LHF.pages.custom = function (params, query) {
     const errs = [];
     if (!b.budgetTier && !(Number(b.budgetCustom) >= 250)) errs.push(t('book.err.items'));
     if (errs.length) { errBox.hidden = false; errBox.textContent = errs.join(' '); errBox.scrollIntoView({ behavior: U.reducedMotion() ? 'auto' : 'smooth', block: 'center' }); return; }
-    LHF.store.setDraft({ type: 'custom', custom: Object.assign({}, b) });
+    /* ready: the brief is part of the order from now on, bouquets or not */
+    LHF.store.setDraft({ type: 'custom', custom: Object.assign({}, b, { ready: true }) });
     R.navigate('/order', { step: 'when' });
   }
 };
@@ -4143,18 +4601,34 @@ LHF.pages.order = function (params, query) {
   const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, R = LHF.router, pick = (o) => LHF.i18n.pick(o), C = LHF.catalog, E = LHF.engine;
   const STEPS = ['what', 'when', 'how', 'who', 'card', 'review'];
   let settings = LHF.store.get('settings') || LHF.data.bookingDefaults;
-  let d = LHF.store.draft();
-  if (!d.type) d = { type: 'product', items: [] };
+  /* merge, never replace: a card written first ("write the card" → use it) must
+     survive arriving here with nothing in the queue yet */
+  let d = Object.assign({}, LHF.store.draft());
+  let tidy = false;
+  if (!d.type) { d.type = 'product'; tidy = true; }
+  if (!Array.isArray(d.items)) { d.items = []; tidy = true; }
+  /* a brief sent on from /custom stays in the order when a bouquet is added
+     afterwards (the product page marks the draft as a product order) */
+  if (E.hasBrief(d) && d.type !== 'custom') { d.type = 'custom'; tidy = true; }
+  if (d.type === 'custom' && !d.custom) { d.type = 'product'; tidy = true; }
+  /* drop items whose product left the catalogue; keep each quantity inside the product's range */
+  const items0 = d.items.filter((it) => C.byId(it.productId)).map((it) => { const p = C.byId(it.productId); return Object.assign({}, it, { qty: U.clamp(Math.floor(Number(it.qty)) || 1, 1, p.maxQty || 20) }); });
+  if (JSON.stringify(items0) !== JSON.stringify(d.items)) { d.items = items0; tidy = true; }
+  /* consent is asked fresh on every order and never kept */
+  if (d.consent != null) { d.consent = undefined; tidy = true; }
   /* a draft kept in the browser can name a date that has since passed, been
-     blacked out, or fallen inside the lead time — drop it and ask again */
-  if (d.date) {
-    const lead0 = Math.max(settings.leadTimeDays || 1, ...(d.items || []).map((it) => (C.byId(it.productId) || {}).leadDays || 1), d.type === 'custom' ? 2 : 0);
-    if (!E.dateStatus(d.date, E.ctx(settings), null, { type: d.type, leadDays: lead0 }).ok) { d = Object.assign({}, d, { date: null, windowId: null, windowLabel: null }); LHF.store.setDraft(d); }
-  }
-  /* drop items whose product left the catalogue */
-  if ((d.items || []).some((it) => !C.byId(it.productId))) { d = Object.assign({}, d, { items: d.items.filter((it) => C.byId(it.productId)) }); LHF.store.setDraft(d); }
-  let step = STEPS.includes(query.step) ? query.step : firstIncomplete();
+     closed, or fallen inside the lead time — drop it and ask again */
+  if (d.date && !E.dateStatus(d.date, E.ctx(settings), null, { type: d.type, leadDays: E.leadFor(d, settings) }).ok) { d = Object.assign({}, d, { date: null, windowId: null, windowLabel: null }); tidy = true; }
+  if (tidy) LHF.store.setDraft(d);
+  /* a step named in the address is honoured only when every step before it is
+     done: Back from the confirmation, or an old link, must never open a
+     half-empty review. The card can be written first. */
+  let step = STEPS.includes(query.step) && canEnter(query.step) ? query.step : firstIncomplete();
+  if (query.step && query.step !== step) { try { history.replaceState(null, '', R.href('/order', { step })); } catch (e) { /* the address just stays */ } }
   let loadMap = {};
+  let sending = false;
+  let flash = '';   // a message for the top of the next step shown
+  let errSeq = 0;
   const page = h('div.page.page-enter', h('div.wrap.section-tight'));
   const wrap = page.firstChild;
   const sheet = h('div.book');
@@ -4170,23 +4644,42 @@ LHF.pages.order = function (params, query) {
   const body = h('div');
   sheet.appendChild(body);
   LHF.db.getSettings().then((s) => { settings = s; LHF.store.set('settings', s); if (step === 'when') render(); });
+  /* a tab left open past the 18:00 cut-off, or overnight: when it comes back,
+     check the chosen day on the shop's clock before the customer carries on */
+  const recheck = () => {
+    if (document.visibilityState === 'hidden' || sending || !d.date) return;
+    if (E.dateStatus(d.date, E.ctx(settings), null, { type: d.type, leadDays: E.leadFor(d, settings) }).ok) return;
+    save({ date: null, windowId: null, windowLabel: null });
+    flash = t('book.err.stale');
+    if (STEPS.indexOf(step) >= STEPS.indexOf('when')) go('when'); else render();
+  };
+  document.addEventListener('visibilitychange', recheck);
+  window.addEventListener('pageshow', recheck);
+  R.onLeave(() => { document.removeEventListener('visibilitychange', recheck); window.removeEventListener('pageshow', recheck); });
   render();
   return page;
 
   /* ------------------------------------------------------------ */
   function firstIncomplete() {
-    if (!((d.items || []).length || d.type === 'custom')) return 'what';
+    if (!((d.items || []).length || E.hasBrief(d))) return 'what';
     if (!d.date) return 'when';
     if (!d.fulfil || !d.windowId) return 'how';
     if (!(d.customer && d.customer.name)) return 'who';
     if (d.card == null) return 'card';
     return 'review';
   }
+  function canEnter(s) { return s === 'card' || STEPS.indexOf(s) <= STEPS.indexOf(firstIncomplete()); }
   function save(patch) { d = Object.assign({}, d, patch); LHF.store.setDraft(d); }
-  function go(next) { step = next; try { history.replaceState(null, '', R.href('/order', { step })); } catch (e) {} render(); window.scrollTo({ top: Math.max(0, sheet.getBoundingClientRect().top + window.scrollY - 90), behavior: U.reducedMotion() ? 'auto' : 'smooth' }); }
+  function go(next) {
+    if (!canEnter(next)) { next = firstIncomplete(); flash = flash || t('book.err.first'); }
+    step = next; try { history.replaceState(null, '', R.href('/order', { step })); } catch (e) {} render(); window.scrollTo({ top: Math.max(0, sheet.getBoundingClientRect().top + window.scrollY - 90), behavior: U.reducedMotion() ? 'auto' : 'smooth' });
+  }
+  /* the steps as a list a screen reader can read: where you are, and what is done */
   function progress() {
     const i = STEPS.indexOf(step);
-    return h('div.book-progress', h('div.steps', STEPS.map((s, k) => h('div.step', { class: k < i ? 'done' : k === i ? 'cur' : '' }))), h('div.step-labels', STEPS.map((s, k) => h('span', { class: k === i ? 'cur' : '' }, t('book.step.' + s)))));
+    return h('div.book-progress',
+      h('div.steps', { 'aria-hidden': 'true' }, STEPS.map((s, k) => h('div.step', { class: k < i ? 'done' : k === i ? 'cur' : '' }))),
+      h('ol.step-labels', { 'aria-label': t('book.progress') }, STEPS.map((s, k) => h('li', { class: k === i ? 'cur' : '', 'aria-current': k === i ? 'step' : null }, k < i ? h('span.sr-only', t('book.progress.done') + ' ') : null, t('book.step.' + s)))));
   }
   function nav(opts) {
     const i = STEPS.indexOf(step);
@@ -4196,96 +4689,164 @@ LHF.pages.order = function (params, query) {
     U.empty(body);
     body.appendChild(progress());
     const s = { what: stepWhat, when: stepWhen, how: stepHow, who: stepWho, card: stepCard, review: stepReview }[step]();
+    if (flash) { s.insertBefore(h('div.notice.rose', { role: 'alert' }, flash), s.children[1] || null); flash = ''; }
     body.appendChild(s);
     ui.reveal(body);
     /* the control that was focused has just been removed — move focus to the new step */
     const head = body.querySelector('.book-sheet > h2');
     if (head) { head.setAttribute('tabindex', '-1'); head.focus({ preventScroll: true }); }
   }
-  function fieldErr(el, msg) { const f = el.closest('.field'); if (!f) return; f.classList.toggle('is-error', !!msg); let e = f.querySelector('.error'); if (msg) { if (!e) { e = h('div.error', { role: 'alert' }); f.appendChild(e); } e.textContent = msg; } else if (e) e.remove(); }
-  function errMsg(code) { return code === 'phone' ? t('book.err.phone') : code === 'long' ? t('book.err.long') : t('book.err.required'); }
+  /* an error sits in the field it is about, is tied to the control, and marks it invalid */
+  function fieldErr(el, msg) {
+    const f = el.closest('.field'); if (!f) return;
+    f.classList.toggle('is-error', !!msg);
+    let e = f.querySelector('.error');
+    if (msg) {
+      if (!e) { e = h('div.error', { id: 'order-err-' + (++errSeq) }); f.appendChild(e); }
+      e.textContent = msg;
+      el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', e.id);
+    } else {
+      if (e) e.remove();
+      el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby');
+    }
+  }
+  function errMsg(code) { return code === 'phone' ? t('book.err.phone') : code === 'mobile' ? t('book.err.mobile') : code === 'long' ? t('book.err.long') : t('book.err.required'); }
+  function focusFirstInvalid() {
+    const f = body.querySelector('[aria-invalid="true"]');
+    if (!f) return;
+    const target = f.matches('input, select, textarea') ? f : f.querySelector('input:not([disabled])');
+    if (target) target.focus();
+  }
+  /* prices as the order may state them: exact, "from", or on request */
+  function unitLabel(i) { return i.kind === 'quote' ? t('price.quote') : i.kind === 'from' ? t('price.from', { price: LHF.i18n.fmtPrice(i.unit) }) : LHF.i18n.fmtPrice(i.unit); }
+  function briefLine(cu, noBudget) {
+    const p = cu.fromProduct ? C.byId(cu.fromProduct) : null;
+    const fmt = LHF.i18n.fmtPrice, tr = (settings.budgetTiers || LHF.data.bookingDefaults.budgetTiers).find((x) => x.id === cu.budgetTier);
+    const budget = Number(cu.budgetCustom) > 0 ? fmt(cu.budgetCustom) : tr ? (tr.max ? fmt(tr.min) + ' – ' + fmt(tr.max) : fmt(tr.min) + '+') : '';
+    return [p ? pick(p.name) : '', t('custom.style.' + (cu.style || 'bouquet')), pick(C.occasion(cu.occasion) || {}), noBudget ? '' : budget].filter(Boolean).join(' · ');
+  }
 
   /* ---------------- 1. what ---------------- */
   function stepWhat() {
-    const items = d.items || [];
     const list = h('div.book-items');
+    const leadNote = h('div.notice.rose', { hidden: true, role: 'status' });
+    /* a longer-lead bouquet can make the chosen day impossible: say so now and ask
+       for the day again, instead of carrying a forbidden date to the last step */
+    function afterChange() {
+      if (!d.date) return;
+      const lead = E.leadFor(d, settings);
+      if (E.dateStatus(d.date, E.ctx(settings), null, { type: d.type, leadDays: lead }).ok) return;
+      save({ date: null, windowId: null, windowLabel: null });
+      leadNote.hidden = false; leadNote.textContent = t('book.what.dateDropped', { n: lead });
+    }
     function renderItems() {
       U.empty(list);
-      if (d.type === 'custom' && d.custom) { list.appendChild(h('div.book-item', h('span.thumb-empty', ui.heartTag('sm flat')), h('div', h('div.n', t('custom.summary')), h('div.m', [pick(C.occasion(d.custom.occasion) || {}), t('custom.style.' + (d.custom.style || 'bouquet')), d.custom.budgetCustom ? LHF.i18n.fmtPrice(d.custom.budgetCustom) : ''].filter(Boolean).join(' · '))), h('a.remove', { href: R.href('/custom') }, t('book.edit')))); }
-      (d.items || []).forEach((it) => { const p = C.byId(it.productId); if (!p) return; list.appendChild(h('div.book-item', p.image ? LHF.img.el(p.image, { alt: '' }) : h('span.thumb-empty'), h('div', h('div.n', pick(p.name)), h('div.m', (it.qty > 1 ? it.qty + ' × ' : '') + LHF.i18n.fmtPrice(E.tierPrice(p, it.qty || 1)) + (p.size ? ' · ' + ui.sizeLabel(p) : ''))), h('button.remove', { type: 'button', onClick: () => { save({ items: d.items.filter((x) => x.productId !== it.productId) }); renderItems(); refreshGrid(); } }, t('admin.delete')))); });
+      if (E.hasBrief(d)) list.appendChild(h('div.book-item', h('span.thumb-empty', ui.heartTag('sm flat')), h('div', h('div.n', t('custom.summary')), h('div.m', briefLine(d.custom))), h('div.item-acts', h('a.remove', { href: R.href('/custom') }, t('book.edit')), h('button.remove', { type: 'button', 'aria-label': t('book.remove') + ' ' + t('custom.summary'), onClick: () => { save({ type: 'product', custom: null }); renderItems(); afterChange(); } }, t('book.remove')))));
+      E.priceSummary(d).items.forEach((it) => { const p = it.product; list.appendChild(h('div.book-item', p.image ? LHF.img.el(p.image, { alt: '' }) : h('span.thumb-empty'), h('div', h('div.n', pick(p.name)), h('div.m', (it.qty > 1 ? it.qty + ' × ' : '') + unitLabel(it) + (p.size ? ' · ' + ui.sizeLabel(p) : ''))), h('button.remove', { type: 'button', 'aria-label': t('book.remove') + ' ' + pick(p.name), onClick: () => { save({ items: d.items.filter((x) => x.productId !== p.id) }); renderItems(); refreshGrid(); afterChange(); LHF.heart.refresh(); } }, t('book.remove')))); });
       if (!list.children.length) list.appendChild(h('div.empty', t('heart.empty')));
     }
     const grid = h('div.mini-grid');
-    function refreshGrid() { grid.querySelectorAll('.mini-card').forEach((c) => c.classList.toggle('is-on', (d.items || []).some((x) => x.productId === c.dataset.id))); }
+    function refreshGrid() { grid.querySelectorAll('.mini-card').forEach((c) => { const on = (d.items || []).some((x) => x.productId === c.dataset.id); c.classList.toggle('is-on', on); c.setAttribute('aria-pressed', on ? 'true' : 'false'); }); }
     C.products.filter((p) => p.availability === 'available' && p.image).forEach((p) => {
-      grid.appendChild(h('button.mini-card', { type: 'button', 'data-id': p.id, 'aria-pressed': (d.items || []).some((x) => x.productId === p.id), onClick: () => { const has = (d.items || []).some((x) => x.productId === p.id); if (has) save({ items: d.items.filter((x) => x.productId !== p.id) }); else save({ type: 'product', items: (d.items || []).concat([{ productId: p.id, qty: 1, options: {} }]) }); renderItems(); refreshGrid(); LHF.heart.refresh(true); } }, LHF.img.pic(p.image), ui.heartTag('sm'), h('span.n', pick(p.name)), h('span.p', ui.priceLabel(p) + (p.size ? ' · ' + ui.sizeLabel(p) : ''))));
+      /* adding a bouquet keeps a written brief: the order then carries both */
+      grid.appendChild(h('button.mini-card', { type: 'button', 'data-id': p.id, 'aria-pressed': (d.items || []).some((x) => x.productId === p.id), onClick: () => { const has = (d.items || []).some((x) => x.productId === p.id); if (has) save({ items: d.items.filter((x) => x.productId !== p.id) }); else save({ type: E.hasBrief(d) ? 'custom' : 'product', items: (d.items || []).concat([{ productId: p.id, qty: 1, options: {} }]) }); renderItems(); refreshGrid(); afterChange(); LHF.heart.refresh(true); } }, LHF.img.pic(p.image), ui.heartTag('sm'), h('span.n', pick(p.name)), h('span.p', ui.priceLabel(p) + (p.size ? ' · ' + ui.sizeLabel(p) : ''))));
     });
     renderItems(); refreshGrid();
-    const colour = h('textarea.textarea', { rows: 2, placeholder: t('book.what.colourPh'), value: d.colourNote || '', onInput: (e) => save({ colourNote: e.target.value }) });
+    const colour = h('textarea.textarea', { rows: 2, maxlength: 300, placeholder: t('book.what.colourPh'), onInput: (e) => save({ colourNote: e.target.value }) });
+    colour.value = d.colourNote || '';
     const err = h('div.notice.rose', { hidden: true, role: 'alert' }, t('book.err.items'));
-    return h('div.book-sheet', h('h2.h2', t('book.what.title')), h('p.lede', t('book.what.sub')), err, list, h('div.book-choose', h('div.h4', t('home.today.title')), grid, h('div', ui.btn(t('book.what.custom'), { href: R.href('/custom'), icon: 'plus' }))), h('label.field', h('span.label', t('book.what.colour')), colour), nav({ onNext: () => { if (!((d.items || []).length || d.type === 'custom')) { err.hidden = false; return; } go('when'); } }));
+    return h('div.book-sheet', h('h2.h2', t('book.what.title')), h('p.lede', t('book.what.sub')), err, leadNote, list, h('div.book-choose', h('h3.h4', t('home.today.title')), grid, h('div', ui.btn(t('book.what.custom'), { href: R.href('/custom'), icon: 'plus' }))), h('label.field', h('span.label', t('book.what.colour')), colour), nav({ onNext: () => { if (!((d.items || []).length || E.hasBrief(d))) { err.hidden = false; return; } go('when'); } }));
   }
 
   /* ---------------- 2. when ---------------- */
   function stepWhen() {
-    const lead = Math.max(settings.leadTimeDays || 1, ...(d.items || []).map((it) => (C.byId(it.productId) || {}).leadDays || 1), d.type === 'custom' ? 2 : 0);
+    const lead = E.leadFor(d, settings);
     const c = E.ctx(settings);
-    const from = c.today, to = U.addDays(c.today, 100);
-    const note = h('div.date-note', t('book.when.sub'));
+    const note = h('div.date-note', { 'aria-live': 'polite' }, t('book.when.sub'));
     const box = h('div.when-grid');
     const holder = h('div');
     box.appendChild(holder);
     box.appendChild(h('div.stack', note, lead > 1 ? h('div.date-note', t('book.when.lead', { n: lead })) : null, settings.highDemand && settings.highDemand.active ? h('div.date-note.rose', h('b', pick(settings.highDemand.label) || t('book.when.highDemand')), ' ', pick(settings.highDemand.note)) : null));
-    const onSelect = (iso, st) => { save({ date: iso, windowId: null }); note.className = 'date-note'; note.textContent = LHF.i18n.fmtDate(iso, 'weekday') + (st.low ? ' · ' + t('book.when.low', { n: st.remaining }) : ''); };
-    const onBlocked = (iso, st) => { note.className = 'date-note rose'; U.empty(note); if (st.reason === 'today') { note.append(t('book.when.today'), h('div', ui.btn('LINE', { href: LHF.data.shop.lineUrl, target: '_blank', icon: 'line', className: 'btn-sm' }))); } else if (st.reason === 'full') note.textContent = t('book.when.full'); else if (st.reason === 'closed') note.textContent = t('book.when.closed'); else note.textContent = t('book.when.lead', { n: lead }); };
-    let cal = LHF.calendar.create({ settings, loadMap, value: d.date, type: d.type, leadDays: lead, onSelect, onBlocked });
+    const shared = () => LHF.db.sharedCapacity;
+    const onSelect = (iso, st) => { save({ date: iso, windowId: null, windowLabel: null }); err.hidden = true; note.className = 'date-note'; note.textContent = LHF.i18n.fmtDate(iso, 'weekday') + (shared() && st.low ? ' · ' + t('book.when.low', { n: st.remaining }) : ''); };
+    const onBlocked = (iso, st) => {
+      note.className = 'date-note rose'; U.empty(note);
+      if (st.reason === 'today') { note.append(t('book.when.today'), h('div', ui.btn('LINE', { href: LHF.data.shop.lineUrl, target: '_blank', icon: 'line', className: 'btn-sm' }))); }
+      else if (st.reason === 'full') note.textContent = t('book.when.full');
+      else if (st.reason === 'closed') note.textContent = t('book.when.closed');
+      else if (st.reason === 'cutoff') note.textContent = t('book.when.cutoff', { h: String(settings.cutoffHour || 18) + ':00' });
+      else if (st.reason === 'past') note.textContent = t('cal.past');
+      else if (st.reason === 'horizon') note.textContent = t('cal.horizon');
+      else note.textContent = t('book.when.lead', { n: lead });
+    };
+    const calOpts = (v) => ({ settings, loadMap, value: v, type: d.type, leadDays: lead, onSelect, onBlocked, showLoad: shared() });
+    let cal = LHF.calendar.create(calOpts(d.date));
     holder.appendChild(cal.el);
-    LHF.db.loadMap(from, to).then((m) => { loadMap = m; const v = cal.value || d.date; cal = LHF.calendar.create({ settings, loadMap, value: v, type: d.type, leadDays: lead, onSelect, onBlocked }); U.empty(holder).appendChild(cal.el); }).catch(() => {});
-    const err = h('div.notice.rose', { hidden: true, role: 'alert' }, t('book.err.date'));
-    return h('div.book-sheet', h('h2.h2', t('book.when.title')), err, box, nav({ onNext: () => { if (!d.date) { err.hidden = false; return; } go('how'); } }));
+    /* day counts exist only where orders are shared (inside the artifact) */
+    LHF.db.ready.then((b) => { if (b !== 'artifact') return; LHF.db.loadMap(c.today, c.horizon).then((m) => { loadMap = m; cal = LHF.calendar.create(calOpts(cal.value || d.date)); U.empty(holder).appendChild(cal.el); }).catch(() => {}); });
+    const err = h('div.notice.rose', { hidden: true, role: 'alert' }, t('book.err.day'));
+    return h('div.book-sheet', h('h2.h2', t('book.when.title')), err, box, nav({ onNext: () => {
+      if (!d.date) { err.hidden = false; return; }
+      /* the order may have changed since the day was picked (a longer-lead bouquet) */
+      if (!E.dateStatus(d.date, E.ctx(settings), loadMap[d.date], { type: d.type, leadDays: E.leadFor(d, settings) }).ok) { save({ date: null, windowId: null, windowLabel: null }); flash = t('book.err.stale'); render(); return; }
+      go('how');
+    } }));
   }
 
   /* ---------------- 3. how ---------------- */
   function stepHow() {
     const c = E.ctx(settings);
-    const winBox = h('div.windows');
+    const winLabelId = 'how-window-label', titleId = 'how-title';
+    const winBox = h('div.windows', { role: 'radiogroup', 'aria-labelledby': winLabelId });
     /* this step can be entered without passing through the calendar (restored
        draft, deep link, language switch), so make sure the day's load is known */
-    if (!loadMap[d.date]) LHF.db.loadMap(d.date, d.date).then((m) => { loadMap = Object.assign({}, loadMap, m); if (step === 'how') renderWindows(); }).catch(() => {});
-    const fulfilCards = h('div.radio-cards.cols-2');
+    if (LHF.db.sharedCapacity && !loadMap[d.date]) LHF.db.loadMap(d.date, d.date).then((m) => { loadMap = Object.assign({}, loadMap, m); if (step === 'how') renderWindows(); }).catch(() => {});
+    const fulfilCards = h('div.radio-cards.cols-2', { role: 'radiogroup', 'aria-labelledby': titleId });
     function renderWindows() {
       U.empty(winBox);
       if (!d.fulfil) return;
       E.windowsFor(d.date, d.fulfil, c, loadMap[d.date]).forEach((w) => {
-        const lab = h('label.window', { class: (w.ok ? '' : 'is-off') + (d.windowId === w.id ? ' is-on' : '') }, h('input', { type: 'radio', name: 'window', value: w.id, disabled: !w.ok, checked: d.windowId === w.id, onChange: () => { save({ windowId: w.id, windowLabel: w.start + '–' + w.end }); winBox.querySelectorAll('.window').forEach((x) => x.classList.toggle('is-on', x === lab)); } }), h('span', w.start + ' – ' + w.end), h('span.sub', w.gone ? t('book.when.windowGone') : w.full ? t('book.when.windowFull') : (w.remaining != null && w.remaining <= 2 ? t('book.when.low', { n: w.remaining }) : '')));
+        const lab = h('label.window', { class: (w.ok ? '' : 'is-off') + (d.windowId === w.id ? ' is-on' : '') }, h('input', { type: 'radio', name: 'window', value: w.id, disabled: !w.ok, checked: d.windowId === w.id, onChange: () => { save({ windowId: w.id, windowLabel: w.start + '–' + w.end }); winBox.querySelectorAll('.window').forEach((x) => x.classList.toggle('is-on', x === lab)); fieldErr(winBox, ''); } }), h('span', w.start + ' – ' + w.end), h('span.sub', w.gone ? t('book.when.windowGone') : w.full ? t('book.when.windowFull') : (LHF.db.sharedCapacity && w.remaining != null && w.remaining <= 2 ? t('book.when.low', { n: w.remaining }) : '')));
         winBox.appendChild(lab);
       });
     }
     ['pickup', 'delivery'].forEach((f) => {
-      const lab = h('label.radio-card', { class: d.fulfil === f ? 'is-on' : '' }, h('input', { type: 'radio', name: 'fulfil', value: f, checked: d.fulfil === f, onChange: () => { save({ fulfil: f, windowId: null }); fulfilCards.querySelectorAll('.radio-card').forEach((x) => x.classList.toggle('is-on', x === lab)); addr.hidden = f !== 'delivery'; renderWindows(); } }), h('span.t', h('i.mark'), t('book.how.' + f)), h('span.d', t('book.how.' + f + 'Sub')));
+      const lab = h('label.radio-card', { class: d.fulfil === f ? 'is-on' : '' }, h('input', { type: 'radio', name: 'fulfil', value: f, checked: d.fulfil === f, onChange: () => { save({ fulfil: f, windowId: null, windowLabel: null }); fulfilCards.querySelectorAll('.radio-card').forEach((x) => x.classList.toggle('is-on', x === lab)); addr.hidden = f !== 'delivery'; renderWindows(); } }), h('span.t', h('i.mark'), t('book.how.' + f)), h('span.d', t('book.how.' + f + 'Sub')));
       fulfilCards.appendChild(lab);
     });
     const a = d.address || {};
-    const provSel = h('select.select', { onChange: (e) => { save({ address: Object.assign({}, d.address, { province: e.target.value, district: '' }) }); renderDistricts(); } }, h('option', { value: '' }, t('book.how.province')), LHF.data.delivery.provinces.map((p) => h('option', { value: p.id, selected: a.province === p.id }, pick(p))));
+    const provSel = h('select.select', { 'aria-required': 'true', onChange: (e) => { save({ address: Object.assign({}, d.address, { province: e.target.value, district: '' }) }); renderDistricts(); fieldErr(provSel, ''); } }, h('option', { value: '' }, t('book.how.province')), LHF.data.delivery.provinces.map((p) => h('option', { value: p.id, selected: a.province === p.id }, pick(p))));
     const distWrap = h('label.field', h('span.label', t('book.how.district')));
+    const distCtl = () => distWrap.querySelector('.input, .select');
     function renderDistricts() {
       const prov = LHF.data.delivery.provinces.find((p) => p.id === (d.address || {}).province);
-      const old = distWrap.querySelector('.input, .select'); if (old) old.remove();
-      if (prov && prov.districts.length) distWrap.appendChild(h('select.select', { onChange: (e) => save({ address: Object.assign({}, d.address, { district: e.target.value }) }) }, h('option', { value: '' }, t('book.how.district')), prov.districts.map((x) => h('option', { value: x, selected: (d.address || {}).district === x }, x))));
-      else distWrap.appendChild(h('input.input', { placeholder: t('book.how.district'), value: (d.address || {}).district || '', onInput: (e) => save({ address: Object.assign({}, d.address, { district: e.target.value }) }) }));
+      const old = distCtl(); if (old) old.remove();
+      fieldErr(distWrap, '');
+      if (prov && prov.districts.length) distWrap.appendChild(h('select.select', { 'aria-required': 'true', onChange: (e) => save({ address: Object.assign({}, d.address, { district: e.target.value }) }) }, h('option', { value: '' }, t('book.how.district')), prov.districts.map((x) => h('option', { value: x, selected: (d.address || {}).district === x }, x))));
+      else distWrap.appendChild(h('input.input', { maxlength: 80, 'aria-required': 'true', placeholder: t('book.how.district'), value: (d.address || {}).district || '', onInput: (e) => save({ address: Object.assign({}, d.address, { district: e.target.value }) }) }));
     }
     renderDistricts();
+    const addrIn = h('textarea.textarea', { rows: 2, maxlength: 500, 'aria-required': 'true', placeholder: t('book.how.addressPh'), onInput: (e) => save({ address: Object.assign({}, d.address, { line: e.target.value }) }) });
+    addrIn.value = a.line || '';
     const addr = h('div.stack', { hidden: d.fulfil !== 'delivery' },
-      h('label.field', h('span.label', t('book.how.address')), h('textarea.textarea', { rows: 2, placeholder: t('book.how.addressPh'), value: a.line || '', onInput: (e) => save({ address: Object.assign({}, d.address, { line: e.target.value }) }) })),
+      h('label.field', h('span.label', t('book.how.address')), addrIn),
       h('div.field-row', h('label.field', h('span.label', t('book.how.province')), provSel), distWrap),
-      h('label.field', h('span.label', t('book.how.landmark')), h('input.input', { value: a.note || '', onInput: (e) => save({ address: Object.assign({}, d.address, { note: e.target.value }) }) })),
+      h('label.field', h('span.label', t('book.how.landmark')), h('input.input', { maxlength: 200, value: a.note || '', onInput: (e) => save({ address: Object.assign({}, d.address, { note: e.target.value }) }) })),
       h('div.notice', ui.icon('map', 18), h('span', t('home.dist.fee'))));
     renderWindows();
-    const err = h('div.notice.rose', { hidden: true, role: 'alert' }, t('book.err.date'));
-    return h('div.book-sheet', h('h2.h2', t('book.how.title')), h('p.small.muted', LHF.i18n.fmtDate(d.date, 'weekday')), err, fulfilCards, h('div.field', h('span.label', t('book.when.window')), winBox), addr, nav({ onNext: () => {
-      const e = {}; if (!d.fulfil || !d.windowId) e.win = 1;
-      if (d.fulfil === 'delivery') { const v = E.validate(Object.assign({}, d, { customer: { name: 'x', phone: '0812345678' }, recipient: { name: 'x', phone: '0812345678' } }), 'who'); ['addressLine', 'district', 'province'].forEach((k) => { if (v[k]) e[k] = 1; }); }
-      if (Object.keys(e).length) { err.hidden = false; err.textContent = e.win ? t('book.err.date') : t('book.err.required'); addr.querySelectorAll('.field').forEach((f) => f.classList.remove('is-error')); if (e.addressLine) addr.querySelector('textarea').closest('.field').classList.add('is-error'); if (e.province) provSel.closest('.field').classList.add('is-error'); if (e.district) distWrap.classList.add('is-error'); return; }
+    const err = h('div.notice.rose', { hidden: true, role: 'alert' });
+    return h('div.book-sheet', h('h2.h2', { id: titleId }, t('book.how.title')), h('p.small.muted', LHF.i18n.fmtDate(d.date, 'weekday')), err, fulfilCards, h('div.field', h('span.label', { id: winLabelId }, t('book.when.window')), winBox), addr, nav({ onNext: () => {
+      const names = [];
+      fieldErr(winBox, ''); [addrIn, provSel, distCtl()].forEach((el) => el && fieldErr(el, ''));
+      if (!d.fulfil) names.push(t('book.step.how'));
+      else if (!d.windowId) { names.push(t('book.when.window')); fieldErr(winBox, t('book.err.window')); }
+      if (d.fulfil === 'delivery') {
+        const v = E.validate(Object.assign({}, d, { customer: { name: 'xx', phone: '0812345678' }, recipient: { name: 'x', phone: '0812345678' } }), 'who');
+        if (v.addressLine) { fieldErr(addrIn, t('book.err.address')); names.push(t('book.how.address')); }
+        if (v.province) { fieldErr(provSel, t('book.err.province')); names.push(t('book.how.province')); }
+        if (v.district && distCtl()) { fieldErr(distCtl(), t('book.err.district')); names.push(t('book.how.district')); }
+      }
+      if (names.length) { err.hidden = false; err.textContent = t('book.err.check') + ' ' + names.join(', '); if (!d.fulfil) { const r = fulfilCards.querySelector('input'); if (r) r.focus(); } else focusFirstInvalid(); return; }
       go('who');
     } }));
   }
@@ -4294,28 +4855,32 @@ LHF.pages.order = function (params, query) {
   function stepWho() {
     const cu = d.customer || {}, re = d.recipient || {};
     const same = d.sameAsMe !== false && !(re.name && re.name !== cu.name);
-    const nameIn = h('input.input', { value: cu.name || '', autocomplete: 'name', onInput: (e) => save({ customer: Object.assign({}, d.customer, { name: e.target.value }) }) });
-    const phoneIn = h('input.input', { value: cu.phone || '', type: 'tel', inputmode: 'tel', autocomplete: 'tel', placeholder: '08x xxx xxxx', onInput: (e) => save({ customer: Object.assign({}, d.customer, { phone: e.target.value }) }) });
-    const lineIn = h('input.input', { value: cu.line || '', placeholder: '@', onInput: (e) => save({ customer: Object.assign({}, d.customer, { line: e.target.value }) }) });
-    const rName = h('input.input', { value: re.name || '', onInput: (e) => save({ recipient: Object.assign({}, d.recipient, { name: e.target.value }) }) });
-    const rPhone = h('input.input', { value: re.phone || '', type: 'tel', inputmode: 'tel', placeholder: '08x xxx xxxx', onInput: (e) => save({ recipient: Object.assign({}, d.recipient, { phone: e.target.value }) }) });
-    const recBox = h('div.stack', { hidden: same }, h('div.field-row', h('label.field', h('span.label', t('book.who.name')), rName), h('label.field', h('span.label', t('book.who.phone')), rPhone)));
+    const nameIn = h('input.input', { value: cu.name || '', maxlength: 120, autocomplete: 'name', 'aria-required': 'true', onInput: (e) => save({ customer: Object.assign({}, d.customer, { name: e.target.value }) }) });
+    const phoneIn = h('input.input', { value: cu.phone || '', maxlength: 24, type: 'tel', inputmode: 'tel', autocomplete: 'tel', 'aria-required': 'true', placeholder: '08x xxx xxxx', onInput: (e) => save({ customer: Object.assign({}, d.customer, { phone: e.target.value }) }) });
+    const lineIn = h('input.input', { value: cu.line || '', maxlength: 40, placeholder: '@', onInput: (e) => save({ customer: Object.assign({}, d.customer, { line: e.target.value }) }) });
+    const rName = h('input.input', { value: re.name || '', maxlength: 120, autocomplete: 'off', 'aria-required': 'true', onInput: (e) => save({ recipient: Object.assign({}, d.recipient, { name: e.target.value }) }) });
+    const rPhone = h('input.input', { value: re.phone || '', maxlength: 24, type: 'tel', inputmode: 'tel', autocomplete: 'off', 'aria-required': 'true', placeholder: '08x xxx xxxx', onInput: (e) => save({ recipient: Object.assign({}, d.recipient, { phone: e.target.value }) }) });
+    const recBox = h('div.stack', { hidden: same }, h('div.field-row', h('label.field', h('span.label', t('book.who.rName')), rName), h('label.field', h('span.label', t('book.who.rPhone')), rPhone)));
     const sameChk = h('label.check', h('input', { type: 'checkbox', checked: same, onChange: (e) => { save({ sameAsMe: e.target.checked }); recBox.hidden = e.target.checked; } }), h('span.box', ui.icon('check')), h('span', t('book.who.sameAsMe')));
     const anon = h('label.check', h('input', { type: 'checkbox', checked: !!d.anonymous, onChange: (e) => save({ anonymous: e.target.checked }) }), h('span.box', ui.icon('check')), h('span', t('book.who.anon')));
     return h('div.book-sheet', h('h2.h2', t('book.who.title')),
-      h('div.h4', t('book.who.you')), h('div.field-row', h('label.field', h('span.label', t('book.who.name')), nameIn), h('label.field', h('span.label', t('book.who.phone')), phoneIn)), h('label.field', h('span.label', t('book.who.line')), lineIn),
-      h('div.h4', { style: { marginTop: '8px' } }, t('book.who.recipient')), sameChk, recBox, d.fulfil === 'delivery' ? anon : null,
+      /* the privacy notice sits where the details are asked for */
+      h('p.small.muted', t('book.who.privacy'), ' ', h('a.link', { href: R.href('/privacy') }, t('book.privacyLink'))),
+      h('h3.h4', t('book.who.you')), h('div.field-row', h('label.field', h('span.label', t('book.who.name')), nameIn), h('label.field', h('span.label', t('book.who.phone')), phoneIn, h('span.hint', t('book.who.phoneHint')))), h('label.field', h('span.label', t('book.who.line')), lineIn),
+      h('h3.h4', { style: { marginTop: '8px' } }, t('book.who.recipient')), sameChk, recBox, d.fulfil === 'delivery' ? anon : null,
       nav({ onNext: () => {
         /* read the checkbox live — its state changes after this step was rendered */
         const isSame = sameChk.querySelector('input').checked;
-        const cust = { name: nameIn.value.trim(), phone: phoneIn.value, line: lineIn.value.trim() };
-        const rec = isSame ? { name: cust.name, phone: cust.phone } : { name: rName.value.trim(), phone: rPhone.value };
+        const cust = { name: nameIn.value.trim(), phone: phoneIn.value.trim(), line: lineIn.value.trim() };
+        const rec = isSame ? { name: cust.name, phone: cust.phone } : { name: rName.value.trim(), phone: rPhone.value.trim() };
         save({ customer: cust, recipient: rec, sameAsMe: isSame });
         const v = E.validate(Object.assign({}, d, { customer: cust, recipient: rec }), 'who');
+        /* the rider calls the recipient: when that is the orderer, their number must be a Thai mobile too */
+        if (isSame && v.recipientPhone && !v.customerPhone) v.customerPhone = 'mobile';
         fieldErr(nameIn, v.customerName && errMsg(v.customerName)); fieldErr(phoneIn, v.customerPhone && errMsg(v.customerPhone));
         fieldErr(rName, !isSame && v.recipientName && errMsg(v.recipientName)); fieldErr(rPhone, !isSame && v.recipientPhone && errMsg(v.recipientPhone));
         const bad = ['customerName', 'customerPhone'].some((k) => v[k]) || (!isSame && ['recipientName', 'recipientPhone'].some((k) => v[k]));
-        if (bad) { const f = body.querySelector('.field.is-error input'); if (f) f.focus(); return; }
+        if (bad) { focusFirstInvalid(); return; }
         go('card');
       } }));
   }
@@ -4325,7 +4890,9 @@ LHF.pages.order = function (params, query) {
     const msg = (d.card && d.card.message) || '';
     const count = h('div.count', t('book.card.count', { n: msg.length }));
     const suggest = h('div.card-suggest');
-    const ta = h('textarea.textarea.hand', { rows: 5, maxlength: 200, placeholder: t('book.card.ph'), value: msg, 'aria-label': t('book.card.title'), onInput: (e) => { save({ card: { message: e.target.value } }); count.textContent = t('book.card.count', { n: e.target.value.length }); runSuggest(e.target.value); } });
+    const ta = h('textarea.textarea.hand', { rows: 5, maxlength: 200, placeholder: t('book.card.ph'), 'aria-label': t('book.card.title'), onInput: (e) => { save({ card: { message: e.target.value } }); count.textContent = t('book.card.count', { n: e.target.value.length }); runSuggest(e.target.value); } });
+    /* a textarea's text is its value, not an attribute */
+    ta.value = msg;
     let timer;
     function runSuggest(text) { clearTimeout(timer); timer = setTimeout(() => { U.empty(suggest); const found = LHF.heart.lookup(text).slice(0, 2); if (!found.length) return; suggest.appendChild(h('div.tiny', t('mean.match'))); found.forEach((e, i) => { const p = e.products[0]; suggest.appendChild(h('a.lookup-row', { href: p ? R.href('/flowers/' + p.slug) : R.href('/meanings'), style: { '--d': i * 60 + 'ms' } }, p ? LHF.img.el(p.image, { className: 'lookup-thumb', alt: '' }) : h('span.lookup-thumb'), h('div', h('div.entry-head', h('span.headword', e.flower.en, h('span.n', '(N).')), h('span.entry-th', e.flower.th)), h('div.entry-def', pick(e.flower.meaning))))); }); }, 220); }
     if (msg) runSuggest(msg);
@@ -4337,142 +4904,304 @@ LHF.pages.order = function (params, query) {
 
   /* ---------------- 6. review ---------------- */
   function stepReview() {
-    /* declared before the return: submit() runs long after this function has, and a
-       `let` below the return would still be in its temporal dead zone when it fires */
-    let sending = false;
     const sum = E.priceSummary(d);
-    const consent = h('label.check', h('input', { type: 'checkbox', checked: !!d.consent, onChange: (e) => save({ consent: e.target.checked }) }), h('span.box', ui.icon('check')), h('span', t('book.review.consent')));
+    const brief = E.hasBrief(d);
+    /* consent is asked for every order: never ticked in advance, never stored */
+    const consentIn = h('input', { type: 'checkbox' });
+    const consent = h('div.stack', { style: { display: 'grid', gap: '6px' } }, h('label.check', consentIn, h('span.box', ui.icon('check')), h('span', t('book.review.consent'))), h('p.tiny', h('a.link', { href: R.href('/privacy') }, t('book.privacyLink'))));
+    /* honeypot: hidden from people and from assistive technology; a form-filling
+       bot fills it in, and its value travels as the top-level `hp` for the script */
+    const hp = h('input', { type: 'text', name: 'website', tabindex: -1, autocomplete: 'off' });
+    const trap = h('div.sr-only', { 'aria-hidden': 'true' }, hp);
     const err = h('div.notice.rose', { hidden: true, role: 'alert' });
-    const submitBtn = ui.btn(t('book.review.submit'), { className: 'btn-primary btn-lg', onClick: submit, iconRight: 'arrow' });
+    const fail = h('div.send-fail', { hidden: true, role: 'alert', tabindex: -1 });
+    const submitLabel = h('span', t('book.review.submit'));
+    const submitBtn = h('button.btn.btn-primary.btn-lg', { type: 'button', onClick: submit }, submitLabel, ui.icon('arrow', 18));
     const editLink = (s) => h('a.edit', { href: R.href('/order', { step: s }), onClick: (e) => { e.preventDefault(); go(s); } }, t('book.edit'));
+    const fmt = LHF.i18n.fmtPrice;
+    const addr = d.address || {};
+    const cust = d.customer || {}, rec = d.recipient || {};
+    const whatText = [brief ? t('custom.summary') + ': ' + briefLine(d.custom, true) : ''].concat(sum.items.map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + pick(i.product.name) + (i.kind === 'quote' ? ' (' + t('price.quote') + ')' : ''))).filter(Boolean).join(', ') || '—';
+    const delivery = d.fulfil === 'delivery' ? ' + ' + t('book.review.delivery').toLowerCase() : '';
     const rows = h('div.book-summary',
-      h('div.row', h('span.k', t('book.step.what'), editLink('what')), h('span', d.type === 'custom' ? t('custom.summary') : sum.items.map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + pick(i.product.name)).join(', '))),
-      h('div.row', h('span.k', t('book.step.when'), editLink('when')), h('span', LHF.i18n.fmtDate(d.date, 'weekday') + ' · ' + (d.windowLabel || ''))),
-      h('div.row', h('span.k', t('book.step.how'), editLink('how')), h('span', t('book.how.' + d.fulfil) + (d.fulfil === 'delivery' && d.address ? ' · ' + [d.address.line, d.address.district, pick((LHF.data.delivery.provinces.find((p) => p.id === d.address.province) || {}))].filter(Boolean).join(' ') : ''))),
-      h('div.row', h('span.k', t('book.step.who'), editLink('who')), h('span', (d.customer || {}).name + ' · ' + U.fmtPhone((d.customer || {}).phone || '') + (d.recipient && d.recipient.name !== d.customer.name ? ' → ' + d.recipient.name : ''))),
-      d.type === 'custom' && d.custom ? h('div.row', h('span.k', t('custom.step.budget')), h('span', d.custom.budgetCustom ? LHF.i18n.fmtPrice(d.custom.budgetCustom) : (function () { const tr = (settings.budgetTiers || []).find((x) => x.id === d.custom.budgetTier); return tr ? (tr.max ? LHF.i18n.fmtPrice(tr.min) + ' – ' + LHF.i18n.fmtPrice(tr.max) : LHF.i18n.fmtPrice(tr.min) + '+') : ''; })())) : null,
-      sum.items.length ? h('div.row', h('span.k', t('book.review.subtotal')), h('span.price.price-sm', LHF.i18n.fmtPrice(sum.subtotal))) : null,
+      h('div.row', h('span.k', t('book.step.what'), editLink('what')), h('span', whatText)),
+      d.colourNote ? h('div.row', h('span.k', t('book.sum.colour')), h('span', d.colourNote)) : null,
+      h('div.row', h('span.k', t('book.step.when'), editLink('when')), h('span', d.date ? LHF.i18n.fmtDate(d.date, 'weekday') + ' · ' + (d.windowLabel || '') : '—')),
+      h('div.row', h('span.k', t('book.step.how'), editLink('how')), h('span', (d.fulfil ? t('book.how.' + d.fulfil) : '—') + (d.fulfil === 'delivery' && d.address ? ' · ' + [addr.line, addr.district, pick((LHF.data.delivery.provinces.find((p) => p.id === addr.province) || {}))].filter(Boolean).join(' ') : ''))),
+      h('div.row', h('span.k', t('book.step.who'), editLink('who')), h('span', cust.name ? cust.name + ' · ' + E.fmtPhone(cust.phone) + (rec.name && rec.name !== cust.name ? ' → ' + rec.name : '') : '—')),
+      brief ? h('div.row', h('span.k', t('custom.step.budget')), h('span', d.custom.budgetCustom ? fmt(d.custom.budgetCustom) : (function () { const tr = (settings.budgetTiers || []).find((x) => x.id === d.custom.budgetTier); return tr ? (tr.max ? fmt(tr.min) + ' – ' + fmt(tr.max) : fmt(tr.min) + '+') : ''; })())) : null,
+      sum.subtotal > 0 ? h('div.row', h('span.k', t('book.review.subtotal')), h('span.price.price-sm', sum.items.every((i) => i.kind === 'firm') ? fmt(sum.subtotal) : t('book.review.fromTotal', { price: fmt(sum.subtotal) }))) : null,
       h('div.row', h('span.k', t('book.review.delivery')), h('span.small', d.fulfil === 'delivery' ? t('book.review.deliveryNote') : t('book.review.pickupNote'))),
-      sum.quoteOnly ? h('div.row', h('span.k', t('admin.total')), h('span.small', t('book.review.quoteNote'))) : h('div.row.total', h('span.k', t('admin.total')), h('span.price.price-md', LHF.i18n.fmtPrice(sum.subtotal) + (d.fulfil === 'delivery' ? ' + ' + t('book.review.delivery').toLowerCase() : ''))),
-      h('div.row', h('span.k', ''), h('span.tiny', t('book.review.review5'))));
+      sum.hasQuote ? h('div.row', h('span.k', t('book.review.total')), h('span.small', t('book.review.quoteNote'))) : h('div.row.total', h('span.k', t('book.review.total')), h('span.price.price-md', (sum.priceFrom ? t('book.review.fromTotal', { price: fmt(sum.subtotal) }) : fmt(sum.subtotal)) + delivery)),
+      sum.priceFrom ? h('div.row', h('span.k', ''), h('span.small', t('book.review.fromNote'))) : null);
     const cardPrev = h('div.card-paper.review-receipt', ui.heartTag('sm'), h('div.tiny', t('done.card')), h('div.hand', (d.card && d.card.message) || '—'), h('div.tiny', t('book.card.sub')));
-    return h('div.book-sheet', h('h2.h2', t('book.review.title')), h('p.lede', t('book.review.sub')), err, h('div.review-grid', rows, cardPrev), consent, h('div.book-nav', ui.btn(t('book.back'), { onClick: () => go('card'), icon: 'back' }), h('span.spacer'), submitBtn));
+    const notes = h('div.stack', { style: { display: 'grid', gap: '10px' } },
+      brief && d.custom.reference ? h('div.notice', ui.icon('line', 18), h('span', t('book.review.photo'))) : null,
+      h('p.small.muted', t('book.review.policy')),
+      /* the shop's review promo, mentioned, not a line that changes this order's total */
+      h('p.tiny', t('book.review.review5')));
+    return h('div.book-sheet', { 'aria-busy': 'false' }, h('h2.h2', t('book.review.title')), h('p.lede', t('book.review.sub')), err, fail, h('div.review-grid', rows, cardPrev), notes, consent, trap, h('div.book-nav', ui.btn(t('book.back'), { onClick: () => go('card'), icon: 'back' }), h('span.spacer'), submitBtn));
+
+    function setBusy(on) {
+      submitBtn.disabled = on;
+      if (on) submitBtn.setAttribute('aria-disabled', 'true'); else submitBtn.removeAttribute('aria-disabled');
+      submitLabel.textContent = t(on ? 'book.review.sending' : 'book.review.submit');
+      const s = submitBtn.closest('.book-sheet'); if (s) s.setAttribute('aria-busy', on ? 'true' : 'false');
+    }
+    /* Honest failure: the order has not reached the shop. Everything typed stays;
+       the customer can send again (same reference), send the whole order on LINE
+       as a written message, or call. */
+    function showFailure(booking) {
+      U.empty(fail);
+      fail.append(
+        h('h3.h4', t('book.fail.title')),
+        h('p.small', t('book.fail.body')),
+        h('div.send-fail-acts',
+          ui.btn(t('book.fail.retry'), { className: 'btn-primary', onClick: submit }),
+          ui.btn(t('book.fail.line'), { href: LHF.sink.lineUrl(LHF.sink.summary(booking)), target: '_blank', icon: 'line' }),
+          ui.btn(t('book.fail.call', { phone: LHF.data.shop.phoneDisplay }), { href: 'tel:' + LHF.data.shop.phoneTel, icon: 'phone' })));
+      fail.hidden = false;
+      fail.focus({ preventScroll: true });
+      fail.scrollIntoView({ block: 'center', behavior: U.reducedMotion() ? 'auto' : 'smooth' });
+    }
 
     async function submit() {
       if (sending) return;
       err.hidden = true;
-      if (!consent.querySelector('input').checked) { err.hidden = false; err.textContent = t('book.err.consent'); return; }
+      if (!consentIn.checked) { fail.hidden = true; err.hidden = false; err.textContent = t('book.err.consent'); consentIn.focus(); return; }
       const v = E.validate(Object.assign({}, d, { consent: true }));
       if (Object.keys(v).length) {
+        fail.hidden = true;
         err.hidden = false;
-        const LABELS = { type: t('book.step.what'), items: t('book.step.what'), budget: t('custom.step.budget'), date: t('book.step.when'), fulfil: t('book.step.how'), windowId: t('book.when.window'), customerName: t('book.who.name'), customerPhone: t('book.who.phone'), recipientName: t('book.who.recipient'), recipientPhone: t('book.who.phone'), addressLine: t('book.how.address'), district: t('book.how.district'), province: t('book.how.province'), cardMessage: t('book.step.card') };
+        const LABELS = { type: t('book.step.what'), items: t('book.step.what'), budget: t('custom.step.budget'), date: t('book.step.when'), fulfil: t('book.step.how'), windowId: t('book.when.window'), customerName: t('book.who.name'), customerPhone: t('book.who.phone'), recipientName: t('book.who.rName'), recipientPhone: t('book.who.rPhone'), addressLine: t('book.how.address'), district: t('book.how.district'), province: t('book.how.province'), cardMessage: t('book.step.card') };
         const names = Array.from(new Set(Object.keys(v).map((k) => LABELS[k]).filter(Boolean)));
         err.textContent = t('book.err.check') + (names.length ? ' ' + names.join(', ') : '');
         return;
       }
-      sending = true;
-      submitBtn.disabled = true; submitBtn.setAttribute('aria-disabled', 'true'); submitBtn.textContent = t('book.review.sending');
-      const ref = E.orderRef(d.date);
-      const booking = {
-        ref, type: d.type, date: d.date, windowId: d.windowId, windowLabel: d.windowLabel, fulfil: d.fulfil,
-        items: sum.items.map((i) => ({ productId: i.product.id, name: pick(i.product.name), qty: i.qty, unit: i.unit, line: i.line })),
-        custom: d.type === 'custom' ? d.custom : null, colourNote: d.colourNote || '',
-        customer: d.customer, recipient: d.recipient, address: d.fulfil === 'delivery' ? d.address : null, anonymous: !!d.anonymous,
-        card: { message: (d.card && d.card.message) || '' }, subtotal: sum.subtotal, quoteOnly: sum.quoteOnly,
-        payment: { status: 'unpaid' }, lang: LHF.i18n.lang, status: 'new', notes: '',
-      };
-      try {
-        const saved = await LHF.db.createBooking(booking, (load) => {
-          /* last check before writing: the date or window may have gone since the
-             draft was made (capacity taken, blackout added, or the day simply passed) */
-          const c = E.ctx(settings);
-          const st = E.dateStatus(d.date, c, load, { type: d.type, leadDays: 0 });
-          if (!st.ok) return st.reason;
-          const w = E.windowsFor(d.date, d.fulfil, c, load).find((x) => x.id === d.windowId);
-          if (!w || !w.ok) return w && w.full ? 'full' : 'stale';
-          return null;
-        });
-        LHF.store.set('lastOrder', saved);
-        /* the Sheet is told after the booking is already safe; a delivery problem
-           is the shop's to see in the back office, never the customer's to read */
-        try { LHF.sink.send(saved); } catch (e) { console.error(e); }
-        LHF.store.clearDraft();
-        LHF.heart.refresh();
-        R.navigate('/order/done/' + saved.id);
-      } catch (e) {
-        sending = false;
-        submitBtn.disabled = false; submitBtn.removeAttribute('aria-disabled'); submitBtn.textContent = t('book.review.submit');
-        err.hidden = false;
-        const code = e && e.code;
-        if (code === 'full') err.textContent = t('book.err.slot');
-        else if (code === 'slot_busy') err.textContent = t('book.err.busy');
-        else if (code === 'past' || code === 'today' || code === 'leadtime' || code === 'closed' || code === 'stale') { err.textContent = t('book.err.stale'); save({ windowId: null }); }
-        else if (code === 'quota_exceeded') err.textContent = t('book.err.quota');
-        else err.textContent = t('book.err.network');
-        err.scrollIntoView({ block: 'center', behavior: U.reducedMotion() ? 'auto' : 'smooth' });
-        console.error(e);
+      /* the day is checked again on the shop's clock at the moment of sending: a
+         tab left open past 18:00, or overnight, must not book what the calendar
+         would now refuse */
+      const c = E.ctx(settings);
+      const st = E.dateStatus(d.date, c, null, { type: d.type, leadDays: E.leadFor(d, settings) });
+      const w = st.ok ? E.windowsFor(d.date, d.fulfil, c, null).find((x) => x.id === d.windowId) : null;
+      if (!st.ok || !w || !w.ok) {
+        save(st.ok ? { windowId: null, windowLabel: null } : { date: null, windowId: null, windowLabel: null });
+        flash = t('book.err.stale');
+        go(st.ok ? 'how' : 'when');
+        return;
       }
+      sending = true; setBusy(true);
+      const booking = buildBooking();
+      let saved = null;
+      try {
+        await LHF.db.ready;
+        if (LHF.db.backend === 'artifact') {
+          /* inside the artifact its shared database is the record, and capacity is real there */
+          saved = await LHF.db.createBooking(booking, (load) => {
+            const c2 = E.ctx(settings);
+            const st2 = E.dateStatus(d.date, c2, load, { type: booking.type, leadDays: E.leadFor(d, settings) });
+            if (!st2.ok) return st2.reason;
+            const w2 = E.windowsFor(d.date, d.fulfil, c2, load).find((x) => x.id === d.windowId);
+            if (!w2 || !w2.ok) return w2 && w2.full ? 'full' : 'stale';
+            return null;
+          });
+          try { LHF.sink.send(saved); } catch (e) { console.error(e); }
+        } else {
+          /* sent first; confirmed only when the shop's script answers ok */
+          const res = await LHF.sink.deliver(booking, { hp: hp.value });
+          if (!res.ok) { sending = false; setBusy(false); showFailure(booking); return; }
+          /* the receipt copy on this phone is a convenience: the order has reached
+             the shop, so a browser that refuses storage changes nothing */
+          try { saved = await LHF.db.createBooking(booking, null); } catch (e) { saved = booking; }
+        }
+      } catch (e) {
+        sending = false; setBusy(false);
+        const code = e && e.code;
+        if (code === 'full') { err.hidden = false; err.textContent = t('book.err.slot'); }
+        else if (code === 'slot_busy') { err.hidden = false; err.textContent = t('book.err.busy'); }
+        else if (['past', 'today', 'leadtime', 'cutoff', 'horizon', 'closed', 'stale'].includes(code)) { save({ windowId: null, windowLabel: null }); flash = t('book.err.stale'); go('how'); return; }
+        else showFailure(booking);
+        if (!err.hidden) err.scrollIntoView({ block: 'center', behavior: U.reducedMotion() ? 'auto' : 'smooth' });
+        console.error(e);
+        return;
+      }
+      /* the confirmation renders from memory, whatever the browser let us store */
+      LHF.store.set('lastOrder', Object.assign({}, booking, { id: saved.id || booking.id }));
+      LHF.store.clearDraft();
+      LHF.heart.refresh();
+      /* replace, not push: Back from the confirmation leaves the finished flow */
+      R.navigate('/order/done/' + (saved.id || booking.id), { ref: booking.ref }, { replace: true });
     }
+  }
+
+  /* One id and reference per order: a retry sends the same ones, so the shop can
+     recognise a row that arrived twice. A changed date makes it a new order. */
+  function buildBooking() {
+    const sum = E.priceSummary(d);
+    const brief = E.hasBrief(d);
+    let at = d.attempt;
+    if (!at || at.date !== d.date || !at.id || !at.ref) { at = { id: U.uid(), ref: E.orderRef(d.date), date: d.date }; save({ attempt: at }); }
+    const cust = d.customer || {}, rec = d.recipient || {};
+    return {
+      id: at.id, ref: at.ref, createdAt: new Date().toISOString(),
+      type: brief ? 'custom' : 'product', date: d.date, windowId: d.windowId, windowLabel: d.windowLabel, fulfil: d.fulfil,
+      items: sum.items.map((i) => ({ productId: i.product.id, name: pick(i.product.name), nameTh: (i.product.name && i.product.name.th) || pick(i.product.name), qty: i.qty, unit: i.unit, line: i.line, kind: i.kind })),
+      /* the photo itself never leaves this phone: only the fact that there is one */
+      custom: brief ? Object.assign({}, d.custom, { reference: null, referenceName: '', hasReference: !!d.custom.reference }) : null,
+      colourNote: String(d.colourNote || '').trim(),
+      customer: { name: String(cust.name || '').trim(), phone: E.normPhone(cust.phone), line: String(cust.line || '').trim() },
+      recipient: { name: String(rec.name || cust.name || '').trim(), phone: E.normPhone(rec.phone || cust.phone) },
+      address: d.fulfil === 'delivery' ? d.address : null, anonymous: d.fulfil === 'delivery' && !!d.anonymous,
+      card: { message: (d.card && d.card.message) || '' }, subtotal: sum.subtotal, quoteOnly: sum.quoteOnly, hasQuote: sum.hasQuote, priceFrom: sum.priceFrom,
+      payment: { status: 'unpaid' }, lang: LHF.i18n.lang, status: 'new', notes: '',
+    };
   }
 };
 
 /* ---- pages/confirm.js ---- */
 /* =====================================================================
-   CONFIRMATION — the receipt, the heart stamp, next steps on LINE
+   CONFIRMATION — the receipt, the heart stamp, next steps on LINE.
+   Reached only after the shop's script answered ok. The shop is not
+   notified by the Sheet, so the first thing asked of the customer is to
+   send the reservation number on LINE; nothing here claims the shop has
+   seen the order.
    ===================================================================== */
 LHF.pages.confirm = function (params) {
-  const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, R = LHF.router, pick = (o) => LHF.i18n.pick(o), S = LHF.data.shop;
+  const U = LHF.util, h = U.h, t = (k, p) => LHF.i18n.t(k, p), ui = LHF.ui, R = LHF.router, pick = (o) => LHF.i18n.pick(o), S = LHF.data.shop, E = LHF.engine, I = LHF.i18n;
   const page = h('div.page.page-enter', h('div.wrap.section-tight'));
   const wrap = page.firstChild;
   const holder = h('div.done', h('p.muted', '…'));
   wrap.appendChild(holder);
+  const q = (R.current && R.current.query) || {};
+  const refHint = /^LH\d{6}-[A-Z0-9]{4}$/.test(q.ref || '') ? q.ref : '';
   const cached = LHF.store.get('lastOrder');
   (cached && cached.id === params.id ? Promise.resolve(cached) : LHF.db.getBooking(params.id)).then(render).catch(() => render(null));
   return page;
 
   function render(b) {
     U.empty(holder);
-    if (!b) { holder.appendChild(h('div.empty', t('done.notFound'))); holder.appendChild(ui.btn(t('nav.reserve'), { className: 'btn-primary', href: R.href('/order') })); return; }
-    const STATUS = ['new', 'confirmed', 'preparing', 'ready', 'out', 'done'];
-    const si = Math.max(0, STATUS.indexOf(b.status));
-    const cancelled = b.status === 'cancelled';
-    const summaryText = summary(b);
+    if (!b) { elsewhere(); return; }
+    const text = LHF.sink.summary(b);
+    const photo = !!(b.custom && (b.custom.hasReference || b.custom.reference));
+    const when = I.fmtDate(b.date, 'weekday') + (b.windowLabel ? ' · ' + b.windowLabel : '');
     holder.append(
       h('div.stamp', ui.heartTag('lg')),
       h('h1.h1', t('done.title')),
       h('p.lede', { style: { margin: '0 auto' } }, t('done.sub')),
       h('div', h('div.tiny', t('done.ref')), h('div.ref', b.ref)),
-      h('div.receipt', h('div.receipt-head', 'Little House Flowers · ' + b.ref),
-        h('div.book-summary',
-          h('div.row', h('span.k', t('book.step.what')), h('span', b.type === 'custom' ? t('custom.summary') : b.items.map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + i.name).join(', '))),
-          h('div.row', h('span.k', t('book.step.when')), h('span', LHF.i18n.fmtDate(b.date, 'weekday') + ' · ' + (b.windowLabel || ''))),
-          h('div.row', h('span.k', t('book.step.how')), h('span', t('book.how.' + b.fulfil))),
-          b.fulfil === 'delivery' && b.address ? h('div.row', h('span.k', t('admin.address')), h('span', [b.address.line, b.address.district].filter(Boolean).join(' '))) : null,
-          h('div.row', h('span.k', t('admin.customer')), h('span', b.customer.name + ' · ' + U.fmtPhone(b.customer.phone))),
-          b.quoteOnly ? h('div.row', h('span.k', t('admin.total')), h('span.small', t('book.review.quoteNote'))) : h('div.row.total', h('span.k', t('book.review.subtotal')), h('span.price.price-md', LHF.i18n.fmtPrice(b.subtotal))),
-          h('div.row', h('span.k', t('book.review.delivery')), h('span.small', b.fulfil === 'delivery' ? t('book.review.deliveryNote') : t('book.review.pickupNote')))),
-        b.card && b.card.message ? h('div', { style: { marginTop: '14px' } }, h('div.tiny', t('done.card')), h('div.hand', { style: { fontSize: '22px' } }, b.card.message)) : null,
-        h('div', { style: { marginTop: '16px' } }, h('div.tiny', t('done.status') + ' · ' + t('status.note')),
-          cancelled ? h('div.notice.rose', { style: { marginTop: '6px' } }, t('status.cancelled')) : h('div.status-track', STATUS.map((s, i) => h('span', { class: i <= si ? 'done' : '' }, t('status.' + s)))))),
+      h('section.done-next', { 'aria-labelledby': 'done-next-title' },
+        h('h2.h3', { id: 'done-next-title' }, t('done.next.title')),
+        photo ? h('div.notice', ui.icon('line', 18), h('span', t('done.photo'))) : null,
+        ui.btn(t('done.line'), { className: 'btn-primary btn-lg', icon: 'line', href: LHF.sink.lineUrl(text), target: '_blank' }),
+        /* what happens next, in order: a list that never pretends to move */
+        h('ol.dotlist.done-steps', [t('done.step1'), t('done.step2'), t(b.fulfil === 'delivery' ? 'done.step3.delivery' : 'done.step3.pickup', { when })].map((s, i) => h('li', h('span.n', '0' + (i + 1)), h('span', s))))),
+      receipt(b, when),
       h('div.done-actions',
-        ui.btn(t('done.line'), { className: 'btn-primary', icon: 'line', onClick: async () => { await copy(summaryText); window.open(S.lineUrl, '_blank', 'noopener'); } }),
         ui.btn(t('done.calendar'), { icon: 'calendar', onClick: () => ics(b) }),
-        ui.btn(t('done.copy'), { icon: 'copy', onClick: () => copy(summaryText) }),
+        ui.btn(t('done.copy'), { icon: 'copy', onClick: () => copy(text) }),
+        ui.btn(S.phoneDisplay, { icon: 'phone', href: 'tel:' + S.phoneTel, attrs: { 'aria-label': t('done.call', { phone: S.phoneDisplay }) } }),
         ui.btn(t('done.again'), { href: R.href('/flowers') })));
   }
-  function summary(b) {
-    return ['Little House Flowers — ' + t('done.ref') + ' ' + b.ref, t('book.step.what') + ': ' + (b.type === 'custom' ? t('custom.summary') : b.items.map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + i.name).join(', ')), t('book.step.when') + ': ' + LHF.i18n.fmtDate(b.date, 'weekday') + ' ' + (b.windowLabel || ''), t('book.step.how') + ': ' + t('book.how.' + b.fulfil) + (b.address ? ' — ' + [b.address.line, b.address.district].filter(Boolean).join(' ') : ''), t('admin.customer') + ': ' + b.customer.name + ' ' + U.fmtPhone(b.customer.phone), b.card && b.card.message ? t('done.card') + ': ' + b.card.message : ''].filter(Boolean).join('\n');
+
+  function receipt(b, when) {
+    const fmt = I.fmtPrice;
+    const cu = b.customer || null, a = b.address || null, c = b.custom || null;
+    const items = (b.items || []).map((i) => (i.qty > 1 ? i.qty + ' × ' : '') + (pick((LHF.catalog.byId(i.productId) || {}).name) || i.name) + (i.kind === 'quote' ? ' (' + t('price.quote') + ')' : ''));
+    const briefText = c ? t('custom.summary') + ': ' + [c.fromProduct && LHF.catalog.byId(c.fromProduct) ? pick(LHF.catalog.byId(c.fromProduct).name) : '', t('custom.style.' + (c.style || 'bouquet')), pick(LHF.catalog.occasion(c.occasion) || {})].filter(Boolean).join(' · ') : '';
+    const firm = !b.hasQuote && !b.priceFrom && !(b.quoteOnly && !b.priceFrom);
+    return h('div.receipt',
+      h('div.receipt-head', 'Little House Flower ', h('span.nowrap', '· ' + b.ref)),
+      h('div.book-summary',
+        h('div.row', h('span.k', t('book.step.what')), h('span', [briefText].concat(items).filter(Boolean).join(', ') || '—')),
+        b.colourNote ? h('div.row', h('span.k', t('book.sum.colour')), h('span', b.colourNote)) : null,
+        h('div.row', h('span.k', t('book.step.when')), h('span', when)),
+        h('div.row', h('span.k', t('book.step.how')), h('span', b.fulfil ? t('book.how.' + b.fulfil) : '—')),
+        b.fulfil === 'delivery' && a ? h('div.row', h('span.k', t('book.review.address')), h('span', [a.line, a.district].filter(Boolean).join(' '))) : null,
+        cu && cu.name ? h('div.row', h('span.k', t('book.who.you')), h('span', cu.name + ' · ' + E.fmtPhone(cu.phone))) : null,
+        h('div.row.total', h('span.k', t('book.review.total')), h(firm || b.priceFrom ? 'span.price.price-md' : 'span.small', LHF.sink.totalLabel(b))),
+        h('div.row', h('span.k', t('book.review.delivery')), h('span.small', b.fulfil === 'delivery' ? t('book.review.deliveryNote') : t('book.review.pickupNote')))),
+      b.card && b.card.message ? h('div', { style: { marginTop: '14px' } }, h('div.tiny', t('done.card')), h('div.hand', { style: { fontSize: '22px' } }, b.card.message)) : null,
+      /* on paper the footer is gone: the receipt carries the way back to the shop */
+      h('p.tiny.receipt-contact', 'LINE ' + S.lineId + ' · ' + S.phoneDisplay));
   }
-  async function copy(text) { try { await navigator.clipboard.writeText(text); ui.toast(t('done.copied')); } catch (e) { const ta = h('textarea', { value: text, style: { position: 'fixed', opacity: 0 } }); document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); ui.toast(t('done.copied')); } catch (e2) {} ta.remove(); } }
+
+  /* A confirmation link opened on another phone (or after 30 days): the details
+     live only on the phone that ordered, so say that, and give the way in. */
+  function elsewhere() {
+    holder.append(
+      h('div.stamp', ui.heartTag('lg')),
+      h('h1.h1', t('done.elsewhere.title')),
+      h('p.lede', { style: { margin: '0 auto' } }, t('done.elsewhere.sub')),
+      refHint ? h('div', h('div.tiny', t('done.ref')), h('div.ref', refHint)) : null,
+      h('div.done-actions',
+        ui.btn(t('done.elsewhere.line'), { className: 'btn-primary', icon: 'line', href: refHint ? LHF.sink.lineUrl(t('done.ref') + ' ' + refHint) : S.lineUrl, target: '_blank' }),
+        ui.btn(S.phoneDisplay, { icon: 'phone', href: 'tel:' + S.phoneTel, attrs: { 'aria-label': t('done.call', { phone: S.phoneDisplay }) } }),
+        ui.btn(t('nav.reserve'), { href: R.href('/order') })));
+  }
+
+  /* Copy for real: the clipboard API, else a selected textarea — and the toast
+     only when something was copied. Otherwise the text opens to copy by hand. */
+  async function copy(text) {
+    try { await navigator.clipboard.writeText(text); ui.toast(t('done.copied')); return; } catch (e) { /* fall through */ }
+    const ta = h('textarea', { readonly: true, 'aria-hidden': 'true', style: { position: 'fixed', top: '0', left: '0', width: '1px', height: '1px', opacity: '0' } });
+    ta.value = text;
+    holder.appendChild(ta);
+    ta.focus({ preventScroll: true }); ta.select();
+    try { ta.setSelectionRange(0, text.length); } catch (e) { /* not every engine */ }
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    if (ok) { ui.toast(t('done.copied')); return; }
+    const box = h('textarea.textarea', { readonly: true, rows: 9, 'aria-label': t('done.copy'), 'data-autofocus': true });
+    box.value = text;
+    ui.sheet({ title: t('done.copy'), sub: t('done.copyByHand'), content: h('div.stack', box) });
+    requestAnimationFrame(() => { try { box.select(); } catch (e) { /* fine */ } });
+  }
+
+  /* A real calendar file, with times as UTC instants (Bangkok 12:00 is 05:00Z),
+     so the reminder lands at the right hour on a phone in any time zone. */
   async function ics(b) {
-    const [sh] = (b.windowLabel || '09:00').split('–'); const start = b.date.replace(/-/g, '') + 'T' + (sh || '09:00').replace(':', '') + '00';
-    const [, eh] = (b.windowLabel || '09:00–12:00').split('–'); const end = b.date.replace(/-/g, '') + 'T' + (eh || '12:00').trim().replace(':', '') + '00';
-    const text = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Little House Flowers//TH', 'BEGIN:VEVENT', 'UID:' + b.id + '@littlehouseflower', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z', 'DTSTART:' + start, 'DTEND:' + end, 'SUMMARY:Little House Flowers · ' + b.ref, 'DESCRIPTION:' + summary(b).replace(/\n/g, '\\n'), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const [sh, eh] = String(b.windowLabel || '09:00–12:00').split('–').map((s) => s.trim());
+    const start = LHF.time.toUTC(b.date, sh || '09:00'), end = LHF.time.toUTC(b.date, eh || '12:00');
+    const stamp = (dt) => dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+    const title = 'Little House Flower · ' + b.ref;
+    const text = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Little House Flower//Reservation//TH', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT', 'UID:' + b.id + '@littlehouseflower', 'DTSTAMP:' + stamp(new Date()), 'DTSTART:' + stamp(start), 'DTEND:' + stamp(end), 'SUMMARY:' + esc(title), 'DESCRIPTION:' + esc(LHF.sink.summary(b)), b.fulfil === 'pickup' ? 'LOCATION:' + esc(pick(S.address)) : null, 'END:VEVENT', 'END:VCALENDAR'].filter(Boolean).map(fold).join('\r\n') + '\r\n';
+    const filename = 'little-house-flower-' + b.ref + '.ics';
     try {
       const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
-      if (dl) { await dl.save({ filename: 'little-house-flowers-' + b.ref + '.ics', data: text }); return; }
+      if (dl) { await dl.save({ filename, data: text }); return; }
     } catch (e) { if (e && e.code === 'declined') return; }
+    /* LINE's in-app browser drops downloads: hand it to Google Calendar instead,
+       with the reference and the time only — no names or numbers in a link */
+    if (/\bLine\//i.test(navigator.userAgent || '')) {
+      window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + stamp(start) + '/' + stamp(end) + '&ctz=Asia%2FBangkok&details=' + encodeURIComponent(t('done.ref') + ' ' + b.ref + ' · LINE ' + S.lineId), '_blank', 'noopener');
+      return;
+    }
+    if (typeof Blob === 'function' && window.URL && typeof URL.createObjectURL === 'function' && 'download' in HTMLAnchorElement.prototype) {
+      const url = URL.createObjectURL(new Blob([text], { type: 'text/calendar;charset=utf-8' }));
+      const a = h('a', { href: url, download: filename, hidden: true });
+      holder.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      ui.toast(t('done.calendarSaved'));
+      return;
+    }
     await copy(text);
+  }
+  /* RFC 5545: lines longer than 75 octets continue on the next line after a space */
+  function fold(line) {
+    if (typeof TextEncoder !== 'function') return line;
+    const enc = new TextEncoder();
+    if (enc.encode(line).length <= 75) return line;
+    const out = [];
+    let cur = '', bytes = 0;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (bytes + n > 75) { out.push(cur); cur = ' '; bytes = 1; }
+      cur += ch; bytes += n;
+    }
+    out.push(cur);
+    return out.join('\r\n');
   }
 };
 
