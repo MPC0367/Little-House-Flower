@@ -4242,7 +4242,7 @@ function accept(booking,result){if(result.ok){if(result.receipt)Object.assign(bo
 async function deliver(booking,opts={}){if(opts.hp)return {ok:false};await LHF.localSession;try{const recovered=await LHF.localAPI('/Little-House-Flower/api/orders/submission/'+booking.id);if(recovered.ok)return accept(booking,recovered);}catch(e){if(e.status!==404)return {ok:false,reason:e.message};}try{return accept(booking,await LHF.localAPI('/Little-House-Flower/api/orders', {...booking,consent:true},{signal:AbortSignal.timeout(12000)}));}catch(e){return {ok:false,reason:e.message};}}
 return {deliver,summary,totalLabel,lineUrl,start(){},send(){},status:()=>({configured:true,blocked:false,queued:0})};
 })();
-LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=open-20261014-1');return renderCustomizer(params,query);};
+LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=intro-reload-20261014-1');return renderCustomizer(params,query);};
 
 ;
 
@@ -4347,7 +4347,8 @@ function start({demo=false}={}){
  document.querySelector('#loader')?.remove();
  if(running)return running;
  if(matchMedia('(prefers-reduced-motion: reduce)').matches){markSeen();lastReport={reason:'reduced-motion',elapsed:0,milestones:{},progress:0};return null;}
- if(!demo&&seen())return null;
+ // Homepage reloads always replay; other routes keep their once-per-session opening.
+ if(!demo&&seen()&&LHF.router.parse(location.hash).path!=='/')return null;
  const begun=performance.now(),milestones={shell:false,logo:false,criticalImage:false,route:false};
  const state={elapsed:0,timeline:0,progress:0,milestones,reason:null,demo,hold:null,media:'video',playback:'loading',duration:null};
  const overlay=elem('div','lhf-logo-intro');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('tabindex','-1');overlay.setAttribute('aria-label',tr('ยินดีต้อนรับสู่ลิตเติลเฮาส์ฟลาวเวอร์','Welcome to Little House Flower'));

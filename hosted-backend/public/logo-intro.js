@@ -28,7 +28,8 @@ function start({demo=false}={}){
  document.querySelector('#loader')?.remove();
  if(running)return running;
  if(matchMedia('(prefers-reduced-motion: reduce)').matches){markSeen();lastReport={reason:'reduced-motion',elapsed:0,milestones:{},progress:0};return null;}
- if(!demo&&seen())return null;
+ // Homepage reloads always replay; other routes keep their once-per-session opening.
+ if(!demo&&seen()&&LHF.router.parse(location.hash).path!=='/')return null;
  const begun=performance.now(),milestones={shell:false,logo:false,criticalImage:false,route:false};
  const state={elapsed:0,timeline:0,progress:0,milestones,reason:null,demo,hold:null,media:'video',playback:'loading',duration:null};
  const overlay=elem('div','lhf-logo-intro');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('tabindex','-1');overlay.setAttribute('aria-label',tr('ยินดีต้อนรับสู่ลิตเติลเฮาส์ฟลาวเวอร์','Welcome to Little House Flower'));

@@ -11,7 +11,7 @@ This is a client demonstration. Orders, payments and customer details are synthe
 
 ## Included work
 
-The storefront includes the supplied loading video, readiness-aware playback with no Skip control, authentic shop photography, the made-to-order configurator and automatic image previews. Studio includes English/Thai controls, clickable orders, design details and requested dates, enlarged product images, calendar, earnings and settings.
+The storefront includes the supplied loading video on every homepage load and reload, readiness-aware playback with no Skip control, authentic shop photography, the made-to-order configurator and automatic image previews. Studio includes English/Thai controls, clickable orders, design details and requested dates, enlarged product images, calendar, earnings and settings.
 
 - Root files: the deployable GitHub Pages build, including `studio/`, `img/`, `media/` and `shared/`.
 - `pages-access.js`, `pages-sw.js`: immediate application startup and the project-scoped API bridge. The supplied loading animation remains the only opening screen. Anonymous customer session tokens are stored in IndexedDB; API responses are not cached.

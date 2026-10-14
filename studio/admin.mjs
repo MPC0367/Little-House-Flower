@@ -1,6 +1,6 @@
-import {t,getLanguage,setLanguage,locale} from './i18n.mjs?v=open-20261014-1';
-import {buildOrderDesign} from './order-design.mjs?v=open-20261014-1';
-import {statusLabels,nextStatuses,styles,materials,finishes,palettes} from '../shared/config.mjs?v=open-20261014-1';
+import {t,getLanguage,setLanguage,locale} from './i18n.mjs?v=intro-reload-20261014-1';
+import {buildOrderDesign} from './order-design.mjs?v=intro-reload-20261014-1';
+import {statusLabels,nextStatuses,styles,materials,finishes,palettes} from '../shared/config.mjs?v=intro-reload-20261014-1';
 const $=s=>document.querySelector(s);
 let bindings=[];
 const msg=(key,params={})=>({isStudioMessage:true,key,params});
