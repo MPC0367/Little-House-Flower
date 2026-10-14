@@ -1,0 +1,18 @@
+{
+  "id": "/Little-House-Flower/studio/",
+  "name": "Little House Flower · Studio Demo",
+  "short_name": "LH Studio Demo",
+  "description": "A hosted client demo using synthetic Little House Flower records.",
+  "start_url": "/Little-House-Flower/studio/#today",
+  "scope": "/Little-House-Flower/studio/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#f6f3ee",
+  "theme_color": "#f6f3ee",
+  "lang": "en",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {"src":"/Little-House-Flower/studio/icons/app-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/Little-House-Flower/studio/icons/app-512.png","sizes":"512x512","type":"image/png","purpose":"any"}
+  ]
+}

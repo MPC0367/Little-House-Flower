@@ -9,12 +9,12 @@
   "background_color": "#F6F3EE",
   "icons": [
     {
-      "src": "img/icon-192.png",
+      "src": "/Little-House-Flower/img/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "img/icon-512.png",
+      "src": "/Little-House-Flower/img/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

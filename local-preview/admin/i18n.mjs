@@ -567,6 +567,31 @@ Sign in again	เข้าสู่ระบบอีกครั้ง
 Your session has expired. Sign in again to continue. Your unsaved entries will stay here.	หมดเวลาใช้งานแล้ว กรุณาเข้าสู่ระบบอีกครั้งเพื่อทำรายการต่อ ข้อมูลที่กรอกไว้จะยังอยู่ครบ
 You are signed in again. Your unsaved entries are still here.	เข้าสู่ระบบแล้ว ทำรายการต่อได้เลย ข้อมูลที่กรอกไว้ยังอยู่ครบ
 Hello {name}, here is an update on order {reference}: {status}. Requested handover: {date} {time}. Please contact the shop to confirm the details.	สวัสดีคุณ {name} ทางร้านขออัปเดตออเดอร์ {reference} ขณะนี้มีสถานะ: {status} วันและเวลารับสินค้าที่แจ้งไว้: {date} {time} รบกวนติดต่อทางร้านเพื่อยืนยันรายละเอียดอีกครั้ง
+Sign in →	เข้าสู่ระบบ →
+Workspace password	รหัสผ่านระบบจัดการร้าน
+PASSWORD-PROTECTED DEMO	ระบบตัวอย่าง · เข้าด้วยรหัสผ่าน
+Enter your workspace password to view the client demo.	กรอกรหัสผ่านเพื่อเข้าชมระบบตัวอย่างได้เลยค่ะ
+This is a shared demonstration workspace. Orders and payments are test data; nothing is sent to the shop.	ระบบนี้จัดไว้ให้ทดลองใช้งาน ออเดอร์และยอดชำระเงินเป็นข้อมูลตัวอย่าง ไม่ได้ส่งรายการไปที่ร้าน
+Unable to check sign-in settings. Please try again.	ตรวจสอบการเข้าสู่ระบบไม่ได้ในขณะนี้ กรุณาลองอีกครั้ง
+Checking sign-in settings…	กำลังตรวจสอบการเข้าสู่ระบบ…
+Password protection	รหัสผ่านเข้าใช้งาน
+A password is required to enter this workspace.	ระบบนี้ตั้งรหัสผ่านไว้แล้ว ต้องกรอกรหัสผ่านก่อนเข้าใช้งาน
+Set a password before sharing this workspace.	ตั้งรหัสผ่านก่อนส่งลิงก์ให้ผู้อื่นเข้าชมระบบ
+Use 12–128 characters. Anyone with this password can edit the demo workspace.	ใช้รหัสผ่าน 12–128 ตัวอักษร ผู้ที่มีรหัสผ่านนี้จะดูและแก้ไขข้อมูลในระบบตัวอย่างได้
+Changing this password also changes access to the shared preview. Your browser may ask you to sign in again.	รหัสผ่านนี้ใช้เข้าลิงก์ตัวอย่างที่แชร์ไว้ด้วย หลังเปลี่ยนรหัสผ่าน เบราว์เซอร์อาจให้เข้าสู่ระบบใหม่
+Set password	ตั้งรหัสผ่าน
+Change password	เปลี่ยนรหัสผ่าน
+Current password	รหัสผ่านปัจจุบัน
+New password	รหัสผ่านใหม่
+Confirm new password	ยืนยันรหัสผ่านใหม่
+The new passwords do not match.	รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน กรุณากรอกอีกครั้ง
+Password saved. Other staff sessions have been signed out.	บันทึกรหัสผ่านแล้ว อุปกรณ์อื่นที่เข้าใช้งานอยู่จะต้องเข้าสู่ระบบใหม่
+Use a password with 12 to 128 characters.	กรุณาตั้งรหัสผ่านให้ยาว 12–128 ตัวอักษร
+Incorrect password. Please try again.	รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง
+Incorrect current password. Please try again.	รหัสผ่านปัจจุบันไม่ถูกต้อง กรุณาตรวจสอบแล้วลองอีกครั้ง
+Too many attempts. Please wait a minute and try again.	ลองเข้าสู่ระบบหลายครั้งเกินไป กรุณารอหนึ่งนาทีแล้วลองใหม่
+Sign-in is busy. Please try again shortly.	มีผู้กำลังเข้าสู่ระบบหลายคน กรุณารอสักครู่แล้วลองอีกครั้ง
+The password changed. Sign in again before trying again.	รหัสผ่านถูกเปลี่ยนแล้ว กรุณาเข้าสู่ระบบใหม่ก่อนทำรายการต่อ
 `.trim().split('\n').map(line=>line.split('\t')));
 export function t(key,params={}){let value=language==='th'?(dictionary[key]??key):key;return String(value).replace(/\{(\w+)\}/g,(match,name)=>Object.hasOwn(params,name)?String(params[name]):match);}
 export const hasTranslation=key=>Object.hasOwn(dictionary,key);

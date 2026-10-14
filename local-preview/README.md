@@ -30,7 +30,7 @@ The launcher stores its PID and log in `data/`, preserves existing records and s
 - Studio: http://127.0.0.1:5174/ — choose a local demo role to enter.
 - Health: http://127.0.0.1:8787/api/health
 
-All services bind to loopback. A fresh checkout creates synthetic demonstration records. Saved orders, uploaded reference photos, sessions and payments from the original local workspace are excluded from Git. Live ordering, Google Sheets, notifications and paid image services are disconnected. Social and contact links remain ordinary outbound links.
+The default servers bind to loopback. Optional client sharing is described below. A fresh checkout creates synthetic demonstration records. Saved orders, uploaded reference photos, sessions and payments from the original local workspace are excluded from Git. Live ordering, Google Sheets, notifications and paid image services are disconnected. Social and contact links remain ordinary outbound links.
 
 ## Review the changes
 
@@ -39,6 +39,30 @@ All services bind to loopback. A fresh checkout creates synthetic demonstration 
 3. Open Studio Orders and click an order. Inspect the saved design choices, customer and delivery details, card message, large product image and image zoom. Switch between English and Thai using the language control.
 4. Review Today, Calendar, Earnings and Settings. Quote, status, payment and staff-note changes remain local. Unsaved order edits are protected during navigation and session recovery.
 5. Replay the loading animation. Playback follows page readiness, with roughly three seconds of minimum presentation time and a bounded fallback. There is no Skip button. Reduced-motion preferences bypass decorative motion; failed media does not permanently block the page.
+
+## Set a workspace password
+
+In Studio, open **Settings → Password protection**. Set and confirm a password of 12–128 characters. Once configured, the role selector is replaced by password sign-in; the password grants owner access to this demonstration workspace. Changing it requires the current password and signs out other staff sessions. Passwords are salted and hashed in the private local journal; no password is stored in browser storage or Git.
+
+The original unconfigured local workspace still supports demo roles. It must not be exposed directly. The sharing launcher below requires password protection before opening either link.
+
+## Share a temporary client preview
+
+Requires `cloudflared` installed on this Mac (default `/opt/homebrew/bin/cloudflared`; override its executable path with `LHF_CLOUDFLARED`). Run:
+
+```sh
+npm run share:start
+npm run share:status
+npm run share:stop
+```
+
+Start creates a separate synthetic review workspace in `data/client-review/`, using ports 5373, 5374 and 8987 with password-protected proxies on 5383 and 5384. It does not share the saved records in the ordinary localhost workspace. It refuses an existing review database without its synthetic-review marker.
+
+The command prints separate HTTPS customer and studio links. Both require username `client` and the generated password stored privately in `data/client-review/access.txt`. The studio then asks for that same workspace password. You can change it in Studio Settings; both share links immediately use the new password, and browsers may ask you to sign in again. The access file documents the initial password and is not automatically updated when you choose a new one.
+
+Both links are temporary Cloudflare Quick Tunnels. The Mac and sharing processes must remain awake and online; restarting creates new links. This is a client demonstration, not permanent production hosting. Orders and uploads stay in the separate review database, live Google Sheets and notifications remain disconnected, and paid image-provider settings are removed from the review process. Use demonstration details only. Stopping the share retains its saved demo records and password.
+
+The share gateway checks the tunnel host and request origin, requires a password on every path, adds secure cookies, bounds request bodies and authentication work, and stops both links if a required backend or tunnel process exits. It does not alter existing Cloudflare configuration or the shop's live GitHub Pages site.
 
 ## Edit and verify
 
@@ -49,6 +73,7 @@ npm run build
 npm test
 npx playwright install webkit
 npm run test:browser
+npm run test:password
 ```
 
 Browser tests use Playwright WebKit with isolated synthetic data on ports 5273, 5274 and 8887. They do not submit orders to the live backend. Generated test reports, screenshots and databases are ignored. WebKit automation is not a substitute for testing on physical Apple devices.

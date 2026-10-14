@@ -4482,7 +4482,7 @@ document.addEventListener('lhf:replay-intro',()=>{if(local)LHF.logoIntro.replay(
   /* "sent" only for the booking this browser just sent; any other link gets a neutral title,
      since the page may have to say it cannot find the booking */
   R.add('/order/done/:id', (p) => LHF.pages.confirm(p), { name: 'done', title: (p) => { const b = LHF.store.get('lastOrder'); return b && b.id === p.id ? t('seo.done') : t('seo.booking'); } });
-  R.add('/admin', (p, q) => LHF.util.h('div.wrap.section', LHF.util.h('h1.h1', 'Staff workspace'), LHF.util.h('a.btn.btn-primary', {href:'http://127.0.0.1:5174'}, 'Open local staff app')), { name: 'admin', title: () => t('seo.admin'), noTransition: true });
+  R.add('/admin', (p, q) => LHF.util.h('div.wrap.section', LHF.util.h('h1.h1', 'Staff workspace'), LHF.util.h('a.btn.btn-primary', {href:window.LHF_SHARE_CONTEXT?.studioURL||'http://127.0.0.1:5174'}, LHF.i18n.lang==='th'?'เปิดระบบจัดการร้าน':'Open staff workspace')), { name: 'admin', title: () => t('seo.admin'), noTransition: true });
   R.add('/privacy', () => LHF.pages.privacy(), { name: 'privacy', title: () => t('seo.privacy') });
   R.add('/404', () => LHF.pages.notfound(), { name: 'notfound', title: () => t('seo.notfound') });
 

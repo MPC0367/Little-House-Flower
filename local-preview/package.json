@@ -8,7 +8,11 @@
     "preview:start": "node scripts/preview.mjs start",
     "preview:stop": "node scripts/preview.mjs stop",
     "test:browser": "playwright test",
-    "build": "node scripts/build-customer.mjs"
+    "build": "node scripts/build-customer.mjs",
+    "test:password": "playwright test --config tests/password.config.mjs",
+    "share:start": "node scripts/share-preview.mjs start",
+    "share:stop": "node scripts/share-preview.mjs stop",
+    "share:status": "node scripts/share-preview.mjs status"
   },
   "engines": {
     "node": ">=22.13"
