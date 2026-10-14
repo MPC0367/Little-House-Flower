@@ -1312,7 +1312,7 @@ LHF.data.strings = {
   'book.review.review5': { th: 'ร้านมีโปรรีวิวรับส่วนลด 5% สอบถามเงื่อนไขกับร้านได้ค่ะ', en: 'We run a review promo for 5% off. Ask us for the conditions.' },
   'book.review.consent': { th: 'ยินยอมให้ร้านใช้ชื่อ เบอร์โทร และที่อยู่ที่กรอกไว้ เพื่อจัดเตรียมและส่งคำจองนี้ และติดต่อคุณและผู้รับเกี่ยวกับคำจองนี้ค่ะ', en: 'I agree that the shop may use the names, phone numbers and address given here to prepare and deliver this order, and to contact me and the recipient about it.' },
   'book.privacyLink': { th: 'อ่านนโยบายความเป็นส่วนตัว', en: 'Read the privacy policy' },
-  'book.who.privacy': { th: 'ระบบตัวอย่างใช้ข้อมูลที่กรอกเพื่อสร้างคำขอจำลองและให้คุณทดลองขั้นตอนเท่านั้น คำขอจะเก็บในพื้นที่ของระบบตัวอย่างออนไลน์ และไม่ส่งไปยังร้าน Google Sheets ผู้ให้บริการจัดส่ง หรือระบบแจ้งเตือน', en: 'This client demo uses the details you enter only to create a synthetic request and demonstrate the workflow. The request stays in hosted demo storage and is not sent to the shop, Google Sheets, couriers or notification services.' },
+  'book.who.privacy': { th: "ข้อมูลที่กรอกใช้บันทึกคำจองและรายละเอียดออเดอร์ กรุณาติดต่อทางร้านเพื่อยืนยันวันรับหรือจัดส่งและราคาสุดท้ายค่ะ", en: "The details you enter are used to save your reservation and order details. Please contact the shop to confirm the handover date and final price." },
   'book.who.rName': { th: 'ชื่อผู้รับ', en: 'Recipient’s name' },
   'book.who.rPhone': { th: 'เบอร์มือถือผู้รับ', en: 'Recipient’s mobile' },
   'book.who.phoneHint': { th: 'มือถือ เบอร์บ้าน หรือเบอร์ต่างประเทศพร้อม + รหัสประเทศ', en: 'Thai mobile or landline, or + and your country code' },
@@ -1348,9 +1348,9 @@ LHF.data.strings = {
   'cal.cutoff': { th: 'เลยเวลาปิดรับคิว {h} น. ของวันนี้แล้ว', en: 'Today’s {h} cut-off has passed' },
   'custom.about': { th: 'ช่อที่คุณสนใจ', en: 'You’re asking about' },
   'custom.about.remove': { th: 'เอาออก', en: 'Remove' },
-  'done.next.title': { th: 'ร้านยืนยันคำจองทาง LINE', en: 'The shop confirms on LINE' },
-  'done.photo': { th: 'อย่าลืมแนบรูปเรฟในแชต LINE ด้วยนะคะ', en: 'Remember to attach your reference photo in the LINE chat.' },
-  'done.photo.line': { th: 'รูปเรฟ: จะแนบตามมาในแชตนี้', en: 'Reference photo: I’ll send it in this chat.' },
+  'done.next.title': { th: "ขั้นตอนถัดไป", en: "Next steps" },
+  'done.photo': { th: "บันทึกรูปอ้างอิงไว้กับคำจองแล้ว", en: "Your reference image is saved with the reservation." },
+  'done.photo.line': { th: "แนบรูปอ้างอิงไว้กับคำจองแล้ว", en: "Reference image included in the reservation" },
   'done.step1': { th: 'ส่งหมายเลขคำจองให้ร้านทาง LINE (กดปุ่มด้านบน ข้อความพิมพ์ไว้ให้แล้ว)', en: 'Send your reservation number to the shop on LINE (the button above writes the message for you).' },
   'done.step2': { th: 'ร้านยืนยันคิว ยอดรวม ค่าส่ง และวิธีชำระเงินกับคุณทาง LINE ก่อนเริ่มจัดดอกไม้', en: 'The shop confirms the queue, the total, delivery and payment with you on LINE before starting.' },
   'done.step3.pickup': { th: 'มารับที่ร้าน {when}', en: 'Collect it from the shop: {when}.' },
@@ -1358,8 +1358,8 @@ LHF.data.strings = {
   'done.call': { th: 'โทรหาร้าน {phone}', en: 'Call the shop on {phone}' },
   'done.copyByHand': { th: 'เบราว์เซอร์นี้คัดลอกอัตโนมัติไม่ได้ กดค้างที่ข้อความเพื่อคัดลอกได้เลยค่ะ', en: 'This browser won’t copy automatically. Press and hold the text to copy it.' },
   'done.calendarSaved': { th: 'ดาวน์โหลดไฟล์ปฏิทินแล้วค่ะ เปิดไฟล์เพื่อเพิ่มลงปฏิทินนะคะ', en: 'Calendar file downloaded. Open it to add the event.' },
-  'done.elsewhere.title': { th: 'เปิดคำขอตัวอย่างนี้ในเบราว์เซอร์นี้ไม่ได้', en: 'This demo request is not available in this browser' },
-  'done.elsewhere.sub': { th: 'กรุณาเปิดจากเบราว์เซอร์ที่สร้างคำขอนี้ หรือกลับไปสร้างคำขอจำลองใหม่ รายการนี้ไม่ได้ถูกส่งไปที่ร้าน', en: 'Open it in the browser session that created it, or return to the demo and create a new synthetic request. Nothing was sent to the shop.' },
+  'done.elsewhere.title': { th: "เปิดคำจองนี้ในเบราว์เซอร์นี้ไม่ได้", en: "This reservation is not available in this browser" },
+  'done.elsewhere.sub': { th: "กรุณาเปิดจากเบราว์เซอร์ที่ใช้สร้างคำจอง หรือกลับไปสร้างคำจองใหม่ค่ะ", en: "Open it in the browser session that created it, or return to create a new reservation." },
   'done.elsewhere.line': { th: 'ทักร้านทาง LINE', en: 'Message the shop on LINE' },
   'book.review.submit': { th: 'ส่งคำจองให้ทางร้าน', en: 'Send the reservation' },
   'book.review.sending': { th: 'กำลังส่ง…', en: 'Sending…' },
@@ -1382,8 +1382,8 @@ LHF.data.strings = {
   'book.err.quota': { th: 'ระบบจองเต็มชั่วคราว รบกวนทัก LINE @littlehouseflower นะคะ', en: 'The booking store is full for now. Please LINE @littlehouseflower.' },
 
   /* --- confirmation --- */
-  'done.title': { th: 'บันทึกคำขอตัวอย่างแล้ว', en: 'Demo request saved' },
-  'done.sub': { th: 'บันทึกไว้ในระบบตัวอย่างเท่านั้น รายการนี้ไม่ได้ส่งไปที่ร้านหรือ Google Sheets', en: 'Saved in this client demo only. Nothing was sent to the shop or Google Sheets.' },
+  'done.title': { th: "บันทึกคำจองแล้ว", en: "Reservation saved" },
+  'done.sub': { th: "บันทึกรายละเอียดคำจองแล้ว กรุณาติดต่อทางร้านเพื่อยืนยันคิว ราคา และการรับหรือจัดส่งค่ะ", en: "Your reservation details are saved. Please contact the shop to confirm availability, the final price and delivery or collection." },
   'done.ref': { th: 'หมายเลขคำจอง', en: 'Reservation reference' },
   'done.calendar': { th: 'บันทึกลงปฏิทิน', en: 'Add to calendar' },
   'done.line': { th: 'ส่งหมายเลขคำจองทาง LINE', en: 'Send your reference on LINE' },
@@ -1529,7 +1529,7 @@ LHF.data.strings = {
   'admin.sheet.title': { th: 'Google Sheet ของร้าน', en: 'The shop\u2019s Google Sheet' },
   'admin.sheet.endpoint': { th: '\u0e25\u0e34\u0e07\u0e01\u0e4c Web app (\u0e25\u0e07\u0e17\u0e49\u0e32\u0e22 /exec)', en: 'Web app URL (ends in /exec)' },
   'admin.sheet.secret': { th: '\u0e23\u0e2b\u0e31\u0e2a\u0e25\u0e31\u0e1a \u0e15\u0e49\u0e2d\u0e07\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e43\u0e19\u0e2a\u0e04\u0e23\u0e34\u0e1b\u0e15\u0e4c', en: 'Shared secret \u2014 must match the script' },
-  'admin.sheet.enabled': { th: '\u0e44\u0e21\u0e48\u0e2a\u0e48\u0e07\u0e04\u0e33\u0e02\u0e2d\u0e17\u0e14\u0e25\u0e2d\u0e07\u0e44\u0e1b Google Sheets', en: 'Do not send demo requests to Google Sheets' },
+  'admin.sheet.enabled': { th: "การเชื่อมต่อ Google Sheets", en: "Google Sheets connection" },
   'admin.sheet.live': { th: '\u0e1b\u0e34\u0e14\u0e01\u0e32\u0e23\u0e40\u0e0a\u0e37\u0e48\u0e2d\u0e21\u0e15\u0e48\u0e2d Google Sheets', en: 'Google Sheets connection disabled' },
   'admin.sheet.off': { th: '\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32\u0e1b\u0e25\u0e32\u0e22\u0e17\u0e32\u0e07', en: 'No endpoint configured yet' },
   'admin.sheet.blocked': { th: '\u0e2b\u0e19\u0e49\u0e32\u0e19\u0e35\u0e49\u0e2a\u0e48\u0e07\u0e2d\u0e2d\u0e01\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49 \u0e04\u0e49\u0e32\u0e07\u0e2d\u0e22\u0e39\u0e48 {n} \u0e23\u0e32\u0e22\u0e01\u0e32\u0e23', en: 'This page cannot send out \u00b7 {n} waiting' },
@@ -1541,9 +1541,9 @@ LHF.data.strings = {
   'admin.sheet.retry': { th: '\u0e25\u0e2d\u0e07\u0e2a\u0e48\u0e07\u0e43\u0e2b\u0e21\u0e48', en: 'Retry now' },
   'admin.sheet.backfill': { th: '\u0e2a\u0e48\u0e07\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e40\u0e02\u0e49\u0e32 Sheet', en: 'Send everything missing' },
   'admin.sheet.backfillDone': { th: '\u0e40\u0e02\u0e49\u0e32\u0e04\u0e34\u0e27\u0e2a\u0e48\u0e07\u0e41\u0e25\u0e49\u0e27\u0e04\u0e48\u0e30', en: 'Queued for delivery' },
-  'admin.sheet.help': { th: '\u0e04\u0e33\u0e02\u0e2d\u0e17\u0e14\u0e25\u0e2d\u0e07\u0e08\u0e30\u0e40\u0e01\u0e47\u0e1a\u0e40\u0e09\u0e1e\u0e32\u0e30\u0e43\u0e19\u0e23\u0e30\u0e1a\u0e1a\u0e15\u0e31\u0e27\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e2d\u0e2d\u0e19\u0e44\u0e25\u0e19\u0e4c \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e2a\u0e48\u0e07\u0e44\u0e1b Google Sheets \u0e2b\u0e23\u0e37\u0e2d\u0e23\u0e49\u0e32\u0e19\u0e08\u0e23\u0e34\u0e07', en: 'Demo requests stay in hosted demo storage. Nothing is sent to Google Sheets or the live shop.' },
-  'admin.sheet.blockedHelp': { th: '\u0e23\u0e30\u0e1a\u0e1a\u0e15\u0e31\u0e27\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e19\u0e35\u0e49\u0e1b\u0e34\u0e14\u0e01\u0e32\u0e23\u0e40\u0e0a\u0e37\u0e48\u0e2d\u0e21\u0e15\u0e48\u0e2d\u0e23\u0e49\u0e32\u0e19\u0e41\u0e25\u0e30 Google Sheets \u0e04\u0e33\u0e02\u0e2d\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e40\u0e1b\u0e47\u0e19\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e08\u0e33\u0e25\u0e2d\u0e07', en: 'The client demo is disconnected from the shop and Google Sheets. Every request shown here is synthetic.' },
-  'admin.backend.local': { th: 'เก็บในระบบตัวอย่างออนไลน์', en: 'Stored in hosted demo storage' },
+  'admin.sheet.help': { th: "คำจองบันทึกไว้ในระบบออนไลน์ ยังไม่ได้เชื่อมต่อ Google Sheets", en: "Reservations are saved online. Google Sheets is not connected." },
+  'admin.sheet.blockedHelp': { th: "ยังไม่ได้เชื่อมต่อ Google Sheets และการแจ้งเตือนอัตโนมัติ", en: "Google Sheets and automatic notifications are not connected." },
+  'admin.backend.local': { th: "บันทึกออนไลน์", en: "Saved online" },
   'admin.export': { th: 'ส่งออก CSV', en: 'Export CSV' },
   'admin.print': { th: 'พิมพ์ใบคิว', en: 'Print slip' },
   'admin.notes': { th: 'โน้ตภายใน', en: 'Internal note' },
@@ -1573,7 +1573,7 @@ LHF.data.strings = {
   'admin.promo.priceValid': { th: 'ราคาใช้ได้ถึง', en: 'Prices valid until' },
   'admin.addr.title': { th: 'ที่อยู่ร้าน', en: 'Shop address' },
   'admin.addr.show': { th: 'แสดงที่อยู่เต็มบนเว็บ (หลังยืนยันกับร้าน)', en: 'Show the street address publicly (after confirming with the shop)' },
-  'admin.demo': { th: 'หน้านี้ใช้ข้อมูลออเดอร์จำลองในระบบตัวอย่าง · ยังไม่ส่งรายการไป Google Sheets หรือร้านจริง', en: 'This client demo uses synthetic order records · Nothing is sent to Google Sheets or the live shop' },
+  'admin.demo': { th: "ดูคำจองและรายละเอียดออเดอร์ที่บันทึกไว้ในระบบ", en: "View saved reservations and order details." },
   'admin.day.none': { th: 'ไม่มีคิว', en: 'No queue' },
   'admin.cardPrint': { th: 'ข้อความการ์ด (สำหรับเขียนมือ)', en: 'Card text (to handwrite)' },
   'admin.customer': { th: 'ลูกค้า', en: 'Customer' },
@@ -1600,17 +1600,17 @@ LHF.data.strings = {
   'privacy.what.2': { th: 'ชื่อ เบอร์โทร และที่อยู่ของผู้รับ พร้อมจุดสังเกตสำหรับคนส่ง (เฉพาะคำจองที่ให้ร้านส่ง)', en: 'The recipient’s name, phone number and address, with any note for the rider (delivery orders only)' },
   'privacy.what.3': { th: 'ข้อความที่ให้ร้านเขียนในการ์ด', en: 'The message for the card' },
   'privacy.what.4': { th: 'ช่อที่เลือก วันและช่วงเวลาที่ต้องการ งบ และรายละเอียดที่คุณเขียนถึงร้าน', en: 'What you order, the day and time you need it, your budget and any details you write to us' },
-  'privacy.what.photo': { th: 'รูปอ้างอิงไม่ได้ส่งผ่านเว็บไซต์ ถ้าอยากให้ร้านดูรูป รบกวนส่งทาง LINE พร้อมหมายเลขคำจองนะคะ', en: 'Reference photos are not sent through the website. To show us one, send it on LINE with your booking number.' },
+  'privacy.what.photo': { th: "รูปอ้างอิงจะอัปโหลดเมื่อคุณยินยอม และเปิดดูได้จากรายละเอียดออเดอร์ในระบบจัดการร้าน รูปจะไม่ถูกส่งให้ผู้ให้บริการ AI", en: "Reference photos are uploaded with your acknowledgment and can be viewed in the Studio order details. They are not sent to an AI provider." },
   'privacy.why.h': { th: 'ทางร้านใช้ข้อมูลเพื่ออะไร', en: 'What we use it for' },
   'privacy.why.p': { th: 'เพื่อจัดเตรียมและส่งดอกไม้ตามคำจองของคุณ และเพื่อติดต่อคุณและผู้รับเกี่ยวกับคำจองนั้นเท่านั้นค่ะ', en: 'Only to prepare and deliver your order, and to contact you and the recipient about it.' },
   'privacy.where.h': { th: 'ข้อมูลไปอยู่ที่ไหน', en: 'Where it goes' },
-  'privacy.where.p': { th: 'ระบบตัวอย่างออนไลน์นี้เก็บคำขอไว้ในพื้นที่ทดสอบ โดยยังไม่เชื่อมต่อ Google Sheets การแจ้งเตือนร้าน หรือบริการจัดส่ง', en: 'This hosted demo stores requests in the demo environment. Google Sheets, shop notifications and courier services are disconnected.' },
+  'privacy.where.p': { th: "คำจองและรูปอ้างอิงเก็บไว้ในระบบออนไลน์ ยังไม่ได้เชื่อมต่อ Google Sheets การแจ้งเตือนอัตโนมัติ หรือบริการจัดส่ง", en: "Reservations and reference images are stored online. Google Sheets, automatic notifications and courier services are not connected." },
   'privacy.where.fonts': { th: 'เว็บไซต์นี้โหลดตัวอักษรจาก Google Fonts ทุกครั้งที่เปิดหน้าเว็บ เบราว์เซอร์ของคุณจึงติดต่อเซิร์ฟเวอร์ของ Google ซึ่งจะเห็นหมายเลข IP ของคุณค่ะ', en: 'This website loads its fonts from Google Fonts, so each time you open a page your browser contacts Google’s servers, which see your IP address.' },
   'privacy.where.map': { th: 'หน้าติดต่อร้านมีแผนที่จาก OpenStreetMap เมื่อเปิดหน้านั้น เบราว์เซอร์ของคุณจะโหลดภาพแผนที่จากเซิร์ฟเวอร์ของ OpenStreetMap และโค้ดแผนที่ (Leaflet) จาก cdnjs ซึ่งจะเห็นหมายเลข IP ของคุณเช่นกันค่ะ', en: 'The contact page shows a map from OpenStreetMap. When you open it, your browser loads map images from OpenStreetMap’s servers and the map code (Leaflet) from cdnjs, which also see your IP address.' },
   'privacy.device.h': { th: 'ข้อมูลบนเครื่องของคุณ', en: 'On your device' },
   'privacy.device.p': { th: 'ระหว่างกรอกคำจอง เบราว์เซอร์จะเก็บสิ่งที่คุณพิมพ์และรูปอ้างอิงที่เลือกไว้ในเครื่องนี้ เพื่อไม่ให้ข้อมูลหายถ้าปิดหน้าไปก่อน เมื่อส่งคำจองแล้ว ข้อมูลที่กรอกจะถูกลบออกจากเครื่อง ถ้ากรอกค้างไว้โดยไม่ได้ส่ง ชื่อ เบอร์โทร ที่อยู่ ข้อความการ์ด และรูปอ้างอิงจะถูกลบเองหลัง 36 ชั่วโมง หลังส่งคำจอง เครื่องนี้เก็บเพียงสรุปคำจอง (หมายเลขคำจอง วันที่ และรายการดอกไม้ ไม่มีชื่อ เบอร์โทร ที่อยู่ หรือข้อความการ์ด) ไว้ 30 วัน เพื่อให้เปิดดูหน้าคำจองได้อีก และจำภาษาที่คุณเลือกไว้ ข้อมูลส่วนนี้อยู่ในเครื่องของคุณเท่านั้น ลบได้ทุกเมื่อโดยล้างข้อมูลเว็บไซต์ในเบราว์เซอร์ค่ะ', en: 'While you fill in a booking, your browser keeps what you type, and any reference photo you choose, on this device so nothing is lost if you close the page. Once the booking is sent, those details are cleared from the device. If a booking is left unsent, the names, phone numbers, address, card message and photo are removed after 36 hours. After sending, this device keeps only a summary (booking number, date and flowers, with no names, phone numbers, address or card message) for 30 days so you can open the booking page again, and it remembers your language. This copy stays on your device; clear this site’s data in your browser to remove it at any time.' },
   'privacy.keep.h': { th: 'เก็บไว้นานแค่ไหน', en: 'How long we keep it' },
-  'privacy.keep.p': { th: 'ฉบับร่างและใบสรุปแบบย่อเก็บในเบราว์เซอร์ ส่วนคำขอและรูปอ้างอิงเก็บในพื้นที่ของระบบตัวอย่าง นโยบายอายุข้อมูลต้องได้รับการตรวจสอบอีกครั้งก่อนนำไปใช้กับข้อมูลจริง', en: 'Drafts and minimal receipts use browser storage; demo requests and reference images use hosted demo storage. Retention must be reviewed before this workflow is used with real customer data.' },
+  'privacy.keep.p': { th: "ฉบับร่างและใบสรุปแบบย่อเก็บในเบราว์เซอร์ ส่วนคำจองและรูปอ้างอิงเก็บในระบบออนไลน์ หากต้องการสอบถามเรื่องข้อมูล กรุณาติดต่อทางร้านค่ะ", en: "Drafts and minimal receipts are stored in your browser. Reservations and reference images are stored online. Please contact the shop with questions about your information." },
   'privacy.rights.h': { th: 'สิทธิของคุณ', en: 'Your rights' },
   'privacy.rights.p': { th: 'คุณขอดู ขอแก้ไข หรือขอให้ลบข้อมูลของคุณ และถอนความยินยอมได้ทุกเมื่อ ทัก LINE {line} หรือโทร {phone} ได้เลยค่ะ หากเห็นว่าข้อมูลถูกใช้ไม่ถูกต้อง ร้องเรียนต่อสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคลได้', en: 'You can ask to see, correct or delete your data, and withdraw your consent, at any time: message us on LINE {line} or call {phone}. If you think your data has been misused, you can complain to Thailand’s Personal Data Protection Committee.' },
 
@@ -4193,7 +4193,7 @@ LHF.designConfig={VERSION,styles,containers,materials,finishes,finishFor,palette
 
 /* Source: /local-bridge.js */
 /* Hosted demo adapter. No production endpoint or notification fallback. */
-LHF.localAPI=async function(path,body,options={}){const r=await fetch(path,{...options,method:options.method||(body?'POST':'GET'),headers:{'Content-Type':'application/json','X-CSRF':'local-preview',...(options.headers||{})},...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok){const e=new Error(data.error||'Demo service unavailable');e.status=r.status;throw e;}return data;};
+LHF.localAPI=async function(path,body,options={}){const r=await fetch(path,{...options,method:options.method||(body?'POST':'GET'),headers:{'Content-Type':'application/json','X-CSRF':'local-preview',...(options.headers||{})},...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok){const e=new Error(data.error||'Service unavailable');e.status=r.status;throw e;}return data;};
 LHF.localSession=LHF.localAPI('/Little-House-Flower/api/session',{}).catch(()=>null);
 LHF.sink=(function(){
   function summary(b) {
@@ -4242,7 +4242,7 @@ function accept(booking,result){if(result.ok){if(result.receipt)Object.assign(bo
 async function deliver(booking,opts={}){if(opts.hp)return {ok:false};await LHF.localSession;try{const recovered=await LHF.localAPI('/Little-House-Flower/api/orders/submission/'+booking.id);if(recovered.ok)return accept(booking,recovered);}catch(e){if(e.status!==404)return {ok:false,reason:e.message};}try{return accept(booking,await LHF.localAPI('/Little-House-Flower/api/orders', {...booking,consent:true},{signal:AbortSignal.timeout(12000)}));}catch(e){return {ok:false,reason:e.message};}}
 return {deliver,summary,totalLabel,lineUrl,start(){},send(){},status:()=>({configured:true,blocked:false,queued:0})};
 })();
-LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs');return renderCustomizer(params,query);};
+LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=open-20261014-1');return renderCustomizer(params,query);};
 
 ;
 
@@ -4262,17 +4262,17 @@ LHF.heroSlides=[
 (function(){
 const {h}=LHF.util;const tr=(th,en)=>LHF.i18n.lang==='th'?th:en;
 Object.assign(LHF.data.strings,{
- 'book.who.privacy':{th:'ระบบตัวอย่างใช้ข้อมูลที่กรอกเพื่อสร้างคำขอจำลองและให้คุณทดลองขั้นตอนเท่านั้น คำขอจะเก็บในพื้นที่ของระบบตัวอย่างออนไลน์ และไม่ส่งไปยังร้าน Google Sheets ผู้ให้บริการจัดส่ง หรือระบบแจ้งเตือน',en:'This client demo uses the details you enter only to create a synthetic request and demonstrate the workflow. The request stays in hosted demo storage and is not sent to the shop, Google Sheets, couriers or notification services.'},
- 'done.title':{th:'บันทึกคำขอตัวอย่างแล้ว',en:'Demo request saved'},
- 'done.sub':{th:'บันทึกไว้ในระบบตัวอย่างเท่านั้น รายการนี้ไม่ได้ส่งไปที่ร้านหรือ Google Sheets',en:'Saved in this client demo only. Nothing was sent to the shop or Google Sheets.'},
- 'done.elsewhere.title':{th:'เปิดคำขอตัวอย่างนี้ในเบราว์เซอร์นี้ไม่ได้',en:'This demo request is not available in this browser'},
- 'done.elsewhere.sub':{th:'กรุณาเปิดจากเบราว์เซอร์ที่สร้างคำขอนี้ หรือกลับไปสร้างคำขอจำลองใหม่ รายการนี้ไม่ได้ถูกส่งไปที่ร้าน',en:'Open it in the browser session that created it, or return to the demo and create a new synthetic request. Nothing was sent to the shop.'},
- 'done.next.title':{th:'ขั้นตอนถัดไปสำหรับการสั่งจริง',en:'Next steps for a real order'},
- 'done.photo':{th:'รูปอ้างอิงถูกเก็บไว้เป็นส่วนตัวพร้อมคำขอในระบบตัวอย่าง',en:'Your reference is stored privately with the request in this client demo.'},
- 'done.photo.line':{th:'มีรูปอ้างอิงส่วนตัวในคำขอตัวอย่าง',en:'Private reference included in the demo request'},
- 'privacy.what.photo':{th:'ในระบบตัวอย่างนี้ รูปอ้างอิงจะอัปโหลดหลังจากคุณยอมรับเท่านั้น และเก็บไว้ในพื้นที่ของระบบตัวอย่าง ผู้ส่งคำขอและพนักงานตัวอย่างที่ลงชื่อเข้าใช้จึงจะเปิดดูได้ รูปจะไม่ถูกส่งไปยังผู้ให้บริการ AI',en:'In this client demo, reference photos are uploaded only after acknowledgment, stored in the demo environment, and visible to the originating session and signed-in demo staff. They are not sent to an AI provider.'},
- 'privacy.where.p':{th:'ระบบตัวอย่างออนไลน์นี้เก็บคำขอไว้ในพื้นที่ทดสอบ โดยยังไม่เชื่อมต่อ Google Sheets การแจ้งเตือนร้าน หรือบริการจัดส่ง',en:'This hosted demo stores requests in the demo environment. Google Sheets, shop notifications and courier services are disconnected.'},
- 'privacy.keep.p':{th:'ฉบับร่างและใบสรุปแบบย่อเก็บในเบราว์เซอร์ ส่วนคำขอและรูปอ้างอิงเก็บในพื้นที่ของระบบตัวอย่าง นโยบายอายุข้อมูลต้องได้รับการตรวจสอบอีกครั้งก่อนนำไปใช้กับข้อมูลจริง',en:'Drafts and minimal receipts use browser storage; demo requests and reference images use hosted demo storage. Retention must be reviewed before this workflow is used with real customer data.'}
+ 'book.who.privacy':{ th: "ข้อมูลที่กรอกใช้บันทึกคำจองและรายละเอียดออเดอร์ กรุณาติดต่อทางร้านเพื่อยืนยันวันรับหรือจัดส่งและราคาสุดท้ายค่ะ", en: "The details you enter are used to save your reservation and order details. Please contact the shop to confirm the handover date and final price." },
+ 'done.title':{ th: "บันทึกคำจองแล้ว", en: "Reservation saved" },
+ 'done.sub':{ th: "บันทึกรายละเอียดคำจองแล้ว กรุณาติดต่อทางร้านเพื่อยืนยันคิว ราคา และการรับหรือจัดส่งค่ะ", en: "Your reservation details are saved. Please contact the shop to confirm availability, the final price and delivery or collection." },
+ 'done.elsewhere.title':{ th: "เปิดคำจองนี้ในเบราว์เซอร์นี้ไม่ได้", en: "This reservation is not available in this browser" },
+ 'done.elsewhere.sub':{ th: "กรุณาเปิดจากเบราว์เซอร์ที่ใช้สร้างคำจอง หรือกลับไปสร้างคำจองใหม่ค่ะ", en: "Open it in the browser session that created it, or return to create a new reservation." },
+ 'done.next.title':{ th: "ขั้นตอนถัดไป", en: "Next steps" },
+ 'done.photo':{ th: "บันทึกรูปอ้างอิงไว้กับคำจองแล้ว", en: "Your reference image is saved with the reservation." },
+ 'done.photo.line':{ th: "แนบรูปอ้างอิงไว้กับคำจองแล้ว", en: "Reference image included in the reservation" },
+ 'privacy.what.photo':{ th: "รูปอ้างอิงจะอัปโหลดเมื่อคุณยินยอม และเปิดดูได้จากรายละเอียดออเดอร์ในระบบจัดการร้าน รูปจะไม่ถูกส่งให้ผู้ให้บริการ AI", en: "Reference photos are uploaded with your acknowledgment and can be viewed in the Studio order details. They are not sent to an AI provider." },
+ 'privacy.where.p':{ th: "คำจองและรูปอ้างอิงเก็บไว้ในระบบออนไลน์ ยังไม่ได้เชื่อมต่อ Google Sheets การแจ้งเตือนอัตโนมัติ หรือบริการจัดส่ง", en: "Reservations and reference images are stored online. Google Sheets, automatic notifications and courier services are not connected." },
+ 'privacy.keep.p':{ th: "ฉบับร่างและใบสรุปแบบย่อเก็บในเบราว์เซอร์ ส่วนคำจองและรูปอ้างอิงเก็บในระบบออนไลน์ หากต้องการสอบถามเรื่องข้อมูล กรุณาติดต่อทางร้านค่ะ", en: "Drafts and minimal receipts are stored in your browser. Reservations and reference images are stored online. Please contact the shop with questions about your information." }
 });
 const originalHome=LHF.pages.home;
 LHF.pages.home=function(){const page=originalHome();const media=page.querySelector('.hero-media'),layer=media.querySelector('.hero-scale'),caption=media.querySelector('.hero-caption');

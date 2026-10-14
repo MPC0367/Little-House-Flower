@@ -2,17 +2,17 @@
 (function(){
 const {h}=LHF.util;const tr=(th,en)=>LHF.i18n.lang==='th'?th:en;
 Object.assign(LHF.data.strings,{
- 'book.who.privacy':{th:'ระบบตัวอย่างใช้ข้อมูลที่กรอกเพื่อสร้างคำขอจำลองและให้คุณทดลองขั้นตอนเท่านั้น คำขอจะเก็บในพื้นที่ของระบบตัวอย่างออนไลน์ และไม่ส่งไปยังร้าน Google Sheets ผู้ให้บริการจัดส่ง หรือระบบแจ้งเตือน',en:'This client demo uses the details you enter only to create a synthetic request and demonstrate the workflow. The request stays in hosted demo storage and is not sent to the shop, Google Sheets, couriers or notification services.'},
- 'done.title':{th:'บันทึกคำขอตัวอย่างแล้ว',en:'Demo request saved'},
- 'done.sub':{th:'บันทึกไว้ในระบบตัวอย่างเท่านั้น รายการนี้ไม่ได้ส่งไปที่ร้านหรือ Google Sheets',en:'Saved in this client demo only. Nothing was sent to the shop or Google Sheets.'},
- 'done.elsewhere.title':{th:'เปิดคำขอตัวอย่างนี้ในเบราว์เซอร์นี้ไม่ได้',en:'This demo request is not available in this browser'},
- 'done.elsewhere.sub':{th:'กรุณาเปิดจากเบราว์เซอร์ที่สร้างคำขอนี้ หรือกลับไปสร้างคำขอจำลองใหม่ รายการนี้ไม่ได้ถูกส่งไปที่ร้าน',en:'Open it in the browser session that created it, or return to the demo and create a new synthetic request. Nothing was sent to the shop.'},
- 'done.next.title':{th:'ขั้นตอนถัดไปสำหรับการสั่งจริง',en:'Next steps for a real order'},
- 'done.photo':{th:'รูปอ้างอิงถูกเก็บไว้เป็นส่วนตัวพร้อมคำขอในระบบตัวอย่าง',en:'Your reference is stored privately with the request in this client demo.'},
- 'done.photo.line':{th:'มีรูปอ้างอิงส่วนตัวในคำขอตัวอย่าง',en:'Private reference included in the demo request'},
- 'privacy.what.photo':{th:'ในระบบตัวอย่างนี้ รูปอ้างอิงจะอัปโหลดหลังจากคุณยอมรับเท่านั้น และเก็บไว้ในพื้นที่ของระบบตัวอย่าง ผู้ส่งคำขอและพนักงานตัวอย่างที่ลงชื่อเข้าใช้จึงจะเปิดดูได้ รูปจะไม่ถูกส่งไปยังผู้ให้บริการ AI',en:'In this client demo, reference photos are uploaded only after acknowledgment, stored in the demo environment, and visible to the originating session and signed-in demo staff. They are not sent to an AI provider.'},
- 'privacy.where.p':{th:'ระบบตัวอย่างออนไลน์นี้เก็บคำขอไว้ในพื้นที่ทดสอบ โดยยังไม่เชื่อมต่อ Google Sheets การแจ้งเตือนร้าน หรือบริการจัดส่ง',en:'This hosted demo stores requests in the demo environment. Google Sheets, shop notifications and courier services are disconnected.'},
- 'privacy.keep.p':{th:'ฉบับร่างและใบสรุปแบบย่อเก็บในเบราว์เซอร์ ส่วนคำขอและรูปอ้างอิงเก็บในพื้นที่ของระบบตัวอย่าง นโยบายอายุข้อมูลต้องได้รับการตรวจสอบอีกครั้งก่อนนำไปใช้กับข้อมูลจริง',en:'Drafts and minimal receipts use browser storage; demo requests and reference images use hosted demo storage. Retention must be reviewed before this workflow is used with real customer data.'}
+ 'book.who.privacy':{ th: "ข้อมูลที่กรอกใช้บันทึกคำจองและรายละเอียดออเดอร์ กรุณาติดต่อทางร้านเพื่อยืนยันวันรับหรือจัดส่งและราคาสุดท้ายค่ะ", en: "The details you enter are used to save your reservation and order details. Please contact the shop to confirm the handover date and final price." },
+ 'done.title':{ th: "บันทึกคำจองแล้ว", en: "Reservation saved" },
+ 'done.sub':{ th: "บันทึกรายละเอียดคำจองแล้ว กรุณาติดต่อทางร้านเพื่อยืนยันคิว ราคา และการรับหรือจัดส่งค่ะ", en: "Your reservation details are saved. Please contact the shop to confirm availability, the final price and delivery or collection." },
+ 'done.elsewhere.title':{ th: "เปิดคำจองนี้ในเบราว์เซอร์นี้ไม่ได้", en: "This reservation is not available in this browser" },
+ 'done.elsewhere.sub':{ th: "กรุณาเปิดจากเบราว์เซอร์ที่ใช้สร้างคำจอง หรือกลับไปสร้างคำจองใหม่ค่ะ", en: "Open it in the browser session that created it, or return to create a new reservation." },
+ 'done.next.title':{ th: "ขั้นตอนถัดไป", en: "Next steps" },
+ 'done.photo':{ th: "บันทึกรูปอ้างอิงไว้กับคำจองแล้ว", en: "Your reference image is saved with the reservation." },
+ 'done.photo.line':{ th: "แนบรูปอ้างอิงไว้กับคำจองแล้ว", en: "Reference image included in the reservation" },
+ 'privacy.what.photo':{ th: "รูปอ้างอิงจะอัปโหลดเมื่อคุณยินยอม และเปิดดูได้จากรายละเอียดออเดอร์ในระบบจัดการร้าน รูปจะไม่ถูกส่งให้ผู้ให้บริการ AI", en: "Reference photos are uploaded with your acknowledgment and can be viewed in the Studio order details. They are not sent to an AI provider." },
+ 'privacy.where.p':{ th: "คำจองและรูปอ้างอิงเก็บไว้ในระบบออนไลน์ ยังไม่ได้เชื่อมต่อ Google Sheets การแจ้งเตือนอัตโนมัติ หรือบริการจัดส่ง", en: "Reservations and reference images are stored online. Google Sheets, automatic notifications and courier services are not connected." },
+ 'privacy.keep.p':{ th: "ฉบับร่างและใบสรุปแบบย่อเก็บในเบราว์เซอร์ ส่วนคำจองและรูปอ้างอิงเก็บในระบบออนไลน์ หากต้องการสอบถามเรื่องข้อมูล กรุณาติดต่อทางร้านค่ะ", en: "Drafts and minimal receipts are stored in your browser. Reservations and reference images are stored online. Please contact the shop with questions about your information." }
 });
 const originalHome=LHF.pages.home;
 LHF.pages.home=function(){const page=originalHome();const media=page.querySelector('.hero-media'),layer=media.querySelector('.hero-scale'),caption=media.querySelector('.hero-caption');

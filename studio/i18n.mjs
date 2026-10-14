@@ -16,16 +16,16 @@ Studio account	บัญชีผู้ใช้
 Open as app	เปิดเป็นแอป
 App information	ข้อมูลแอป
 Sign out	ออกจากระบบ
-Customer preview ↗	ดูหน้าเว็บไซต์ ↗
-Client demo · synthetic records	ระบบตัวอย่างสำหรับลูกค้า · ข้อมูลจำลอง
+View website ↗	ดูเว็บไซต์ ↗
+Little House Flower	Little House Flower
 CLIENT DEMO · SYNTHETIC DATA	ระบบตัวอย่างสำหรับลูกค้า · ข้อมูลจำลอง
 Welcome to the studio	ยินดีต้อนรับสู่ระบบจัดการร้าน
 A quiet place to care for every order. Choose a demo role to explore the hosted client demo.	จัดการทุกออเดอร์ได้ในที่เดียว เลือกบทบาทเพื่อทดลองใช้ระบบตัวอย่างสำหรับลูกค้า
-Demo role	บทบาททดลอง
-Owner · full demo access	เจ้าของร้าน · ทดลองใช้ได้ทุกส่วน
+Staff role	บทบาทผู้ใช้งาน
+Owner · full access	เจ้าของร้าน · จัดการได้ทุกส่วน
 Staff · orders and payments	พนักงาน · จัดการออเดอร์และการชำระเงิน
 Read-only · view only	ผู้ดูข้อมูล · ดูได้อย่างเดียว
-Enter demo workspace →	เข้าสู่ระบบตัวอย่าง →
+Open the studio →	เข้าสู่ระบบจัดการร้าน →
 Enter demo workspace	เข้าสู่ระบบตัวอย่าง
 This hosted client demo uses synthetic records. Google Sheets, shop notifications and customer messages are disconnected.	ระบบตัวอย่างสำหรับลูกค้านี้ใช้ข้อมูลจำลอง และยังไม่ได้เชื่อมต่อ Google Sheets การแจ้งเตือนร้าน หรือการส่งข้อความหาลูกค้า
 A little care, every day.	ดูแลทุกรายละเอียดของออเดอร์วันนี้
@@ -37,7 +37,7 @@ OUTSTANDING · ACTIVE QUOTES	ยอดค้างชำระ · ออเด�
 FILTERED · AWAITING CONFIRMATION	รอยืนยัน · เฉพาะรายการที่เลือก
 FILTERED · DUE TODAY	ส่งมอบวันนี้ · เฉพาะรายการที่เลือก
 FILTERED · OUTSTANDING ACTIVE QUOTES	ยอดค้างชำระ · เฉพาะรายการที่เลือก
-Hosted demonstration data. Outstanding includes recorded delivery fees; unpriced requests are excluded.	ข้อมูลจำลองในระบบออนไลน์ ยอดค้างชำระรวมค่าจัดส่งที่บันทึกไว้แล้ว แต่ยังไม่รวมออเดอร์ที่รอเสนอราคา
+Outstanding includes recorded delivery fees; unpriced requests are excluded.	ยอดค้างชำระรวมค่าจัดส่งที่บันทึกไว้แล้ว โดยไม่รวมออเดอร์ที่ยังไม่ได้เสนอราคา
 A little room to prepare for what’s next.	วันนี้ไม่มีออเดอร์รอส่งมอบ เตรียมงานถัดไปได้เลย
 Your next arrangements are gathered here.	ดูออเดอร์ที่ต้องเตรียมต่อได้ที่นี่
 TODAY’S HANDOVERS	ออเดอร์ที่ต้องส่งมอบวันนี้
@@ -53,7 +53,7 @@ THE SMALL DETAILS	รายละเอียดเล็ก ๆ ที่สำ
 A card. A ribbon. A thoughtful handover.	เช็กการ์ด ริบบิ้น และรายละเอียดก่อนส่งมอบ
 Open an order to review its design, prepare a message card and confirm the details with your customer.	เปิดดูแบบดอกไม้และข้อความบนการ์ดในแต่ละออเดอร์ แล้วตรวจสอบรายละเอียดกับลูกค้าก่อนจัดเตรียม
 Plan the week →	ดูตารางงานสัปดาห์นี้ →
-Little House Flower · Hosted client demo	Little House Flower · ระบบตัวอย่างสำหรับลูกค้า
+Little House Flower · The Studio	Little House Flower · ระบบจัดการร้าน
 Read-only access · you can inspect orders but cannot save changes.	ดูข้อมูลได้อย่างเดียว · เปิดดูออเดอร์ได้ แต่แก้ไขหรือบันทึกไม่ได้
 Updated orders are available.	มีข้อมูลออเดอร์ใหม่เข้ามา
 Show updates	แสดงข้อมูลล่าสุด
@@ -121,8 +121,8 @@ Cancelled	ยกเลิก
 Needs review	ต้องตรวจสอบ
 Details requested	รอรายละเอียดจากลูกค้า
 Delivery issue	มีปัญหาการจัดส่ง
-Demo record saved	บันทึกข้อมูลตัวอย่างแล้ว
-Sync pending	รอบันทึกในระบบตัวอย่าง
+Saved	บันทึกแล้ว
+Sync pending	รอบันทึกข้อมูล
 Close ×	ปิด ×
 Close	ปิด
 Save changes	บันทึกการแก้ไข
@@ -174,7 +174,7 @@ Staff notes	หมายเหตุภายในร้าน
 Reason for change	เหตุผลในการแก้ไข
 Required for quote changes, cancellation or corrections	ระบุเหตุผลเมื่อเปลี่ยนราคา ยกเลิก หรือแก้ไขออเดอร์
 Saving…	กำลังบันทึก…
-Saved to hosted demo storage · queued for fixture sync	บันทึกในระบบตัวอย่างแล้ว · รออัปเดตตารางจำลอง
+Order changes saved	บันทึกการแก้ไขออเดอร์แล้ว
 Compare changes before merging	ตรวจสอบข้อมูลก่อนบันทึกทับ
 Field	รายการ
 Current server value	ข้อมูลล่าสุดในระบบ
@@ -200,7 +200,7 @@ Payment reason	หมายเหตุการรับเงิน / คื�
 Required for refunds	ต้องระบุเหตุผลในการคืนเงิน
 Optional bank or receipt reference	เลขอ้างอิงธนาคารหรือใบเสร็จ (ถ้ามี)
 Record payment	บันทึกการชำระเงิน
-Payment recorded in the demo ledger	บันทึกรายการชำระเงินในบัญชีจำลองแล้ว
+Payment recorded	บันทึกการชำระเงินแล้ว
 Activity	ประวัติการดำเนินการ
 A week in flowers.	ตารางงานประจำสัปดาห์
 Plan around requested handover dates. Times are requests, not guaranteed slots.	วางแผนงานตามวันรับสินค้าที่ลูกค้าเลือก โดยวันและเวลารับต้องยืนยันกับลูกค้าอีกครั้ง
@@ -211,7 +211,7 @@ Week view	รายสัปดาห์
 Day view	รายวัน
 ↑ Pick-up	↑ รับที่ร้าน
 → Delivery	→ จัดส่ง
-No demo bookings	ยังไม่มีออเดอร์ตัวอย่าง
+No reservations	ยังไม่มีคำจอง
 Overdue / needs attention	เลยกำหนด / ต้องตรวจสอบ
 Money, clearly.	สรุปรายรับของร้าน
 The studio settings.	ตั้งค่าร้าน
@@ -233,8 +233,8 @@ Request failed	ดำเนินการไม่สำเร็จ
 Unable to load	โหลดข้อมูลไม่ได้
 Retry	ลองใหม่
 Connection unavailable	เชื่อมต่อไม่ได้
-Client demo · connecting	ระบบตัวอย่าง · กำลังเชื่อมต่อ
-Client demo · connection needs attention	ระบบตัวอย่าง · โปรดตรวจสอบการเชื่อมต่อ
+Connecting…	กำลังเชื่อมต่อ…
+Connection needs attention	การเชื่อมต่อมีปัญหา
 Refresh failed · keeping current on-screen records	รีเฟรชไม่สำเร็จ · ยังคงแสดงข้อมูลที่เปิดอยู่ตอนนี้
 Offline · keeping current on-screen records	ออฟไลน์ · ยังคงแสดงข้อมูลที่เปิดอยู่ตอนนี้
 Session expired · sign in again to refresh	หมดเวลาใช้งาน · กรุณาเข้าสู่ระบบอีกครั้งเพื่อดูข้อมูลล่าสุด
@@ -356,9 +356,9 @@ Private customer reference · never sent to a provider by default	ภาพอ�
 Private customer reference	ภาพอ้างอิงส่วนตัวของลูกค้า
 Florist consultation requested	ลูกค้าต้องการปรึกษาเรื่องแบบดอกไม้
 A little space of your own.	แอปจัดการร้าน Little House Flower
-Open the hosted Little House Flower client demo in its own window, with a dedicated app icon and no browser tabs.	เปิดระบบตัวอย่าง Little House Flower เป็นหน้าต่างแอปแยก พร้อมไอคอนของร้าน โดยไม่ต้องเปิดแท็บเบราว์เซอร์
+Open Little House Flower Studio in its own window, with a dedicated app icon and no browser tabs.	เปิดระบบจัดการร้าน Little House Flower ในหน้าต่างแยก พร้อมไอคอนแอปโดยไม่มีแถบเบราว์เซอร์
 Use your browser’s Install app or Add to Home Screen option. Safari on macOS can use File → Add to Dock.	ใช้เมนู Install app หรือ Add to Home Screen ของเบราว์เซอร์ หากใช้ Safari บน macOS ให้เลือก File → Add to Dock
-Hosted client demo · orders and payments are synthetic. No real order, Google Sheet update or shop notification is sent.	ระบบตัวอย่างออนไลน์ · ออเดอร์และการชำระเงินเป็นข้อมูลจำลอง ระบบจะไม่ส่งออเดอร์จริง อัปเดต Google Sheets หรือแจ้งเตือนไปที่ร้าน
+Manage orders, handover dates and payments in one place.	ดูแลออเดอร์ นัดรับหรือจัดส่ง และบันทึกการชำระเงินได้ในที่เดียว
 Got it	เข้าใจแล้ว
 Skip to workspace	ข้ามไปยังเนื้อหาหลัก
 Receipts minus refunds, by payment date in Asia/Bangkok. This is cash received, not profit.	คำนวณจากเงินที่รับจริงหักเงินคืน โดยยึดวันที่ทำรายการตามเวลาไทย ยอดนี้เป็นรายรับ ไม่ใช่กำไร
@@ -381,22 +381,22 @@ Solid green: complete receipts · Hatched green: partial history · Rose: refund
 Pass-through amounts & order context	ค่าจัดส่งและเงินในช่อธนบัตร
 These values are shown separately where recorded. They are not extra cash receipts and do not establish florist service income.	แสดงเฉพาะยอดที่บันทึกไว้เพื่อประกอบการตรวจสอบ ไม่ได้นำมาบวกเป็นรายรับซ้ำ และไม่ถือว่าทั้งหมดเป็นรายได้ค่าจัดดอกไม้
 Production in this handover period	งานที่ต้องส่งมอบในช่วงนี้
-No matching synthetic orders	ไม่มีออเดอร์ทดลองในกลุ่มนี้
+No matching orders	ไม่พบออเดอร์ที่ตรงกับเงื่อนไข
 Current period is partial; no percentage comparison	ช่วงปัจจุบันยังไม่สิ้นสุด จึงไม่เปรียบเทียบเป็นเปอร์เซ็นต์
 Previous complete period of equal length	เทียบกับช่วงก่อนหน้าที่มีจำนวนวันเท่ากันและข้อมูลครบถ้วน
 Comparison unavailable: incomplete ledger coverage	เปรียบเทียบไม่ได้ เนื่องจากข้อมูลการชำระเงินไม่ครบ
-Connection state and hosted demonstration controls.	ตรวจสอบการเชื่อมต่อและตั้งค่าระบบตัวอย่างออนไลน์
+Connection and storage settings.	การเชื่อมต่อและการจัดเก็บข้อมูล
 Connections	การเชื่อมต่อ
 Google Sheets: disconnected	Google Sheets: ยังไม่เชื่อมต่อ
-Record storage: hosted demo storage with synthetic orders	ที่เก็บข้อมูล: ระบบตัวอย่างออนไลน์พร้อมออเดอร์จำลอง
-Real Google orders and shop notifications: disabled	ออเดอร์ Google จริงและการแจ้งเตือนร้าน: ปิดใช้งาน
-Image previews: configured demo coverage; paid provider disconnected	ภาพตัวอย่าง: ใช้ชุดข้อมูลที่เตรียมไว้สำหรับระบบตัวอย่าง · ยังไม่เชื่อมต่อบริการแบบชำระเงิน
-Hosted demo storage · Google Sheets disconnected	ที่เก็บข้อมูลระบบตัวอย่างออนไลน์ · ยังไม่เชื่อมต่อ Google Sheets
-Hosted demo storage	ที่เก็บข้อมูลระบบตัวอย่างออนไลน์
+Order records: saved online	ข้อมูลออเดอร์: บันทึกออนไลน์
+Automatic notifications: not connected	การแจ้งเตือนอัตโนมัติ: ยังไม่ได้เชื่อมต่อ
+Image previews: available	ภาพตัวอย่าง: พร้อมใช้งาน
+Google Sheets is not connected.	ยังไม่ได้เชื่อมต่อ Google Sheets
+Online storage	การจัดเก็บข้อมูล
 Persisted online	บันทึกในระบบออนไลน์
 Storage checked {time}	ตรวจสอบที่เก็บข้อมูลเมื่อ {time}
-Synthetic records are saved only in this shared client demo. Google Sheets, shop notifications and customer messages remain disconnected.	ข้อมูลจำลองจะบันทึกเฉพาะในระบบตัวอย่างออนไลน์ที่ใช้ร่วมกันนี้ โดยยังไม่เชื่อมต่อ Google Sheets การแจ้งเตือนร้าน หรือการส่งข้อความหาลูกค้า
-Customer site, studio and API share this hosted client demo. Production identity and Google Sheets are not connected.	หน้าเว็บไซต์ ระบบจัดการร้าน และ API ใช้ระบบตัวอย่างออนไลน์เดียวกัน โดยยังไม่เชื่อมต่อบัญชีจริงหรือ Google Sheets
+Changes are saved online. Google Sheets and automatic notifications are not connected.	บันทึกการแก้ไขออนไลน์แล้ว ยังไม่ได้เชื่อมต่อ Google Sheets และการแจ้งเตือนอัตโนมัติ
+The website and Studio share the same saved order records.	เว็บไซต์และระบบจัดการร้านใช้ข้อมูลออเดอร์ชุดเดียวกัน
 Sync & recovery	อัปเดตข้อมูลและกู้คืน
 Not synced	ยังไม่ซิงค์
 Simulate Sheet service	จำลองบริการชีต
@@ -428,7 +428,7 @@ Private reference assets use authenticated routes. Payment entries are separate 
 Resolve Sheet conflict	ตรวจสอบข้อมูลที่ไม่ตรงกับชีต
 Resolution reason	เหตุผลในการเลือกข้อมูล
 Saving resolution…	กำลังบันทึกผลการตรวจสอบ…
-Resolution saved to demo storage and queued for fixture sync	บันทึกผลในระบบตัวอย่างแล้ว และรอซิงค์กับชีตจำลอง
+Resolution saved	บันทึกผลการตรวจสอบแล้ว
 Choose which reviewed values to keep. Every resolution records your reason and a new revision. No customer message is sent.	ตรวจสอบแล้วเลือกข้อมูลที่ต้องการใช้ ระบบจะบันทึกเหตุผลและเก็บเป็นข้อมูลรุ่นใหม่ โดยไม่ส่งข้อความถึงลูกค้า
 Studio record	ข้อมูลในระบบร้าน
 Detected Sheet change	การแก้ไขที่พบในชีต
@@ -482,7 +482,7 @@ Payments · {status}	การชำระเงิน · {status}
 Net receipts {net} · Outstanding {outstanding}	ยอดรับเงินสุทธิ {net} · ค้างชำระ {outstanding}
 ORDER DETAILS · REVISION {revision}	รายละเอียดออเดอร์ · รุ่นที่ {revision}
 Synthetic demo record · {state}	ข้อมูลจำลองในระบบตัวอย่าง · {state}
-Client demo · updated {time}	ระบบตัวอย่าง · อัปเดต {time}
+Connected · updated {time}	เชื่อมต่อแล้ว · อัปเดต {time}
 Hosted demo storage updated {time} · {pending} pending · {retry} need retry	ที่เก็บข้อมูลระบบตัวอย่างอัปเดต {time} · รอดำเนินการ {pending} · ต้องลองใหม่ {retry}
 Configuration: {version}	รุ่นการตั้งค่า: {version}
 Pending writes: {pending} · Dead letters: {retry}	รอบันทึก: {pending} · ต้องลองใหม่: {retry}
@@ -490,7 +490,7 @@ Conflicts: {conflicts} · Quarantined: {quarantine}	ข้อมูลขัด�
 Verified-zero demo month: {zero} · Missing-history example: {missing}	เดือนจำลองที่ยืนยันยอดศูนย์: {zero} · ตัวอย่างเดือนที่ประวัติไม่ครบ: {missing}
 Last retention run {date} · {count} records · reconciled {reconciled}	ตรวจสอบอายุข้อมูลล่าสุด {date} · {count} รายการ · ตรวจสอบตรงกัน {reconciled}
 Resolve {reference}	ตรวจสอบ {reference}
-SYNTHETIC DEMO · {coverage}. Blank history is never shown as zero. {count} legacy paid records lack dated receipt evidence.	ข้อมูลจำลอง · {coverage} ไม่แสดงประวัติที่ว่างเป็นยอดศูนย์ มีออเดอร์เก่าที่ระบุว่าชำระแล้ว {count} รายการที่ยังไม่มีหลักฐานวันรับเงิน
+{coverage}. Blank history is never shown as zero. {count} paid records lack a dated receipt.	{coverage} ประวัติที่ยังไม่มีข้อมูลจะไม่แสดงเป็นยอดศูนย์ มีออเดอร์ที่ระบุว่าชำระแล้ว {count} รายการที่ยังไม่มีหลักฐานวันรับเงิน
 {pending} unpriced requests remain pending. {confirmed} confirmed orders · Average {average}.	รอเสนอราคา {pending} ออเดอร์ · ยืนยันแล้ว {confirmed} ออเดอร์ · ราคาเฉลี่ย {average}
 Gross {gross} · Refunds {refunds}	ยอดรับเงินรวม {gross} · คืนเงิน {refunds}
 Recorded delivery fees: {delivery} · Banknotes requested: {banknotes}	ค่าจัดส่งที่บันทึกไว้: {delivery} · เงินในช่อธนบัตรที่ลูกค้าระบุ: {banknotes}
@@ -500,11 +500,11 @@ Owner	เจ้าของร้าน
 Staff	พนักงาน
 Read Only	ผู้ดูข้อมูล
 Offline / stale · {reason}	ออฟไลน์ / ข้อมูลยังไม่อัปเดต · {reason}
-Hosted demo storage {state} · {pending} pending · {retry} need retry	ที่เก็บข้อมูลระบบตัวอย่าง {state} · รอดำเนินการ {pending} · ต้องลองใหม่ {retry}
+Saved online · {state} · {pending} pending · {retry} need retry	บันทึกออนไลน์ · {state} · รอดำเนินการ {pending} · ต้องลองใหม่ {retry}
 updated {time}	อัปเดต {time}
 waiting	รออัปเดต
 last update over 30 seconds ago	อัปเดตล่าสุดเกิน 30 วินาทีแล้ว
-Synthetic demo record · {status}	ข้อมูลจำลองในระบบตัวอย่าง · {status}
+Order record · {status}	ข้อมูลออเดอร์ · {status}
 Current revision {revision} loaded. Your inputs remain. Review the comparison and save deliberately.	โหลดข้อมูลล่าสุด (รุ่นที่ {revision}) แล้ว โดยเก็บสิ่งที่คุณแก้ไขไว้ กรุณาตรวจสอบความแตกต่างก่อนกดบันทึก
 ; gross {gross}, refunds {refunds}, net {net}	; รับเงินรวม {gross}, คืนเงิน {refunds}, รับเงินสุทธิ {net}
 There are unsaved order or payment/reply drafts. Sign out and discard them?	มีการแก้ไขออเดอร์ รายการชำระเงิน หรือข้อความตอบลูกค้าที่ยังไม่ได้บันทึก ต้องการออกจากระบบโดยไม่เก็บข้อมูลเหล่านี้หรือไม่?
@@ -579,7 +579,7 @@ Checking sign-in settings…	กำลังตรวจสอบการเข
 Password protection	รหัสผ่านเข้าใช้งาน
 A password is required to enter this workspace.	ระบบนี้ตั้งรหัสผ่านไว้แล้ว ต้องกรอกรหัสผ่านก่อนเข้าใช้งาน
 Set a password before sharing this workspace.	ตั้งรหัสผ่านก่อนส่งลิงก์ให้ผู้อื่นเข้าชมระบบ
-Use 12–128 characters. Anyone with this password can edit the demo workspace.	ใช้รหัสผ่าน 12–128 ตัวอักษร ผู้ที่มีรหัสผ่านนี้จะดูและแก้ไขข้อมูลในระบบตัวอย่างได้
+Use 12–128 characters. Anyone with this password can edit the workspace.	ใช้รหัสผ่าน 12–128 ตัวอักษร ผู้ที่มีรหัสผ่านนี้จะดูและแก้ไขข้อมูลได้
 Changing this password also changes access to the shared preview. Your browser may ask you to sign in again.	รหัสผ่านนี้ใช้เข้าลิงก์ตัวอย่างที่แชร์ไว้ด้วย หลังเปลี่ยนรหัสผ่าน เบราว์เซอร์อาจให้เข้าสู่ระบบใหม่
 Set password	ตั้งรหัสผ่าน
 Change password	เปลี่ยนรหัสผ่าน
@@ -602,6 +602,13 @@ The demo service is unavailable. Please try again.	ระบบตัวอย�
 The demo has reached its storage limit. Please contact the demo administrator.	พื้นที่เก็บข้อมูลของระบบตัวอย่างเต็มแล้ว กรุณาติดต่อผู้ดูแลระบบตัวอย่าง
 Another update was saved first. Please refresh and try again. Your entries have not been saved.	มีผู้อื่นบันทึกข้อมูลก่อน กรุณารีเฟรชแล้วลองใหม่ ข้อมูลที่กรอกยังไม่ได้ถูกบันทึก
 Google Sheets is disconnected in this hosted demo. Demo changes are saved online.	ระบบตัวอย่างออนไลน์นี้ยังไม่ได้เชื่อมต่อ Google Sheets การแก้ไขจะถูกบันทึกไว้ในระบบตัวอย่างเท่านั้น
+The studio is temporarily unavailable.	ระบบจัดการร้านยังไม่พร้อมใช้งานในขณะนี้
+Please check your connection and try again.	กรุณาตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง
+A quiet place to care for every order.	ดูแลทุกออเดอร์ได้ครบในที่เดียว
+Data & storage	ข้อมูลและการจัดเก็บ
+Retention information is unavailable.	ยังไม่มีข้อมูลการจัดเก็บและลบข้อมูล
+Reference images are available in order details. Payment records are separate from estimates and confirmed order values.	ดูรูปอ้างอิงได้ในรายละเอียดออเดอร์ รายการรับเงินแยกจากราคาประมาณการและราคาที่ยืนยันแล้ว
+Complete payment history	ประวัติการชำระเงินครบถ้วน
 `.trim().split('\n').map(line=>line.split('\t')));
 export function t(key,params={}){let value=language==='th'?(dictionary[key]??key):key;return String(value).replace(/\{(\w+)\}/g,(match,name)=>Object.hasOwn(params,name)?String(params[name]):match);}
 export const hasTranslation=key=>Object.hasOwn(dictionary,key);

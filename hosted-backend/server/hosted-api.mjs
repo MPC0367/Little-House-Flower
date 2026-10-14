@@ -14,6 +14,8 @@ import siteAssetManifest from './hosted-site-assets.json' with {type:'json'};
 import {VERSION} from '../shared/config.mjs';
 
 const contexts=new WeakMap(),now=()=>new Date().toISOString();
+const publicPreviewEnabled=(env,db)=>env.LHF_PUBLIC_PREVIEW==='true'&&db.get('meta','hosted-demo')?.synthetic===true;
+const deploymentAssetRoute=path=>path==='/api/admin/site-assets'||path.startsWith('/api/admin/site-assets/');
 function business(fn){try{return fn();}catch(error){if(!error.status)error.status=422;throw error;}}
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff',...headers}});
 function errorResponse(error){return json({error:error.status?error.message:'The demo service is unavailable. Please try again.',...(error.current?{current:error.current}:{})},error.status||500,error.status===429?{'Retry-After':'60'}:{});}
@@ -27,12 +29,15 @@ async function authorizeGate(request,env){
     if(!['GET','HEAD','OPTIONS'].includes(request.method)&&origin!==url.origin&&!allowedApiOrigin)return json({error:'Same-origin request required'},403);
     if(request.headers.get('sec-fetch-site')==='cross-site'&&!allowedApiOrigin&&!(request.method==='GET'&&request.headers.get('sec-fetch-mode')==='navigate'))return json({error:'Cross-origin demo request refused.'},403);
     const options=preflight(request);if(options)return options;
-    const db=await loadHostedJournal(env),record=db.get('meta','staff-password'),password=basicPassword(request);
+    const db=await loadHostedJournal(env),record=db.get('meta','staff-password'),password=basicPassword(request),publicPreview=publicPreviewEnabled(env,db);
+    if(publicPreview&&!deploymentAssetRoute(url.pathname)){
+      contexts.set(request,{db,authVersion:record?.authVersion,publicPreview:true});return null;
+    }
     if(!record||typeof record.authVersion!=='string')return json({error:'Demo password protection is unavailable.'},503);
     if(url.pathname==='/api/demo-login'&&request.method==='POST'){
       contexts.set(request,{db,authVersion:record.authVersion});return null;
     }
-    if(url.pathname.startsWith('/api/')&&session(db,request,'demo')){
+    if(url.pathname.startsWith('/api/')&&!deploymentAssetRoute(url.pathname)&&session(db,request,'demo')){
       contexts.set(request,{db,authVersion:record.authVersion});return null;
     }
     if(password===null)return challenge();
@@ -50,7 +55,7 @@ async function readBytes(request,limit=300000){
   const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}return bytes;
 }
 async function readJSON(request,limit){try{return JSON.parse(new TextDecoder().decode(await readBytes(request,limit))||'{}');}catch(error){if(error.status)throw error;throw authError('Invalid request body',400);}}
-function requireStaff(db,request){const s=session(db,request,'admin');if(!s)throw authError('Staff sign-in required',401);return s;}
+function requireStaff(db,request,publicPreview=false){if(publicPreview)return {id:'public-preview',kind:'admin',role:'owner',publicPreview:true};const s=session(db,request,'admin');if(!s)throw authError('Staff sign-in required',401);return s;}
 const requireCustomer=(db,request)=>{const s=session(db,request,'customer');if(!s)throw authError('Session required',401);return s;};
 function synchronization(db){return {lastSync:now(),lastSave:db.get('meta','last-save')?.at||db.get('meta','hosted-demo')?.createdAt,pending:0,deadLetters:0,error:null,mode:'Hosted demonstration data · Google disconnected',conflicts:db.all('conflicts').length};}
 function saveOrder(db,order){db.put('orders',order.id,{...order,syncState:'synced'});db.put('meta','last-save',{at:now()});}
@@ -58,34 +63,36 @@ function acknowledgment(order){const receipt={};for(const key of ['id','ref','ty
 function reservationReference(db,date){const used=new Set(db.all('orders').map(order=>order.ref));let ref;do{ref='DEMO-'+date.replaceAll('-','').slice(2)+'-'+randomHex(3).toUpperCase();}while(used.has(ref));return ref;}
 
 async function dispatch(request,env,db,cookies,afterCommit,onRollback,responseHeaders){
-  const url=new URL(request.url),p=url.pathname,method=request.method,previews=new HostedPreviewService({db,env});
+  const url=new URL(request.url),p=url.pathname,method=request.method,previews=new HostedPreviewService({db,env}),publicPreview=publicPreviewEnabled(env,db);
   if(method==='OPTIONS')return new Response(null,{status:204});
   if(!['GET','HEAD'].includes(method)&&request.headers.get('x-csrf')!=='local-preview')throw authError('Same-origin request required',403);
   if(p==='/api/demo-login'&&method==='POST'){
+    if(publicPreview)return json({ok:true,demo:true,passwordProtected:false,publicPreview:true});
     checkAttempts(db,request,'demo-login');const b=await readJSON(request,2048);
     if(!await checkedPassword(b?.password,db.get('meta','staff-password'))){recordAttempt(db,request,'demo-login');return json({error:'Incorrect password. Please try again.'},401);}
     issueSession(db,'demo',cookies,request,responseHeaders);return json({ok:true,demo:true,expiresIn:43200});
   }
-  if(p==='/api/health')return json({ok:true,mode:'hosted-demo',demo:true,sync:synchronization(db)});
+  if(p==='/api/health')return json({ok:true,mode:'hosted-demo',demo:true,publicPreview,sync:synchronization(db)});
   if(p==='/api/session'&&method==='POST'){
     const existing=session(db,request,'customer');if(existing)exposeExistingSession(request,'customer',responseHeaders);
     return json({ok:true,session:(existing||issueSession(db,'customer',cookies,request,responseHeaders)).id});
   }
   if(p==='/api/catalogue'&&method==='GET')return json({catalog,images,settings:data.bookingDefaults,version:VERSION});
-  if(p==='/api/admin/auth-config'&&method==='GET')return json({passwordProtected:true});
+  if(p==='/api/admin/auth-config'&&method==='GET')return json(publicPreview?{passwordProtected:false,publicPreview:true}:{passwordProtected:true});
   if(p==='/api/admin/login'&&method==='POST'){
     checkAttempts(db,request);const b=await readJSON(request,2048);
     if(!await checkedPassword(b?.password,db.get('meta','staff-password'))){recordAttempt(db,request);return json({error:'Incorrect password. Please try again.'},401);}
     issueSession(db,'admin',cookies,request,responseHeaders);return json({ok:true,role:'owner',demo:true});
   }
   if(p==='/api/admin/password'&&method==='POST'){
+    if(publicPreview)throw authError('Password changes are disabled while the public demo is open.',409);
     requireStaff(db,request);checkAttempts(db,request,'change');recordAttempt(db,request,'change');const b=await readJSON(request,2048);validatePassword(b?.newPassword);
     if(!await checkedPassword(b?.currentPassword,db.get('meta','staff-password')))return json({error:'Incorrect current password. Please try again.'},401);
     db.put('meta','staff-password',await passwordRecord(b.newPassword));for(const s of db.all('sessions'))if(s.kind==='admin'||s.kind==='demo')db.remove('sessions',s.id);
     issueSession(db,'admin',cookies,request,responseHeaders);issueSession(db,'demo',cookies,request,responseHeaders);return json({ok:true,passwordProtected:true});
   }
   if(p==='/api/admin/logout'&&method==='POST'){
-    const staff=requireStaff(db,request);db.remove('sessions',staff.id);responseHeaders.set('X-LHF-Staff-Session','');cookies.push(`lhf_staff=; HttpOnly;${secureAttribute(request)} SameSite=Strict; Path=/; Max-Age=0`);return json({ok:true});
+    const staff=publicPreview?session(db,request,'admin'):requireStaff(db,request);if(staff)db.remove('sessions',staff.id);responseHeaders.set('X-LHF-Staff-Session','');cookies.push(`lhf_staff=; HttpOnly;${secureAttribute(request)} SameSite=Strict; Path=/; Max-Age=0`);return json({ok:true});
   }
   if(p==='/api/price-check'&&method==='POST'){
     requireCustomer(db,request);const b=await readJSON(request);if(b.custom?.config)b.custom.config=previews.validate(b.custom.config);business(()=>validateOrder({...b,consent:true}));return json(business(()=>priceCheck(b)));
@@ -134,15 +141,15 @@ async function dispatch(request,env,db,cookies,afterCommit,onRollback,responseHe
     const customer=session(db,request,'customer'),order=db.get('orders',p.split('/').pop());if(!customer||!order||order.owner!==customer.id)throw authError('Not found',404);return json(acknowledgment(order));
   }
   if(p.startsWith('/api/admin/')){
-    const staff=requireStaff(db,request);
+    const staff=requireStaff(db,request,publicPreview&&!deploymentAssetRoute(p));
     if(p.startsWith('/api/admin/site-assets/')){
       if(method!=='POST')throw authError('Unsupported site asset upload method',405);
       return json(await uploadHostedSiteAsset(request,{env,digest:p.slice('/api/admin/site-assets/'.length),manifest:siteAssetManifest}),201);
     }
-    if(p==='/api/admin/me'&&method==='GET')return json({role:staff.role,demo:true});
+    if(p==='/api/admin/me'&&method==='GET')return json({role:staff.role,demo:true,...(publicPreview?{publicPreview:true}:{})});
     if(p==='/api/admin/orders'&&method==='GET'){const payments=db.all('payments'),rows=filterOrders(db.all('orders'),payments,url.searchParams);return json({orders:rows.map(order=>compactOrder(order,payments)),total:rows.length,sync:synchronization(db)});}
     if(p==='/api/admin/revenue'&&method==='GET')return json({...business(()=>reportRevenue(db,url.searchParams)),sync:synchronization(db)});
-    if(p==='/api/admin/settings'&&method==='GET')return json({sync:synchronization(db),version:VERSION,googleConnected:false,previewProvider:'Hosted composition preview',failure:'',conflicts:db.all('conflicts'),quarantine:[],legacyPaidHistory:'Unknown payment date excluded',notifications:'Disabled',coverage:db.all('coverage'),coverageFixture:db.get('meta','coverage-fixtures-v1'),retention:null,hostedDemo:true});
+    if(p==='/api/admin/settings'&&method==='GET')return json({sync:synchronization(db),version:VERSION,googleConnected:false,previewProvider:'Hosted composition preview',failure:'',conflicts:db.all('conflicts'),quarantine:[],legacyPaidHistory:'Unknown payment date excluded',notifications:'Disabled',coverage:db.all('coverage'),coverageFixture:db.get('meta','coverage-fixtures-v1'),retention:null,hostedDemo:true,publicPreview});
     if(p==='/api/admin/simulator'&&method==='POST')throw authError('Google Sheets is disconnected in this hosted demo. Demo changes are saved online.',409);
     const match=p.match(/^\/api\/admin\/orders\/([^/]+)(\/payments)?$/);
     if(match){const order=db.get('orders',match[1]);if(!order)throw authError('Order not found',404);

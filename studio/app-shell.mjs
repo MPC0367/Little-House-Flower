@@ -1,4 +1,4 @@
-import {t} from './i18n.mjs';
+import {t} from './i18n.mjs?v=open-20261014-1';
 // Installation does not cache orders, customer details or private images.
 let installPrompt=null;
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;});
@@ -19,9 +19,9 @@ document.addEventListener('click',async event=>{
  const close=document.createElement('button');close.type='button';close.addEventListener('click',()=>closeDialog(dialog,target));
  dialog.refreshLanguage=()=>{
   heading.textContent=t('A little space of your own.');
-  intro.textContent=t('Open the hosted Little House Flower client demo in its own window, with a dedicated app icon and no browser tabs.');
+  intro.textContent=t('Open Little House Flower Studio in its own window, with a dedicated app icon and no browser tabs.');
   instructions.textContent=t('Use your browser’s Install app or Add to Home Screen option. Safari on macOS can use File → Add to Dock.');
-  note.textContent=t('Hosted client demo · orders and payments are synthetic. No real order, Google Sheet update or shop notification is sent.');
+  note.textContent=t('Manage orders, handover dates and payments in one place.');
   close.textContent=t('Got it');
  };
  dialog.refreshLanguage();window.addEventListener('lhf:languagechange',dialog.refreshLanguage);

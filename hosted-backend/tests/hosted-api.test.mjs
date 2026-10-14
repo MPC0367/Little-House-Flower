@@ -6,6 +6,7 @@ import {gate,handleHostedRequest} from '../server/hosted-api.mjs';
 import {loadHostedJournal} from '../server/hosted-store.mjs';
 import {hash} from '../server/hosted-crypto.mjs';
 import {legacy} from '../server/domain.mjs';
+import {defaultRecipe} from '../shared/recipes.mjs';
 import siteAssetManifest from '../server/hosted-site-assets.json' with {type:'json'};
 
 const initial='Synthetic hosted password 123',changed='Rotated synthetic password 456';
@@ -20,8 +21,8 @@ class MemoryD1 {
     }
   })};}
 }
-function fixture(){
-  const blobs=new Map(),env={DB:new MemoryD1(),DEMO_PASSWORD:initial,BUCKET:{put:async(key,bytes)=>{blobs.set(key,bytes);},get:async key=>blobs.has(key)?{body:blobs.get(key)}:null,delete:async key=>blobs.delete(key)}};
+function fixture(envOverrides={}){
+  const blobs=new Map(),env={DB:new MemoryD1(),DEMO_PASSWORD:initial,BUCKET:{put:async(key,bytes)=>{blobs.set(key,bytes);},get:async key=>blobs.has(key)?{body:blobs.get(key)}:null,delete:async key=>blobs.delete(key)},...envOverrides};
   async function request(path,{password=initial,method='GET',body,cookie,origin='https://demo.example',headers={},raw}={}){
     const request=new Request('https://demo.example'+path,{method,headers:{...(password===null?{}:{Authorization:'Basic '+Buffer.from('client:'+password).toString('base64')}),Origin:origin,'X-CSRF':'local-preview',...(cookie?{Cookie:cookie}:{}),...headers},...(body!==undefined?{body:JSON.stringify(body)}:raw?{body:raw}:{})});
     const response=await handleHostedRequest(request,env),text=await response.text();let value;try{value=JSON.parse(text);}catch{value=text;}
@@ -199,4 +200,70 @@ test('demo-login failed-attempt throttles persist and return CORS-readable error
   const {request}=fixture();let result;
   for(let index=0;index<9;index++)result=await request('/api/demo-login',{password:null,origin:githubOrigin,method:'POST',body:{password:'Incorrect synthetic password'}});
   assert.equal(result.status,429);assert.equal(result.headers.get('retry-after'),'60');assert.equal(result.headers.get('access-control-allow-origin'),githubOrigin);
+});
+
+test('explicit public preview opens the storefront, customer flow and normal Studio operations without passwords',async()=>{
+  const {request,env,blobs}=fixture({LHF_PUBLIC_PREVIEW:'true'}),anonymous={password:null,origin:githubOrigin};
+  assert.equal(await gate(new Request('https://demo.example/'),env),null);
+  assert.equal(await gate(new Request('https://demo.example/studio/'),env),null);
+  const health=await request('/api/health',anonymous);assert.equal(health.status,200);assert.equal(health.value.publicPreview,true);assert.equal(health.headers.get('access-control-allow-origin'),githubOrigin);
+  assert.equal((await request('/api/catalogue',anonymous)).status,200);
+  assert.deepEqual((await request('/api/admin/auth-config',anonymous)).value,{passwordProtected:false,publicPreview:true});
+  assert.deepEqual((await request('/api/admin/me',anonymous)).value,{role:'owner',demo:true,publicPreview:true});
+  assert.equal((await request('/api/admin/orders',anonymous)).status,200);
+  assert.equal((await request('/api/admin/settings',anonymous)).value.publicPreview,true);
+  const login=await request('/api/demo-login',{...anonymous,method:'POST',body:{}});assert.equal(login.status,200);assert.equal(login.value.publicPreview,true);assert.equal(sessionHeader('Demo',login),null);
+  const customer=await request('/api/session',{...anonymous,method:'POST',body:{}}),token=sessionHeader('Customer',customer);assert.match(token,/^[a-f0-9]{64}$/);
+  const owner={...anonymous,headers:{'X-LHF-Customer-Session':token}};
+  for(const [path,metadata]of Object.entries(siteAssetManifest))if(path.startsWith('/img/hosted-sprites/'))blobs.set('site-assets/'+metadata.hash,new Uint8Array(await readFile(new URL('../public'+path,import.meta.url))));
+  const config={...defaultRecipe('bouquet').config,flowers:['lisianthus'],palette:'pink-white',finish:'black',ribbon:'burgundy'};
+  assert.equal((await request('/api/preview',{...anonymous,method:'POST',body:{config}})).status,401,'The public demo still requires a customer session for previews');
+  const preview=await request('/api/preview',{...owner,method:'POST',body:{config}});assert.equal(preview.status,200,JSON.stringify(preview.value));assert.equal(preview.value.status,'ready');assert.equal(preview.value.asset.kind,'composition');
+  const previewImage=await request(preview.value.asset.url,anonymous);assert.equal(previewImage.status,200);assert.match(previewImage.value,/<svg/);
+  const date=legacy.util.addDays(legacy.time.today(),3),booking={id:'synthetic-public-preview-123',type:'custom',items:[],date,windowId:'p2',fulfil:'pickup',custom:{config,style:'bouquet',budgetTier:'b2',previewAssetId:preview.value.asset.id,notes:'Public synthetic custom order'},customer:{name:'Synthetic public customer',phone:'0800000000'},recipient:{name:'Synthetic recipient',phone:'0800000000'},card:{message:'Synthetic card'},colourNote:'Pink wrapping please',lang:'th',consent:true};
+  const sent=await request('/api/orders',{...owner,method:'POST',body:booking});assert.equal(sent.status,201,JSON.stringify(sent.value));
+  assert.equal((await request('/api/orders/submission/'+booking.id,anonymous)).status,404);
+  assert.equal((await request('/api/orders/submission/'+booking.id,owner)).status,200);
+  const detail=await request('/api/admin/orders/'+booking.id,anonymous);assert.equal(detail.status,200);assert.equal(detail.value.custom.config.finish,'black');assert.equal(detail.value.date,date);
+  const edited=await request('/api/admin/orders/'+booking.id,{...anonymous,method:'PATCH',body:{expectedRevision:1,status:'confirmed',confirmedTotal:149000,reason:'Synthetic public preview quote'}});assert.equal(edited.status,200,JSON.stringify(edited.value));assert.equal(edited.value.status,'confirmed');
+  assert.equal((await request('/api/admin/orders/'+booking.id,anonymous)).value.confirmedTotal,149000);
+  assert.equal((await request('/api/admin/logout',{...anonymous,method:'POST',body:{}})).status,200);
+});
+
+test('public preview retains origin/CSRF checks, customer upload ownership and disabled password editing',async()=>{
+  const {request,env}=fixture({LHF_PUBLIC_PREVIEW:'true'}),anonymous={password:null,origin:githubOrigin};
+  assert.equal((await request('/api/admin/orders',{...anonymous,origin:'https://evil.example'})).status,403);
+  assert.equal((await request('/api/session',{...anonymous,method:'POST',body:{},origin:'https://mpc0367.github.io.evil.example'})).status,403);
+  assert.equal((await request('/api/session',{...anonymous,method:'POST',body:{},headers:{'X-CSRF':'wrong'}})).status,403);
+  const before=(await loadHostedJournal(env)).get('meta','staff-password').authVersion;
+  const disabled=await request('/api/admin/password',{...anonymous,method:'POST',body:{currentPassword:initial,newPassword:changed}});assert.equal(disabled.status,409);assert.match(disabled.value.error,/disabled/);assert.equal(disabled.headers.get('access-control-allow-origin'),githubOrigin);
+  assert.equal((await loadHostedJournal(env)).get('meta','staff-password').authVersion,before);
+  const first=await request('/api/session',{...anonymous,method:'POST',body:{}}),second=await request('/api/session',{...anonymous,method:'POST',body:{}});
+  const owner={...anonymous,headers:{'X-LHF-Customer-Session':sessionHeader('Customer',first)}};
+  const png=Uint8Array.from(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO/aXioAAAAASUVORK5CYII=','base64'));
+  assert.equal((await request('/api/uploads',{...anonymous,method:'POST',raw:png,headers:{'X-Upload-Consent':'yes'}})).status,401);
+  assert.equal((await request('/api/uploads',{...owner,method:'POST',raw:png})).status,422);
+  const uploaded=await request('/api/uploads',{...owner,method:'POST',raw:png,headers:{...owner.headers,'X-Upload-Consent':'yes','Content-Type':'image/png'}});assert.equal(uploaded.status,201,JSON.stringify(uploaded.value));
+  assert.equal((await request(uploaded.value.url,anonymous)).status,404);
+  assert.equal((await request(uploaded.value.url,{...anonymous,headers:{'X-LHF-Customer-Session':sessionHeader('Customer',second)}})).status,404);
+  assert.equal((await request(uploaded.value.url,owner)).status,200);
+  assert.equal((await request(uploaded.value.url,{...owner,method:'DELETE',body:{}})).status,200);
+});
+
+test('public preview never opens deployment uploads or bypasses the synthetic database guard',async()=>{
+  const {request,env,blobs}=fixture(),demoLogin=await request('/api/demo-login',{password:null,origin:githubOrigin,method:'POST',body:{password:initial}}),demo=sessionHeader('Demo',demoLogin);
+  env.LHF_PUBLIC_PREVIEW='true';
+  const metadata=siteAssetManifest['/favicon.svg'],bytes=new Uint8Array(await readFile(new URL('../public/favicon.svg',import.meta.url))),route='/api/admin/site-assets/'+metadata.hash;
+  const anonymous={password:null,origin:githubOrigin,method:'POST',raw:bytes};
+  assert.equal((await request(route,anonymous)).status,401);
+  assert.equal((await request(route,{...anonymous,headers:bearerHeaders(demo)})).status,401,'A demo token cannot substitute for deployment Basic Auth');
+  assert.equal((await request(route,{...anonymous,password:initial})).status,401,'Basic Auth alone cannot substitute for a real staff session');
+  assert.equal((await request('/api/admin/login',{password:null,method:'POST',body:{role:'owner'}})).status,401);
+  const staff=await request('/api/admin/login',{method:'POST',body:{password:initial}});assert.equal(staff.status,200);
+  assert.equal((await request(route,{...anonymous,headers:{'X-LHF-Staff-Session':sessionHeader('Staff',staff)}})).status,401);
+  assert.equal((await request(route,{...anonymous,password:initial,headers:{'X-LHF-Staff-Session':sessionHeader('Staff',staff)}})).status,201);
+  assert.deepEqual(blobs.get('site-assets/'+metadata.hash),bytes);
+  for(const flag of ['false','yes',true,1]){env.LHF_PUBLIC_PREVIEW=flag;assert.equal((await request('/api/health',{password:null})).status,401);}
+  env.LHF_PUBLIC_PREVIEW='true';const state=await loadHostedJournal(env);state.put('meta','hosted-demo',{synthetic:false});await state.commit();
+  assert.equal((await request('/api/health',{password:null})).status,503);assert.equal((await request('/api/admin/orders',{password:null})).status,503);
 });

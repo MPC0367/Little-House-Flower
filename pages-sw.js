@@ -1,4 +1,4 @@
-/* Little House Flower: network-only API bridge. No password or protected response is cached. */
+/* Little House Flower: public website API bridge. Responses are never cached. */
 const BASE='/Little-House-Flower/';
 const API_PREFIX=BASE+'api/';
 const BACKEND=['localhost','127.0.0.1','[::1]'].includes(self.location.hostname)
@@ -54,9 +54,9 @@ async function proxy(request){
     const url=new URL(request.url),path='/api/'+url.pathname.slice(API_PREFIX.length)+url.search,tokens=await readTokens();
     const headers=new Headers();
     for(const name of ['Content-Type','X-CSRF','X-Upload-Consent','Idempotency-Key','Range','If-Range','Accept'])if(request.headers.has(name))headers.set(name,request.headers.get(name));
-    if(tokens.demo)headers.set('Authorization','Bearer '+tokens.demo);
+
     if(tokens.customer)headers.set(TOKEN_HEADERS.customer,tokens.customer);
-    if(tokens.staff)headers.set(TOKEN_HEADERS.staff,tokens.staff);
+
     const init={method:request.method,headers,mode:'cors',credentials:'omit',cache:'no-store',redirect:'error',signal:request.signal};
     if(!['GET','HEAD'].includes(request.method))init.body=await request.arrayBuffer();
     const response=await fetch(BACKEND+path,init);
@@ -72,7 +72,7 @@ async function proxy(request){
   }catch{return errorResponse('The demo service is temporarily unavailable. Please try again.');}
 }
 self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
-self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{const tokens=await readTokens();const headers=new Headers({'X-LHF-Customer-Session':tokens.customer||''});await updateTokens(headers,tokens.demo,{clear:true});await self.clients.claim();})()));
 self.addEventListener('message',event=>{if(event.data?.type==='LHF_PAGES_CLAIM')event.waitUntil(self.clients.claim());});
 self.addEventListener('fetch',event=>{
   const url=new URL(event.request.url);
