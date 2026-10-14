@@ -5,7 +5,7 @@
   const SW=new URL(BASE+'pages-sw.js',location.origin).href;
   window.LHF_PAGES_APP=true;
   window.LHF_PUBLIC_PREVIEW=true;
-  window.LHF_SHARE_CONTEXT={customerURL:BASE,studioURL:BASE+'studio/'};
+  window.LHF_SHARE_CONTEXT={customerURL:BASE,studioURL:'/little-house-flower-studio/'};
   document.documentElement.classList.remove('pages-locked');
   document.getElementById('pages-access')?.remove();
   const originalFetch=window.fetch.bind(window);

@@ -3,8 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-github-pages.mjs",
     "preview": "node scripts/serve-github-pages.mjs",
-    "test:pages": "node tests/github-pages-smoke.mjs"
+    "test:intro": "node tests/homepage-intro-reload.mjs"
   }
 }
