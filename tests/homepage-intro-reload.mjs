@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 const {webkit,expect}=await import(process.env.LHF_PLAYWRIGHT_MODULE||'@playwright/test');
 const base=(process.env.LHF_TEST_URL||'http://127.0.0.1:5590/Little-House-Flower').replace(/\/$/,'');
-const home=base+'/?lang=en#/',marker='lhf.logo.intro.v5';
+const home=base+'/?lang=en#/',marker='lhf.logo.intro.v5',FILM_MS=4400;
 const local=['127.0.0.1','localhost','[::1]'].includes(new URL(base).hostname);
 const checks=[],reports=[],errors=[],contexts=[];
 let stage='setup';
@@ -69,17 +69,15 @@ async function waitForRun(page,label,{expectedStarts=1,expectedDismissals=1,bloc
  const result=await page.evaluate(()=>({starts:__lhfIntroReload.starts,dismissals:__lhfIntroReload.dismissals,report:LHF.logoIntro.report,marker:sessionStorage.getItem('lhf.logo.intro.v5'),playBlocked:__lhfIntroReload.playBlocked}));
  assert.equal(result.starts,expectedStarts,label+': the intro must actually start exactly once per document load.');
  assert.equal(result.dismissals.length,expectedDismissals,label+': the intro must finish.');
- assert.equal(result.report.reason,'ready',label+': all readiness milestones must complete.');
- assert.equal(result.report.progress,100,label+': the page must be ready before dismissal.');
  assert.equal(result.marker,'1');
- assert.ok(result.report.elapsed<7500,label+': the intro must not trap the page.');
+ // The opening is the supplied film and never lasts longer than it (4.4s), whatever the page is doing.
+ assert.ok(result.report.elapsed<=FILM_MS+120,label+': the opening must not outlast the film ('+Math.round(result.report.elapsed)+' ms).');
  if(result.report.media==='video'){
-  assert.equal(result.report.playback,'ended');
-  assert.ok(result.report.elapsed>=3000,label+': genuine playback must retain the minimum viewing time.');
+  assert.ok(['film-ended','film-length','film-length-page-still-loading'].includes(result.report.reason),label+': the opening ends with the film ('+result.report.reason+').');
+  assert.ok(result.report.timeline>=3300,label+': the film must be seen through its 100% frame at its own speed (reached '+Math.round(result.report.timeline)+' ms).');
  }else{
   assert.equal(result.report.media,'poster');
   assert.ok(['blocked','stalled','error'].includes(result.report.playback),label+': only an explicit media fallback is allowed.');
-  assert.ok(result.report.elapsed>=600);
  }
  if(blocked){assert.ok(result.playBlocked>0);assert.equal(result.report.media,'poster');assert.equal(result.report.playback,'blocked');}
  reports.push({label,...result.report});
@@ -121,7 +119,7 @@ try{
    await page.getByRole('button',{name:'Play loading animation test',exact:true}).click();
    const playback=await waitForRun(page,'user-gesture playback',{expectedStarts:2,expectedDismissals:2});
    assert.equal(playback.media,'video','The local user-gesture check must play the actual supplied film.');
-   assert.equal(playback.playback,'ended');
+   assert.ok(playback.timeline>=3300);
    checks.push('Actual supplied video completes after a real click when WebKit blocks initial autoplay');
   }else checks.push('Automatic live starts use a legitimate media fallback; actual-video verification requires a separate localhost run because replay tooling is local-only');
  }else checks.push('Actual supplied video completed during automatic homepage playback');

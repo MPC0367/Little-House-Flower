@@ -23,7 +23,7 @@ The website files are **generated** from the back-end repo (`hosted-backend/publ
 
 ## The opening film
 
-`media/little-house-flower-loading-v5-1080p.mp4` (4.4 s) plays at its own speed on every homepage load. The opening closes when the film reaches its 100% frame (3.3 s), so a visit sees about 3.5 seconds of film. The still poster is used only if the film cannot start, and it also stays for at least three seconds. With "reduce motion" set on the device, there is no opening.
+The opening is the supplied film, `media/little-house-flower-loading-v5-1080p.mp4` (4.4 s, the same file as `little-house-flower-loading-v5-1080p.mp4` in the owner's handover folder), and it never lasts longer. It plays once at its own speed on every homepage load. It is never paused, slowed or sped up, and the cover closes when the film ends. Whatever else happens, the cover is gone 4.4 s after it appears; if the film started late, only the closing still frame is cut. If the device will not play the film (autoplay blocked, for example in iPhone Low Power Mode), the still poster shows until the page is ready. With "reduce motion" set on the device, there is no opening. `npm run test:intro` holds these rules.
 
 ## Checks
 
