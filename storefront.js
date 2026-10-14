@@ -3,6 +3,7 @@
 /* Source: /data/images.js */
 window.__LHF_IMAGES={"logo_sm":{"file":"fb_profile_logo_720__160.jpg","w":160,"h":160,"alt_en":"Little House Flower monogram","alt_th":"โลโก้ Little House Flower","src":"/Little-House-Flower/img/fb_profile_logo_720__160.webp"},"cover_collage":{"file":"fb_cover_collage_960__960.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAQABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDpLrVDDckCPO08jfgYH4VmRahcXMv2jEkUQYsGIO3aO5rSn0iGeZpHkky3JGRUNzZwx2aWI8x8LgNvwfxqehS30Kqa3cPIXhCywK5V3C5KkL29cnmiqt19p07bCTBb2xz8y43SdO3UnGBRS1NeRH//2Q==","w":960,"h":647,"alt_en":"Customers holding Little House Flower bouquets: sunflowers, white roses, red roses, a proposal set-up","alt_th":"ลูกค้าถือช่อดอกไม้จาก Little House Flower ทานตะวัน กุหลาบขาว กุหลาบแดง และเซ็ตขอแต่งงาน","src":"/Little-House-Flower/img/fb_cover_collage_960__960.webp","srcset":"/Little-House-Flower/img/fb_cover_collage_960__960-640w.webp 640w, img/fb_cover_collage_960__960.webp 960w"},"white_rose":{"file":"hr_p05_whiterose_1090__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCGKaP7WtsT+9YbgMcY+tav2B9vO386raNHatK0skW6RSd2Cc7Rz0HufxrXjcSB18nYwxgqeCPb8QfyqVqJ6HPPbEO3A6+tFWJM+Y3Pc0VN0BDpJzNLtVXDuq89uDzXTyyLFabU4IQAsTycUUVq1pcm+tjnMM3zY680UUVlYo//2Q==","w":900,"h":1200,"alt_en":"Florist holding a large white rose bouquet with eucalyptus in a white layered foam wrap","alt_th":"ช่อกุหลาบขาวช่อใหญ่แซมยูคาลิปตัส ห่อโฟมชั้นสีขาว ถือโดยช่างจัดดอกไม้","src":"/Little-House-Flower/img/hr_p05_whiterose_1090__1200.webp","srcset":"/Little-House-Flower/img/hr_p05_whiterose_1090__1200-640w.webp 640w, img/hr_p05_whiterose_1090__1200.webp 900w"},"red_crown":{"file":"hr_p06_redrose_basket_2290__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCd9YhiTc4ZQMD7uahXxGgl2tayBQeTwTj6Vz+pIzOJWyQOgyR9Kha8GPMclmY4OTyPrUxbaudFOnTbam7HfRTpcWqzxg7HGRuGDRXK6A11LBcypLKiM3y+h4/pRUuok7Gapt7GheaQLqAovDHlecc1ljw7cicq0O5WTG5W6GiiueFRx0OjlTdzqrGxS0tUgUDCjnByM96KKKe+pJ//2Q==","w":1200,"h":1200,"alt_en":"Dozens of red roses in a glossy black wrap with a LOVE IS ETERNAL ribbon and a small crystal crown","alt_th":"กุหลาบแดงหลายสิบดอกห่อกระดาษดำเงา ริบบิ้น LOVE IS ETERNAL และมงกุฎเล็ก","src":"/Little-House-Flower/img/hr_p06_redrose_basket_2290__1200.webp","srcset":"/Little-House-Flower/img/hr_p06_redrose_basket_2290__1200-640w.webp 640w, img/hr_p06_redrose_basket_2290__1200.webp 1200w"},"lily_lisianthus":{"file":"hr_p07_lily_lisianthus_1790__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB8dgwiB4AxyTVS8iFtjziE3Yxnvmt5Ldbm3hkUDKJ8wY9eO1YOsRP5LI7MVTao45ZiwOOe3J/KoElcgMPPSip8iiiwG/Yzb7ZScAjjrWPrsg+aQMGw6kkc9jRRWkdiXuUBeLj/AFb/AJCiiisudm3Ij//Z","w":900,"h":1200,"alt_en":"Florist holding an oversized white lily and lisianthus bouquet with a handwritten card","alt_th":"ช่อลิลลี่และลิเซียนทัสสีขาวช่อใหญ่ พร้อมการ์ดเขียนมือ","src":"/Little-House-Flower/img/hr_p07_lily_lisianthus_1790__1200.webp","srcset":"/Little-House-Flower/img/hr_p07_lily_lisianthus_1790__1200-640w.webp 640w, img/hr_p07_lily_lisianthus_1790__1200.webp 900w"},"single_rose":{"file":"hr_p08_single_rose_250__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABUDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDTuxtniiIGGYA1y2vJ5LLvAVjn5Q2cDtXW6hbvJMAA4WEjdtPJyOOnb1NZevOltojyT/NceWsZXqA2fvfzoaBbHElQWO7NFaFp9mt7ZGuYWlklG7/dHailcqx6BfXJE0FzajzC6EPGepUdDj1ByPxrOu7YzWFzNK3mBlaQDHUkcD8OlFFU9SVpG5ysVwuwCe33MABlTjNFFFIZ/9k=","w":1041,"h":1200,"alt_en":"Three single red rose bouquets in clear wrap with Congrats handwritten and burgundy ribbon","alt_th":"ช่อกุหลาบดอกเดียวสามช่อ ห่อใสเขียนคำว่า Congrats ผูกริบบิ้นแดงเข้ม","src":"/Little-House-Flower/img/hr_p08_single_rose_250__1200.webp","srcset":"/Little-House-Flower/img/hr_p08_single_rose_250__1200-640w.webp 640w, img/hr_p08_single_rose_250__1200.webp 1041w"},"kitty":{"file":"hr_p09_kitty_2690__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABMDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDRQ77xFxn5Wx+lN8xLa9WAKwWQZKnp+H9frVVp7f7YYp5Wj8yMhSrEZ5GQSOgwKfO8LX9jbxBl2yYBA+XaR0B70FWXLc38jAwOMUU02s+fluAB2G2ikKxy1rYtq88gjl2bEU59QSe1XZ7U2bWas5d4p41JwenI69KKKOgkzpj1ooopgf/Z","w":960,"h":1200,"alt_en":"Mirror selfie holding a handmade Kitty-shaped bouquet of white carnations with a pink rose bow","alt_th":"ช่อคิตตี้แฮนด์เมด คาร์เนชั่นขาว โบว์กุหลาบชมพู ถ่ายหน้ากระจก","src":"/Little-House-Flower/img/hr_p09_kitty_2690__1200.webp","srcset":"/Little-House-Flower/img/hr_p09_kitty_2690__1200-640w.webp 640w, img/hr_p09_kitty_2690__1200.webp 960w"},"red_black":{"file":"hr_p10_redblack_990__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB0mpNDfsXdkUNnBBxt71o/8JNp2FDPIpZsHKfd9zWNqemXQdvLYthDKSTkkjtWMJJCu8FgQNwGMFv/AK/NFy4RT3dj0eCeOeIPDIkiHoyEEUVmeHrSSw0qKKXaGYlyoXBXPY+pFFBBXmuFstWgtC7yM6gk4ztye5qkRP8A8JeJ0t3MIIXcF4xjBNFFSi1oa/29WlcA8gmiiinF3Jasf//Z","w":1200,"h":1200,"alt_en":"Nine red roses with wax flower in a matte black wrap and burgundy ribbon, in the studio","alt_th":"กุหลาบแดงเก้าดอกแซมดอกแว็กซ์ ห่อดำด้าน ริบบิ้นแดงเข้ม ถ่ายในสตูดิโอ","src":"/Little-House-Flower/img/hr_p10_redblack_990__1200.webp","srcset":"/Little-House-Flower/img/hr_p10_redblack_990__1200-640w.webp 640w, img/hr_p10_redblack_990__1200.webp 1200w"},"box_congrats":{"file":"hr_p11_box_congrats_1490__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCo7x2+0yZAZgowM8mtOK0Zh0rNuUIvbVsfLHJufntiuj05BMo4TBBI28gj61InoiidN5PFFa7QLuPyjrRTEc5emFpYyrq2cjGfauj0W0jtrPMf/LT5j9aKKpaxuKWkrEzt87fWiiikB//Z","w":900,"h":1200,"alt_en":"Florist holding a hat-box arrangement of white lily, gerbera, blue carnation and baby's breath with a Congratulations pick","alt_th":"กล่องดอกไม้ ลิลลี่ขาว เยอบีร่า คาร์เนชั่นฟ้า ยิปโซ พร้อมป้าย Congratulations","src":"/Little-House-Flower/img/hr_p11_box_congrats_1490__1200.webp","srcset":"/Little-House-Flower/img/hr_p11_box_congrats_1490__1200-640w.webp 640w, img/hr_p11_box_congrats_1490__1200.webp 900w"},"mothers_garlands":{"file":"hr_p01a_mothersday_2026__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABMDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDZ0rURNK8YRY2YlsH1rU3s3933rlbLzbTV5EC5VXWN37jcv8q2NQjuCUjg84qASxjOD0OBx70IRp/lRVXTHf8As63+0ZMuwbi3XNFMDNi8mW3mu5IFEpkHKsTnGApI9cVpCXZOYzgMyl/wHFFFZp3VynuUorpfKXDDp60UUVQj/9k=","w":960,"h":1200,"alt_en":"Mother's Day jasmine garlands on pleated paper pedestals, some in presentation boxes","alt_th":"พวงมาลัยมะลิวันแม่บนแท่นกระดาษพลีท บางแบบอยู่ในกล่อง","src":"/Little-House-Flower/img/hr_p01a_mothersday_2026__1200.webp","srcset":"/Little-House-Flower/img/hr_p01a_mothersday_2026__1200-640w.webp 640w, img/hr_p01a_mothersday_2026__1200.webp 960w"},"mothers_blue":{"file":"hr_p01b_mothersday_2026_b__1200.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYABMDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDbj1CMat9nJ5xtw33frWkJA3K+WR9Kwb3TpJb+K4ifPzAkN2+mPpU+p3U9uGW2blVYnam75uMA/nQI0yNxzgDPpRTYyfLTcRnAzRQMz5o5VsRLHLvuA4ALcA898VYWRoZZCAQpj3g5785GP89aKKm4ykNQAUAcjAooorJzdzRRVj//2Q==","w":960,"h":1200,"alt_en":"Mother's Day collection in blue and white: hydrangea bouquet, lily bouquet, flower bag with garland, boxed garland","alt_th":"คอลเลกชันวันแม่โทนฟ้าขาว ช่อไฮเดรนเยีย ช่อลิลลี่ กระเป๋าดอกไม้พร้อมมาลัย และมาลัยในกล่อง","src":"/Little-House-Flower/img/hr_p01b_mothersday_2026_b__1200.webp","srcset":"/Little-House-Flower/img/hr_p01b_mothersday_2026_b__1200-640w.webp 640w, img/hr_p01b_mothersday_2026_b__1200.webp 960w"},"promo_bouquets":{"file":"hr_p02a_june_promo__1200.jpg","lqip":"data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABYDASIAAhEBAxEB/8QAGQABAAMBAQAAAAAAAAAAAAAAAAIFBgED/8QAJhAAAgEDAwIHAQAAAAAAAAAAAQIDAAQRBRIxIUEGExRRYYGR0f/EABcBAAMBAAAAAAAAAAAAAAAAAAADBAL/xAAbEQADAQADAQAAAAAAAAAAAAABAhEAAxJBIv/aAAwDAQACEQMRAD8Au9O1LzvDsCOjROzFRtXORu6ff8qYmkRJkeRY7kDcqkhmPyv5+1mbK7e1kWGZmFsWyCOYz7j4Perr0byoFjfdIWDNK43HHbae3TpS17NThyqGHR16T1VvbmEhhk5ckDsKV73WmS3MYR0XkElTjgYHSlJZCxp1fHyqqzVEtg86pnci5BLDn6rT7o/LVYlYFefalKoX5WD3RNHenzdWVlGGLClKVi5k3//Z","w":430,"h":460,"alt_en":"A pastel bouquet of gerbera, carnation and chamomile in white and mint wrap with a Congratulations pick","alt_th":"ช่อเยอบีร่า คาร์เนชั่น และคาโมมายล์โทนพาสเทล ห่อขาวกับเขียวมิ้นต์ พร้อมป้าย Congratulations","src":"/Little-House-Flower/img/hr_p02a_june_promo__1200-crop.jpg"},"bouquet_890":{"file":"hr_p02b_june_promo_b__1200.jpg","lqip":"data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABUDASIAAhEBAxEB/8QAGQABAQADAQAAAAAAAAAAAAAAAAUCAwQG/8QAJxAAAgEEAgAEBwAAAAAAAAAAAQIDAAQRIQVRBhIxQRQiMkJhgaH/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAaEQADAQADAAAAAAAAAAAAAAAAAREhAjFR/9oADAMBAAIRAxEAPwDv47kBLApVGGgDn7T+eqszvFHYq830nOSBmovH8Yyo8sSyMh+RvQBt/wBxitsl58PYCK3tnmyxGFOtmp7WRrMPOX8aCUBZGkGzltN6+9K5ryWRrgh45LdlGGVlBJPdKQ0V+H8RTR8NKbpkMkAYRMx2dZGvfBNZeHr0Dh4BcucGVi2M5I82z+uqUpE8YsJl9JecpfStbr5IozhQrHBHe+8UpStcVhH2f//Z","w":768,"h":880,"alt_en":"Four 50 × 50 cm bouquets of gerbera and carnation in pastel and iridescent wraps","alt_th":"ช่อดอกไม้ขนาด 50 × 50 ซม. สี่แบบ เยอบีร่าและคาร์เนชั่น ห่อพาสเทลและกระดาษรุ้ง","src":"/Little-House-Flower/img/hr_p02b_june_promo_b__1200-crop.webp"},"basket_boxset":{"file":"hr_p03a_vase_basket_2025__1200.jpg","lqip":"data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAVABgDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAIEBf/EACUQAAIBBAEDBAMAAAAAAAAAAAECAwAEESEFEiJxEzFRYTKB8P/EABgBAAMBAQAAAAAAAAAAAAAAAAEDBAAC/8QAHREAAgICAwEAAAAAAAAAAAAAAAECEQMxUXGB8P/aAAwDAQACEQMRAD8A4ltxYfJHag92P9s/VdKDhrVpjCJrjrVeoyCPEfgE1SyCLj4njPyGbH4tnR81Upka8lglgSK2ZC0UqP3yHGdL+zrVQZ5zTS11X3g6CTsynhCk8ZnJETbLBt+Po0rXacjDcsIA07J6RVutcZONEjGsYpWePJOTu1XAYzSWrNsjgr0FFK/FSoijQqsK4YDIyaUq+hDJugsarFEoRAvsKUpQOkf/2Q==","w":712,"h":630,"alt_en":"A white hat box of sunflowers, chamomile, baby's breath and eucalyptus, with a second box behind","alt_th":"กล่องดอกไม้สีขาว ทานตะวัน คาโมมายล์ ยิปโซ และยูคาลิปตัส มีอีกกล่องวางอยู่ด้านหลัง","src":"/Little-House-Flower/img/hr_p03a_vase_basket_2025__1200-crop.webp"},"flowers_basket":{"file":"hr_p03b_vase_basket_2025_b__1200.jpg","lqip":"data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABQDASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAQCBQP/xAAjEAACAQMDBAMAAAAAAAAAAAABAgMABBESEyEiMUFhFFFx/8QAFgEBAQEAAAAAAAAAAAAAAAAAAQAC/8QAGREBAQADAQAAAAAAAAAAAAAAAAECEiEx/9oADAMBAAIRAxEAPwDsX98LZEYnCmVVc/Sk4NTjdnmvUlZdMbaUyM5B45JqaVYb9GimZ1UnOoxkqAO591TGqIZUcRySyqCsiAjV+A9zxmsZZyJzLm023VY5JFGnkBvNKpv0gEykXKHUgPRgilM70tS2twbXZVNxFHSrH3nvW5bq/wDixQCKOCRF4YnJTxkAeqUo1nqlecNrDHEFKKx8llyTSlKi/9k=","w":580,"h":680,"alt_en":"A wicker basket of white roses, lisianthus, green carnations and baby's breath with a burlap Flowers tag","alt_th":"กระเช้าสานกุหลาบขาว ลิเซียนทัส คาร์เนชั่นเขียว และยิปโซ ป้ายผ้า Flowers","src":"/Little-House-Flower/img/hr_p03b_vase_basket_2025_b__1200-crop.webp"},"wreath":{"file":"fb_post_wreath_541__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCWCPBHHA64HQVcSMlCVkGM8YA6UWMEclqJXkbafmHPFN+xfMSl9wf4Wi6flU8si04dSn4fvdlr5MwZFB/dufuken51tEMeQImHuKKKUZMJRSP/2Q==","w":361,"h":640,"alt_en":"Fresh-flower funeral wreath in pink, peach and lilac with a white ribbon banner","alt_th":"พวงหรีดดอกไม้สดโทนชมพู พีช ม่วงอ่อน พร้อมป้ายผ้าขาว","src":"/Little-House-Flower/img/fb_post_wreath_541__640.webp"},"reel_wreath":{"file":"p04_reel_DcyEtTyTQek_20260902__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCaFUCBmfYD0bGamZhEuZXTbxh+mTU9jeJPbIsbosqjBRmK/wBOaZfanHA5jSJJmXbvJbgE54z+FL5j07HK29zdwrtikygJwrgMB9M9KtRSSuDLJHHKXwfmXp7AUUVlexra+h//2Q==","w":361,"h":640,"alt_en":"Reel cover: fresh-flower wreath","alt_th":"ปกรีล พวงหรีดดอกไม้สด","src":"/Little-House-Flower/img/p04_reel_DcyEtTyTQek_20260902__640.webp"},"reel_distance":{"file":"p12_reel_DcuWiZ_zFiV_20260831__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCVYL6WIJMJY0z8pccfrTzp92FwtwpUHGVUf402WSW2jCNcySjBLSPkkk/nUlpchBvY7FIwCeMn8amy6CUSCIxRZTzndickffJqhLN/pEzylx8+wBucAf8A66KKe+hV7H//2Q==","w":360,"h":640,"alt_en":"Reel cover: a surprise bouquet delivery at the door","alt_th":"ปกรีล เซอร์ไพรส์ช่อดอกไม้หน้าประตู","src":"/Little-House-Flower/img/p12_reel_DcuWiZ_zFiV_20260831__640.webp"},"reel_love":{"file":"reel_DOsFPMCE7up_208k_love__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDh0TIp+FUkEc1Z0tY3lCSHIY/dGM+3Wo7lVMp+YZ74FFylFy2J7WWxaL97CY5UIZZUyT+Iz0qpeRCGYqGySc4x0ooqeodD/9k=","w":360,"h":640,"alt_en":"Reel cover: red roses in a car at night with a love note","alt_th":"ปกรีล กุหลาบแดงในรถยามค่ำพร้อมข้อความความรัก","src":"/Little-House-Flower/img/reel_DOsFPMCE7up_208k_love__640.webp"},"reel_grad":{"file":"reel_DcdzhZETI9S_61k_grad__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDJ0jwebmD7VqM5tos8oPvAY6k9qll8M6PkSRam7QtwDxwfTOK1bm5MV1EftbKBEVEQx1PfmsPV7i38tUaBQgbOVP3mxycf1rNSbNHFIrajrNnqEkMsqTiSMYyMcj86pPfwOAMSADp0ooq7Ihts/9k=","w":361,"h":640,"alt_en":"Reel cover: red roses and baby's breath close-up","alt_th":"ปกรีล กุหลาบแดงและยิปโซระยะใกล้","src":"/Little-House-Flower/img/reel_DcdzhZETI9S_61k_grad__640.webp"},"reel_51k":{"file":"reel_DcqRhU5TT4h_51k__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDI+yzOzFYyQSGGO/BHFaFtYBbcLJgvnJx2pZp/sygIUQBx80bgsxPTjp1qwY5Rjz9pkxyV4BqI6Du2c1DqQM250j24xgr1rVXXl2/MeaKKdhn/2Q==","w":361,"h":640,"alt_en":"Reel cover: white lilies in a vase by the door","alt_th":"ปกรีล ลิลลี่ขาวในแจกัน วางริมประตู","src":"/Little-House-Flower/img/reel_DcqRhU5TT4h_51k__640.webp"},"reel_200roses":{"file":"reel_DSbPkOPkxA3_200roses__640.jpg","lqip":"data:image/jpeg;base64,/9j/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAXABgDASIAAhEBAxEB/8QAGAABAAMBAAAAAAAAAAAAAAAAAAMEBQb/xAAmEAACAQMDBAEFAAAAAAAAAAABAgMABBEFEjEGEyFBFCNRcYGR/8QAFwEAAwEAAAAAAAAAAAAAAAAAAAEDAv/EABgRAQEBAQEAAAAAAAAAAAAAAAEAEQIh/9oADAMBAAIRAxEAPwDE0/p35mnwyx3SLK7FjtG7aAOPHBzjNSW/RmpPIjvJCmT5cSEkU0Q3NtqUMdtKEWRjuVuCcfb2cV20TyLcxKSOyw8qB5/OaWVeOk8LjuttMNjZ2lzHIw3HszgcSEDIY48euKVZ6itbm+a4guZpZO3L9JRJtVcE+sef3StDSXXatbKY5UkQ4dDlSPRrXS+uzbxRh1zHy5GS3PP9pSlA40bgsdzEkn2aUpRF/9k=","w":320,"h":300,"alt_en":"A 200-rose bouquet in white wrap with red ribbons, delivered to the door","alt_th":"ช่อกุหลาบแดง 200 ดอก ห่อกระดาษขาว ผูกริบบิ้นแดง ส่งถึงหน้าประตู","src":"/Little-House-Flower/img/reel_DSbPkOPkxA3_200roses__640-crop.webp"},"reel_19k":{"file":"reel_DcnY8owzYaa_19k__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCSayC28c6FfnXcUzkr+PeqZXircGp3C2yRMgBHHykE4x2yMdajXUMoCFiZwSrenX/9dS1F9S1zx3RjC5kVn2rHtzndIdxH0PakW7hiAB3HIyQOcE/WiinyoOZs/9k=","w":361,"h":640,"alt_en":"Reel cover: a couple on a riverside terrace, one holding a bouquet","alt_th":"ปกรีล คู่รักบนระเบียงริมแม่น้ำ ถือช่อดอกไม้","src":"/Little-House-Flower/img/reel_DcnY8owzYaa_19k__640.webp"},"reel_10k":{"file":"reel_Dch0UGrTIbN_10k__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBmt6lrkNu8sNtGsK/edHEhUepA6VV0OW/1C0Lpqil1OGjfgr6duRWpLczSRxxxsMEBWXucj3471ial4day8qRbecJIPvW2Tg+hB/nUxd0VJJbF+0eZbwQX0qjzf9TKowrD+hHpW5ie1CiOUz4G3JOMUUU2kTds/9k=","w":361,"h":640,"alt_en":"Reel cover: a pink rose and chamomile bouquet on a car seat, with a handwritten card","alt_th":"ปกรีล ช่อกุหลาบชมพูแซมคาโมมายล์ วางบนเบาะรถ พร้อมการ์ดเขียนมือ","src":"/Little-House-Flower/img/reel_Dch0UGrTIbN_10k__640.webp"},"reel_3k":{"file":"reel_DcsGtHXTHIl_3k__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwC9ZW/72B5PMQSBsbWK9vY1qCGJY1UZwoAFcskiyLEdznywRtDcnPXr+FS6fAk9gGvd0j7253kY56cGlGS6DnBrc528mkV4miYg8hsdxitWycfZtyyspzgkHr1oorKTsjeCuf/Z","w":361,"h":640,"alt_en":"Reel cover: a graduate and a friend by the river with a sunflower bouquet","alt_th":"ปกรีล บัณฑิตกับเพื่อนริมแม่น้ำ พร้อมช่อทานตะวัน","src":"/Little-House-Flower/img/reel_DcsGtHXTHIl_3k__640.webp"},"reel_safe":{"file":"reel_DckdCAFT44J_safe__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDnbHRLaa7aK4eVVBx8pGR9a04/DOlSyyRxSXjmLG4grgEjOMkda6mZcW5MEcIwwyFVcDP1HWiaytWRGnRFcgbscc4oQWsc9/wm9oJNwtW69Sgzj8+vWqd14os7lRujuSQc4JGB+tFFJq407H//2Q==","w":361,"h":640,"alt_en":"Reel cover: a bouquet shaped like a white dog's face, made of baby's breath with white roses","alt_th":"ปกรีล ช่อดอกไม้รูปหน้าน้องหมาสีขาว ทำจากยิปโซ แซมกุหลาบขาว","src":"/Little-House-Flower/img/reel_DckdCAFT44J_safe__640.webp"},"reel_couple":{"file":"reel_DcNK6PDTe9G_couple__640.jpg","lqip":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAAYAA4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDJsbSJLp4CZBIVyu1RyO+QRwauHSYVwTHcdODu61Jo8ayafHcIweaVmDsDkqAfujP4VsRu8BCjAUqCTnofSs20mWqbaOV0y8awieKCNJUY7iJG2hTjg1YS/uL6ISMIkGcbQCQffNFFWkTzO1j/2Q==","w":361,"h":640,"alt_en":"Reel cover: a pink and white rose bouquet with pearl strands, in a car","alt_th":"ปกรีล ช่อกุหลาบชมพูและขาว ประดับสายมุก วางในรถ","src":"/Little-House-Flower/img/reel_DcNK6PDTe9G_couple__640.webp"},"hl_basket_vase":{"file":"hl01_basket_vase__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: baskets and vases","alt_th":"ปกไฮไลต์ กระเช้าและแจกัน","src":"/Little-House-Flower/img/hl01_basket_vase__150.webp"},"hl_money":{"file":"hl02_money__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: banknotes fanned behind a bouquet of peach roses","alt_th":"ปกไฮไลต์ ธนบัตรคลี่เป็นพัดหลังช่อกุหลาบสีพีช","src":"/Little-House-Flower/img/hl02_money__150.webp"},"hl_wedding":{"file":"hl03_wedding__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: wedding bouquets","alt_th":"ปกไฮไลต์ ช่อดอกไม้งานแต่ง","src":"/Little-House-Flower/img/hl03_wedding__150.webp"},"hl_meaning":{"file":"hl04_meaning__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: flower meanings","alt_th":"ปกไฮไลต์ ความหมายดอกไม้","src":"/Little-House-Flower/img/hl04_meaning__150.webp"},"hl_moneybouquet":{"file":"hl05_moneybouquet__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: a large banknote bouquet with red roses","alt_th":"ปกไฮไลต์ ช่อธนบัตรช่อใหญ่กับกุหลาบแดง","src":"/Little-House-Flower/img/hl05_moneybouquet__150.webp"},"hl_pro_october":{"file":"hl06_pro_october__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: October promotion","alt_th":"ปกไฮไลต์ โปรตุลาคม","src":"/Little-House-Flower/img/hl06_pro_october__150.webp"},"hl_pro_august":{"file":"hl09_pro_august__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: August promotion","alt_th":"ปกไฮไลต์ โปรสิงหาคม","src":"/Little-House-Flower/img/hl09_pro_august__150.webp"},"hl_mothersday":{"file":"hl10_mothersday__150.jpg","w":150,"h":150,"alt_en":"Highlight cover: Mother's Day promotion","alt_th":"ปกไฮไลต์ โปรวันแม่","src":"/Little-House-Flower/img/hl10_mothersday__150.webp"}};
 window.__LHF_SHEET={enabled:false,endpoint:"",secret:""};
+
 ;
 
 /* Source: /core/util.js */
@@ -146,7 +147,6 @@ LHF.util = (function () {
   return { esc, h, frag, append, qs, qsa, empty, rnd, uid, iso, parseISO, todayISO, addDays, cmpISO, dow, pad, clamp, lerp, fmtNumber, debounce, throttle, nextFrame, wait, reducedMotion, mqReduced, isTouch, storage, normalizePhone, isThaiMobile, fmtPhone, onVisible, trapFocus };
 })();
 
-
 ;
 
 /* Source: /core/i18n.js */
@@ -259,7 +259,6 @@ LHF.i18n = (function () {
   return { t, pick, fmtDate, fmtPrice, fmtFrom, fmtRange, shopNow, monthName, dayMin, yearLabel, setLang, onChange, init, get lang() { return state.lang; }, SUPPORTED };
 })();
 
-
 ;
 
 /* Source: /core/store.js */
@@ -302,7 +301,6 @@ LHF.store = (function () {
 
   return { get, set, update, subscribe, draft, setDraft, clearDraft, draftIsFresh };
 })();
-
 
 ;
 
@@ -442,7 +440,6 @@ LHF.router = (function () {
 
   return { add, navigate, href, render, start, parse, onLeave, get current() { return current; }, before: (fn) => beforeHooks.push(fn), after: (fn) => afterHooks.push(fn) };
 })();
-
 
 ;
 
@@ -915,7 +912,6 @@ LHF.engine = (function () {
   return { ctx, horizon, earliestDate, dateStatus, lowAt, windowsFor, monthMatrix, orderRef, priceSummary, priceKind, tierPrice, validate, leadFor, hasBrief, normPhone, isMobileTH, isCustomerPhone, fmtPhone };
 })();
 
-
 ;
 
 /* Source: /data/settings.js */
@@ -1030,7 +1026,6 @@ LHF.data.delivery = {
     { id: 'bangkok', th: 'กรุงเทพมหานคร', en: 'Bangkok', districts: [] },
   ],
 };
-
 
 ;
 
@@ -1629,7 +1624,6 @@ LHF.data.strings = {
   });
 })();
 
-
 ;
 
 /* Source: /data/catalog.js */
@@ -1901,7 +1895,6 @@ LHF.catalog = (function () {
   return { flowers, colors, categories, occasions, products, byId, bySlug, occasion, color, category, flower, filter, featured, related, customisable };
 })();
 
-
 ;
 
 /* Source: /data/posts.js */
@@ -2022,7 +2015,6 @@ LHF.posts = (function () {
   return { posts, highlights, filters, byId, byTag, forProduct, FOOTER };
 })();
 
-
 ;
 
 /* Source: /components/image.js */
@@ -2109,7 +2101,6 @@ LHF.img = (function () {
   const ratio = (key) => { const m = meta(key); return m ? m.w / m.h : 0.8; };
   return { pic, el, meta, src, alt, ratio };
 })();
-
 
 ;
 
@@ -2358,7 +2349,6 @@ LHF.ui = (function () {
   return { icon, heartTag, head, link, btn, thaiWrap, phrases, sheet, closeSheet, toast, reveal, openState, openBadge, priceLabel, sizeLabel, leadLabel, lineHref, markLang, mediaStatus };
 })();
 
-
 ;
 
 /* Source: /components/heart.js */
@@ -2490,7 +2480,6 @@ LHF.heart = (function () {
   return { lookup, allEntries, entryFor, badge, refresh, add, remove, fly, cardSheet, count };
 })();
 
-
 ;
 
 /* Source: /components/nav.js */
@@ -2613,7 +2602,6 @@ LHF.nav = (function () {
   return { mountAll, LINKS, social, closeMenu };
 })();
 
-
 ;
 
 /* Source: /components/footer.js */
@@ -2649,7 +2637,6 @@ LHF.footer = (function () {
   function mount() { const f = U.qs('#footer'); U.empty(f).appendChild(render()); }
   return { mount, render };
 })();
-
 
 ;
 
@@ -2717,7 +2704,6 @@ LHF.cards = (function () {
   }
   return { card, ledgerRow, grid, ratioFor, meaningLine };
 })();
-
 
 ;
 
@@ -2855,7 +2841,6 @@ LHF.calendar = (function () {
   return { create };
 })();
 
-
 ;
 
 /* Source: /components/lightbox.js */
@@ -2940,7 +2925,6 @@ LHF.viewer = (function () {
   }
   return { open, close };
 })();
-
 
 ;
 
@@ -3064,7 +3048,6 @@ LHF.pages.home = function () {
   }
 };
 
-
 ;
 
 /* Source: /pages/flowers.js */
@@ -3137,7 +3120,6 @@ LHF.pages.flowers = function (params, query) {
   return page;
 };
 
-
 ;
 
 /* Source: /pages/product.js */
@@ -3205,7 +3187,6 @@ LHF.pages.product = function (params) {
   return page;
 };
 
-
 ;
 
 /* Source: /pages/occasions.js */
@@ -3236,7 +3217,6 @@ LHF.pages.occasion = function (params) {
   wrap.appendChild(h('section.section', ui.head({ eyebrow: t('occ.see'), title: o.listTitle ? pick(o.listTitle) : t('occ.listTitle') }), items.length ? LHF.cards.grid(items) : h('div.empty', t('occ.noneYet'), h('div', { style: { marginTop: '12px' } }, ui.btn(t('nav.custom'), { className: 'btn-primary', href: R.href('/custom', { occasion: o.id }) })))));
   return page;
 };
-
 
 ;
 
@@ -3302,7 +3282,6 @@ LHF.pages.instagram = function (params, query) {
   return page;
 };
 
-
 ;
 
 /* Source: /pages/story.js */
@@ -3330,7 +3309,6 @@ LHF.pages.story = function () {
     h('section.section-tight', h('div.wrap', h('div.center', { style: { flexWrap: 'wrap', gap: '14px' } }, h('span.small.muted', t('story.social')), h('div.socials', LHF.nav.social('ig'), LHF.nav.social('fb'), LHF.nav.social('line'))))));
   return page;
 };
-
 
 ;
 
@@ -3431,7 +3409,6 @@ LHF.osm = (function () {
   }
   return { load };
 })();
-
 
 ;
 
@@ -3918,7 +3895,6 @@ LHF.pages.order = function (params, query) {
   }
 };
 
-
 ;
 
 /* Source: /pages/confirm.js */
@@ -4070,7 +4046,6 @@ LHF.pages.confirm = function (params) {
   }
 };
 
-
 ;
 
 /* Source: /pages/misc.js */
@@ -4142,7 +4117,6 @@ LHF.pages.error = function (e) {
   if (e) console.error(e);   // for whoever debugs; a customer only needs a way on
   return h('div.page.page-enter', h('div.wrap.section', h('div.final', h('h1.h1', t('error.title')), h('p.lede', t('error.sub')), ui.btn(t('notfound.home'), { className: 'btn-primary', href: R.href('/') }))));
 };
-
 
 ;
 
@@ -4242,7 +4216,7 @@ function accept(booking,result){if(result.ok){if(result.receipt)Object.assign(bo
 async function deliver(booking,opts={}){if(opts.hp)return {ok:false};await LHF.localSession;try{const recovered=await LHF.localAPI('/Little-House-Flower/api/orders/submission/'+booking.id);if(recovered.ok)return accept(booking,recovered);}catch(e){if(e.status!==404)return {ok:false,reason:e.message};}try{return accept(booking,await LHF.localAPI('/Little-House-Flower/api/orders', {...booking,consent:true},{signal:AbortSignal.timeout(12000)}));}catch(e){return {ok:false,reason:e.message};}}
 return {deliver,summary,totalLabel,lineUrl,start(){},send(){},status:()=>({configured:true,blocked:false,queued:0})};
 })();
-LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=intro-film-20261014-3');return renderCustomizer(params,query);};
+LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=film-opening-20261015-1');return renderCustomizer(params,query);};
 
 ;
 
@@ -4316,18 +4290,117 @@ LHF.sink.summary=function(b){const text=originalSummary(b);return b.custom?.conf
 
 ;
 
+/* Source: /Little-House-Flower/shared/opening-film.js */
+/* The opening film, shared by the website (logo-intro.js) and the Studio (studio/opening.js).
+   The opening IS the supplied film, little-house-flower-loading-v5-1080p.mp4 (4.4 s, the owner's file, unchanged).
+   - It plays once, from its first frame, at its own speed: never held, slowed, sped up or looped.
+   - It is never on screen longer than the film: the cover's fade runs over the film's last, still 100% frame
+     and the cover is gone when the film ends.
+   - It is never replaced by a picture. Until the film moves the cover is plain paper in the film's own colour.
+     If it cannot start within START_WAIT_MS of the page being visible (a device that refuses video by itself,
+     a slow network, a missing file) or stops moving, the cover closes and the page shows without an opening.
+   The page shell starts the film's download before the application loads (window.LHF_OPENING_FILM). */
+(function(){
+'use strict';
+const FILM='/Little-House-Flower/media/little-house-flower-loading-v5-1080p.mp4';
+const FILM_MS=4400,START_WAIT_MS=2000,STALL_MS=1200,FADE_MS=180;
+
+function configure(video){
+  video.muted=true;video.defaultMuted=true;video.playsInline=true;video.preload='auto';
+  video.autoplay=false;video.loop=false;video.controls=false;video.disablePictureInPicture=true;
+  video.setAttribute('muted','');video.setAttribute('playsinline','');video.setAttribute('aria-hidden','true');video.setAttribute('tabindex','-1');
+  return video;
+}
+// The element the page shell made early, if any; otherwise a new one.
+function element(){
+  const early=window.LHF_OPENING_FILM;window.LHF_OPENING_FILM=null;
+  if(early instanceof HTMLVideoElement&&!early.error)return configure(early);
+  const video=configure(document.createElement('video'));video.src=FILM;return video;
+}
+// A page that will not show the opening lets the early download go.
+function discard(){
+  const early=window.LHF_OPENING_FILM;window.LHF_OPENING_FILM=null;
+  if(early instanceof HTMLVideoElement){early.removeAttribute('src');early.load();}
+}
+
+function run(stage,{onEnd}={}){
+  const video=element();video.classList.add('lhf-logo-video');stage.append(video);
+  const state={playback:'waiting',reason:null,timeline:0,startDelay:null,duration:FILM_MS/1000};
+  let over=false,began=null,startedAt=null,lastTime=-1,lastMove=0,waitTimer=null,endTimer=null,safety=null,poll=null,lastAttempt=-Infinity;
+  const now=()=>performance.now();
+  const filmMs=()=>Number.isFinite(video.duration)&&video.duration>0?video.duration*1000:FILM_MS;
+
+  function close(reason){
+    if(over)return false;over=true;state.reason=reason;state.timeline=video.currentTime*1000;
+    clearTimeout(waitTimer);clearTimeout(endTimer);clearTimeout(safety);clearInterval(poll);
+    document.removeEventListener('visibilitychange',visibility);
+    return true;
+  }
+  function end(reason){if(close(reason))onEnd?.(reason,state);}
+  function attempt(){
+    if(over||document.hidden)return;
+    lastAttempt=now();
+    let promise;
+    try{promise=video.play();}catch(error){promise=Promise.reject(error);}
+    Promise.resolve(promise).catch(error=>{
+      if(over||startedAt!==null)return;
+      // A device that refuses video by itself (iPhone Low Power Mode, a browser setting) will not change its mind
+      // while the cover waits: open the page now rather than show a frozen picture.
+      if(error?.name==='NotAllowedError'&&!document.hidden){state.playback='refused';end('film-refused');return;}
+      // Interrupted (the tab was hidden, a new load): the poll tries again while the wait lasts.
+      state.playback='retrying';
+    });
+  }
+  function check(){
+    if(over)return;
+    const t=video.currentTime;state.timeline=t*1000;
+    if(startedAt===null){
+      if(t>0&&!video.paused){
+        startedAt=now()-t*1000;state.startDelay=startedAt-began;state.playback='playing';lastTime=t;lastMove=now();
+        clearTimeout(waitTimer);
+        // the wall clock agrees with the film: whatever the network does, the cover is gone when the film's length is up
+        endTimer=setTimeout(()=>end('film-length'),Math.max(0,filmMs()-FADE_MS-t*1000));
+      }else if(video.paused&&video.readyState>=2&&now()-lastAttempt>250)attempt();
+      return;
+    }
+    if(video.ended||t*1000>=filmMs()-FADE_MS){state.playback='ended';end('film-ended');return;}
+    if(t!==lastTime){lastTime=t;lastMove=now();}
+    else if(now()-lastMove>STALL_MS){state.playback='stalled';end('film-stalled');}
+  }
+  function begin(){
+    if(began!==null||over)return;
+    began=now();
+    waitTimer=setTimeout(()=>{if(startedAt===null){state.playback=video.error?'error':'not-started';end('film-not-started');}},START_WAIT_MS);
+    safety=setTimeout(()=>end('film-limit'),START_WAIT_MS+FILM_MS);
+    poll=setInterval(check,50);
+    attempt();
+  }
+  function visibility(){
+    if(over||document.hidden)return;
+    if(began===null)begin();else if(video.paused)attempt();
+  }
+  video.addEventListener('playing',check);video.addEventListener('timeupdate',check);
+  video.addEventListener('ended',()=>{if(!over){state.playback='ended';end('film-ended');}});
+  video.addEventListener('error',()=>{if(!over){state.playback='error';end('film-error');}});
+  document.addEventListener('visibilitychange',visibility);
+  // A page opened in a background tab waits until it is seen; the film is not spent unseen.
+  if(!document.hidden)begin();
+  // stop() is the owner taking the cover away; it does not call onEnd
+  return {video,state,stop(){close('stopped');video.pause();video.removeAttribute('src');video.load();}};
+}
+
+window.LHFOpeningFilm=Object.freeze({FILM,FILM_MS,START_WAIT_MS,FADE_MS,run,discard});
+})();
+
+;
+
 /* Source: /logo-intro.js */
-/* Supplied v5 brand film. Kept separate from routing and shop operations. */
+/* The website's opening: the supplied v5 brand film over the page while it loads. Kept separate from routing and
+   shop operations. How the film plays (and why it is never a still picture) is in shared/opening-film.js.
+   Homepage loads always play it; other routes once per browser session; never with reduced motion. */
 (function(){
 'use strict';
 const SESSION_KEY='lhf.logo.intro.v5';
-const VIDEO='/Little-House-Flower/media/little-house-flower-loading-v5-1080p.mp4';
-const POSTER='/Little-House-Flower/media/little-house-flower-v5-poster-1080p.png';
-// The opening IS the supplied film (little-house-flower-loading-v5-1080p.mp4, 4.4s) and never lasts longer.
-// It plays once at its own speed, is never held, slowed or sped up, and the overlay closes when the film ends.
-// Whatever happens (slow network, page still loading), the overlay is gone FILM_SECONDS after it appeared.
-// The film's last second is a still 100% frame, so a slow start only trims stillness, never the drawing.
-const FILM_SECONDS=4.4,MAX_WAIT=FILM_SECONDS*1000,FADE=180;
 const local=['127.0.0.1','localhost','[::1]'].includes(location.hostname);
 const query=new URLSearchParams(location.search);
 const forced=local&&query.get('intro')==='1';
@@ -4348,44 +4421,51 @@ function safeFallback(){
 function start({demo=false}={}){
  document.querySelector('#loader')?.remove();
  if(running)return running;
- if(matchMedia('(prefers-reduced-motion: reduce)').matches){markSeen();lastReport={reason:'reduced-motion',elapsed:0,milestones:{},progress:0};return null;}
+ const film=window.LHFOpeningFilm;
+ if(!film)return null;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){film.discard();markSeen();lastReport={reason:'reduced-motion',elapsed:0,milestones:{},progress:0};return null;}
  // Homepage reloads always replay; other routes keep their once-per-session opening.
- if(!demo&&seen()&&LHF.router.parse(location.hash).path!=='/')return null;
+ if(!demo&&seen()&&LHF.router.parse(location.hash).path!=='/'){film.discard();return null;}
  const begun=performance.now(),milestones={shell:false,logo:false,criticalImage:false,route:false};
- const state={elapsed:0,timeline:0,progress:0,milestones,reason:null,demo,hold:null,media:'video',playback:'loading',duration:null};
+ const state={elapsed:0,timeline:0,progress:0,milestones,reason:null,demo,media:'video',playback:'waiting',startDelay:null,duration:film.FILM_MS/1000};
  const overlay=elem('div','lhf-logo-intro');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('tabindex','-1');overlay.setAttribute('aria-label',tr('ยินดีต้อนรับสู่ลิตเติลเฮาส์ฟลาวเวอร์','Welcome to Little House Flower'));
  const stage=elem('div','lhf-logo-stage');
  // Keep the supplied artwork intact; the film's decorative percentage is not network readiness.
  stage.setAttribute('role','img');stage.setAttribute('aria-label','Little House Flower — Represent your love');
- const video=elem('video','lhf-logo-video'),poster=elem('img','lhf-logo-poster');
- video.muted=true;video.defaultMuted=true;video.autoplay=true;video.playsInline=true;video.preload='auto';video.controls=false;video.loop=false;video.setAttribute('muted','');video.setAttribute('playsinline','');video.setAttribute('aria-hidden','true');video.disablePictureInPicture=true;
- // The supplied poster is the final 100% frame. Reserve it for fallback to avoid a 100-to-0 flash.
- poster.alt='';poster.width=1920;poster.height=1080;poster.hidden=true;poster.src=POSTER;stage.append(video,poster);
  const number=elem('span','lhf-logo-progress','0%');number.setAttribute('role','progressbar');number.setAttribute('aria-valuemin','0');number.setAttribute('aria-valuemax','100');number.setAttribute('aria-valuenow','0');number.setAttribute('aria-label',tr('ความพร้อมของหน้าเว็บ','Page readiness'));
  const caption=elem('span','lhf-logo-progress-label',tr('กำลังเตรียมหน้าเว็บ','Preparing your visit'));
  const announce=elem('span','lhf-logo-sr',tr('กำลังเตรียมหน้าเว็บ','Preparing the page'));announce.setAttribute('role','status');announce.setAttribute('aria-live','polite');
  overlay.append(stage,number,caption,announce);
  const previous=document.activeElement;
  const background=[...document.body.children].map(el=>[el,el.inert]);
- let finished=false,dismissing=false,readyAt=null,raf=null,timer=null,startupTimer=null,observer=null,showValue=0,lastFrame=performance.now(),criticalStarted=false,criticalCleanup=null,fallbackAt=null,playbackEnded=false,lastVideoTime=0,lastPlaybackAt=performance.now();
+ let finished=false,dismissing=false,observer=null,criticalStarted=false,criticalCleanup=null,player=null;
  function finish(reason){
-  if(finished)return;finished=true;state.reason=reason;state.elapsed=performance.now()-begun;
-  clearTimeout(timer);clearTimeout(startupTimer);cancelAnimationFrame(raf);observer?.disconnect();criticalCleanup?.();window.removeEventListener('error',onError);window.removeEventListener('unhandledrejection',onError);video.pause();video.removeAttribute('src');video.load();overlay.remove();
+  if(finished)return;finished=true;
+  player?.stop();
+  const f=player?.state;
+  state.reason=reason;state.elapsed=performance.now()-begun;
+  state.timeline=f?.timeline??0;state.playback=f?.playback??'none';state.startDelay=f?.startDelay??null;
+  // 'video' only if the film actually moved on screen; otherwise the page opened without an opening
+  state.media=f?.startDelay!=null?'video':'none';
+  observer?.disconnect();criticalCleanup?.();window.removeEventListener('error',onError);window.removeEventListener('unhandledrejection',onError);overlay.remove();
   background.forEach(([el,inert])=>{if(el.isConnected)el.inert=inert;});
   if(previous&&previous!==document.body&&previous.isConnected&&!previous.inert){previous.focus({preventScroll:true});}
   else {const entry=document.querySelector('#skiplink');entry?.focus({preventScroll:true});}
   // the page goes on loading behind the opening; only if it is still empty a while later does it offer Retry and LINE
   if(!milestones.route)setTimeout(safeFallback,6000);
-  markSeen();running=null;const {seek,resume,...report}=state;lastReport=structuredClone(report);document.dispatchEvent(new CustomEvent('lhf:intro-dismissed',{detail:lastReport}));
+  markSeen();running=null;lastReport=structuredClone(state);document.dispatchEvent(new CustomEvent('lhf:intro-dismissed',{detail:lastReport}));
  }
- function dismiss(reason){if(finished||dismissing)return;dismissing=true;overlay.classList.add('is-dismissing');setTimeout(()=>finish(reason),FADE);}
+ function dismiss(reason){if(finished||dismissing)return;dismissing=true;overlay.classList.add('is-dismissing');setTimeout(()=>finish(reason),film.FADE_MS);}
  function onError(){safeFallback();finish('application-error');}
  overlay.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();overlay.focus({preventScroll:true});}});
  background.forEach(([el])=>{el.inert=true;});document.body.append(overlay);overlay.focus({preventScroll:true});running=state;
- // Arm cleanup before asynchronous work so failed assets or other scripts cannot trap focus.
- timer=setTimeout(()=>dismiss(milestones.route?'film-length':'film-length-page-still-loading'),MAX_WAIT-FADE);
  window.addEventListener('error',onError);window.addEventListener('unhandledrejection',onError);
- function mark(name){if(finished||milestones[name])return;milestones[name]=true;state.progress=(milestones.shell?40:0)+(milestones.logo?20:0)+(milestones.criticalImage?20:0)+(milestones.route?20:0);if(state.progress===100&&readyAt===null){readyAt=performance.now();announce.textContent=tr('หน้าเว็บพร้อมแล้ว','Page ready');caption.textContent=tr('ยินดีต้อนรับ','Welcome');}}
+ function mark(name){
+  if(finished||milestones[name])return;milestones[name]=true;
+  state.progress=(milestones.shell?40:0)+(milestones.logo?20:0)+(milestones.criticalImage?20:0)+(milestones.route?20:0);
+  number.textContent=state.progress+'%';number.setAttribute('aria-valuenow',String(state.progress));
+  if(state.progress===100){announce.textContent=tr('หน้าเว็บพร้อมแล้ว','Page ready');caption.textContent=tr('ยินดีต้อนรับ','Welcome');}
+ }
  function criticalImage(){
   if(criticalStarted)return;criticalStarted=true;
   // The inline LQIP is already decoded, but is not the critical photograph.
@@ -4406,54 +4486,15 @@ function start({demo=false}={}){
   if(main?.children.length&&main.dataset.route){mark('route');criticalImage();}
  }
  observer=new MutationObserver(check);observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-route']});check();
- function usePoster(reason){
-  if(finished||state.media==='poster')return;
-  state.media='poster';state.playback=reason;fallbackAt=performance.now();clearTimeout(startupTimer);video.pause();video.hidden=true;video.removeAttribute('src');video.load();poster.hidden=false;
-  const settle=()=>{if(finished)return;if(!poster.naturalWidth){poster.hidden=true;stage.append(elem('span','lhf-logo-text-fallback','Little House Flower'));}mark('logo');};
-  if(poster.complete)settle();else{poster.addEventListener('load',settle,{once:true});poster.addEventListener('error',settle,{once:true});}
- }
- function play(){
-  if(finished||state.media!=='video')return;
-  try{const promise=video.play();promise?.catch(()=>usePoster('blocked'));}catch{usePoster('blocked');}
- }
- function syncPlayback(now){
-  if(state.media!=='video'||state.hold!==null||!Number.isFinite(video.duration))return;
-  // always the film's own speed, from start to end, without pausing for the page
-  if(video.playbackRate!==1)video.playbackRate=1;
- }
- video.addEventListener('loadedmetadata',()=>{if(!finished)state.duration=video.duration;});
- video.addEventListener('loadeddata',()=>{if(!finished&&state.media==='video')mark('logo');});
- video.addEventListener('playing',()=>{if(finished||state.media!=='video')return;clearTimeout(startupTimer);state.playback='playing';lastPlaybackAt=performance.now();});
- video.addEventListener('ended',()=>{if(finished||state.media!=='video')return;playbackEnded=true;state.playback='ended';mark('logo');});
- video.addEventListener('error',()=>usePoster('error'));
- // A blocked request or a play() promise that never settles must not cover the shop indefinitely.
- startupTimer=setTimeout(()=>usePoster('stalled'),1800);
- video.src=VIDEO;play();
- function tick(now){
-  if(finished)return;state.elapsed=now-begun;
-  const dt=Math.min(50,now-lastFrame);lastFrame=now;
-  syncPlayback(now);
-  state.timeline=video.currentTime*1000;
-  if(state.media==='video'&&state.playback==='playing'&&!playbackEnded&&state.hold===null){
-   if(video.currentTime!==lastVideoTime){lastVideoTime=video.currentTime;lastPlaybackAt=now;}
-   else if(now-lastPlaybackAt>1800)usePoster('stalled');
-  }
-  showValue=Math.min(state.progress,showValue+dt*.24);const display=Math.round(showValue);number.textContent=display+'%';number.setAttribute('aria-valuenow',String(display));
-  overlay.dataset.timeline=String(Math.round(state.timeline));overlay.dataset.ready=String(state.progress===100);overlay.dataset.media=state.media;
-  // the film ended: the opening ends with it, ready or not
-  if(playbackEnded&&state.hold===null)dismiss('film-ended');
-  // no film could play: the poster stands in until the page is ready, and never past the film's length (the timer)
-  else if(state.media==='poster'&&readyAt!==null&&now-fallbackAt>=350&&state.hold===null)dismiss('ready');
-  raf=requestAnimationFrame(tick);
- }
- raf=requestAnimationFrame(tick);
- state.seek=ms=>{state.hold=Math.max(0,Math.min((Number.isFinite(video.duration)?video.duration:FILM_SECONDS)*1000,Number(ms)||0));video.pause();video.currentTime=state.hold/1000;state.timeline=state.hold;};
- state.resume=()=>{state.hold=null;lastPlaybackAt=performance.now();play();};
+ // The film decides when the cover goes: at its end, or at once if it cannot play. The page loads behind it.
+ player=film.run(stage,{onEnd:reason=>dismiss(reason)});
+ player.video.addEventListener('loadeddata',()=>mark('logo'),{once:true});
+ if(player.video.readyState>=2)mark('logo');
  return state;
 }
 LHF.localIntro=()=>start({demo:forced});
 // Local-only inspection tooling. No route change, data mutation or live request.
-LHF.logoIntro={replay(){return local?start({demo:true}):null;},get report(){return lastReport;},get state(){return running;},setFrame(ms){if(local&&running){running.seek(ms);return true;}return false;},resume(){if(local&&running)running.resume();}};
+LHF.logoIntro={replay(){return local?start({demo:true}):null;},get report(){return lastReport;},get state(){return running;}};
 document.addEventListener('lhf:replay-intro',()=>{if(local)LHF.logoIntro.replay();});
 })();
 
@@ -4547,6 +4588,5 @@ document.addEventListener('lhf:replay-intro',()=>{if(local)LHF.logoIntro.replay(
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', safeBoot); else safeBoot();
 })();
-
 
 ;

@@ -1,5 +1,5 @@
-/* Local-only adapter. No production endpoint or notification fallback. */
-LHF.localAPI=async function(path,body,options={}){const r=await fetch(path,{...options,method:options.method||(body?'POST':'GET'),headers:{'Content-Type':'application/json','X-CSRF':'local-preview',...(options.headers||{})},...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok){const e=new Error(data.error||'Local service unavailable');e.status=r.status;throw e;}return data;};
+/* Hosted demo adapter. No production endpoint or notification fallback. */
+LHF.localAPI=async function(path,body,options={}){const r=await fetch(path,{...options,method:options.method||(body?'POST':'GET'),headers:{'Content-Type':'application/json','X-CSRF':'local-preview',...(options.headers||{})},...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok){const e=new Error(data.error||'Service unavailable');e.status=r.status;throw e;}return data;};
 LHF.localSession=LHF.localAPI('/Little-House-Flower/api/session',{}).catch(()=>null);
 LHF.sink=(function(){
   function summary(b) {
@@ -48,4 +48,4 @@ function accept(booking,result){if(result.ok){if(result.receipt)Object.assign(bo
 async function deliver(booking,opts={}){if(opts.hp)return {ok:false};await LHF.localSession;try{const recovered=await LHF.localAPI('/Little-House-Flower/api/orders/submission/'+booking.id);if(recovered.ok)return accept(booking,recovered);}catch(e){if(e.status!==404)return {ok:false,reason:e.message};}try{return accept(booking,await LHF.localAPI('/Little-House-Flower/api/orders', {...booking,consent:true},{signal:AbortSignal.timeout(12000)}));}catch(e){return {ok:false,reason:e.message};}}
 return {deliver,summary,totalLabel,lineUrl,start(){},send(){},status:()=>({configured:true,blocked:false,queued:0})};
 })();
-LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=intro-film-20261014-3');return renderCustomizer(params,query);};
+LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=film-opening-20261015-1');return renderCustomizer(params,query);};

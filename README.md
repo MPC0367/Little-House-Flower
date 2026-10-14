@@ -23,7 +23,14 @@ The website files are **generated** from the back-end repo (`hosted-backend/publ
 
 ## The opening film
 
-The opening is the supplied film, `media/little-house-flower-loading-v5-1080p.mp4` (4.4 s, the same file as `little-house-flower-loading-v5-1080p.mp4` in the owner's handover folder), and it never lasts longer. It plays once at its own speed on every homepage load. It is never paused, slowed or sped up, and the cover closes when the film ends. Whatever else happens, the cover is gone 4.4 s after it appears; if the film started late, only the closing still frame is cut. If the device will not play the film (autoplay blocked, for example in iPhone Low Power Mode), the still poster shows until the page is ready. With "reduce motion" set on the device, there is no opening. `npm run test:intro` holds these rules.
+The opening is the supplied film, `media/little-house-flower-loading-v5-1080p.mp4` (4.4 s, the same file as `little-house-flower-loading-v5-1080p.mp4` in the owner's handover folder). It plays on every homepage load and on the first page of a browser session, and the Studio opens with it too. The rules are in `shared/opening-film.js` (built from the back-end repo):
+
+- It plays once, from its first frame, at its own speed. It is never held, slowed, sped up or looped, and it is never on screen longer than the film: the cover fades over the film's last, still 100% frame and is gone when the film ends.
+- It is never replaced by a still picture. The page starts downloading the film before anything else loads, so it normally starts the moment the cover appears. Until it moves, the cover is plain paper in the film's own colour.
+- If the film cannot start within 2 s (a slow network, a missing file) or stops moving, the cover closes and the page shows without an opening. A device that refuses to play video by itself (for example an iPhone in Low Power Mode) gets the page at once.
+- With "reduce motion" set on the device, there is no opening and the film is not downloaded.
+
+`npm run test:intro` holds these rules here; the back-end repo's `tests/opening-film.mjs` checks them in four browsers, for the Studio too.
 
 ## Checks
 
