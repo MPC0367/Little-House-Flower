@@ -1,7 +1,7 @@
 /* Start the original storefront or Studio directly. No sign-in screen. */
 (function(){
   'use strict';
-  const BASE='/Little-House-Flower/',VERSION='intro-reload-20261014-1';
+  const BASE='/Little-House-Flower/',VERSION='intro-natural-20261014-2';
   const SW=new URL(BASE+'pages-sw.js',location.origin).href;
   window.LHF_PAGES_APP=true;
   window.LHF_PUBLIC_PREVIEW=true;

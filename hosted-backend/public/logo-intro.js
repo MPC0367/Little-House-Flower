@@ -6,7 +6,9 @@ const VIDEO='/media/little-house-flower-loading-v5-1080p.mp4';
 const POSTER='/media/little-house-flower-v5-poster-1080p.png';
 const MAX_WAIT=6500;
 // The supplied film reaches its baked-in 100% at about 3.3s. Hold at ~96% while the page loads.
-const MIN_ANIMATION=3000,READY_FINISH=650,HOLD_FRACTION=3/4.4;
+// The film reaches its own 100% frame at 3.3s; the rest is a still frame. It always plays at its own
+// pace and the opening closes on that frame, so a visit sees about 3.3 seconds of film.
+const MIN_ANIMATION=3000,READY_FINISH=650,HOLD_FRACTION=3/4.4,COMPLETE_AT=3.3;
 const local=['127.0.0.1','localhost','[::1]'].includes(location.hostname);
 const query=new URLSearchParams(location.search);
 const forced=local&&query.get('intro')==='1';
@@ -101,10 +103,9 @@ function start({demo=false}={}){
    return;
   }
   if(playbackEnded)return;
-  // Keep a calm minimum viewing time, then complete in step with actual page readiness.
-  const finishBy=Math.max(begun+MIN_ANIMATION,readyAt+READY_FINISH);
-  const rate=Math.max(.5,Math.min(4,(video.duration-video.currentTime)/Math.max(.1,(finishBy-now)/1000)));
-  if(Math.abs(video.playbackRate-rate)>.04)video.playbackRate=rate;
+  // Never sped up: once the page is ready the film simply carries on at its own pace.
+  
+  if(video.playbackRate!==1)video.playbackRate=1;
   if(state.playback==='waiting-for-page'){state.playback='playing';lastPlaybackAt=now;play();}
  }
  video.addEventListener('loadedmetadata',()=>{if(!finished)state.duration=video.duration;});
@@ -113,7 +114,7 @@ function start({demo=false}={}){
  video.addEventListener('ended',()=>{if(finished||state.media!=='video')return;if(readyAt===null){video.currentTime=video.duration*HOLD_FRACTION;video.pause();state.playback='waiting-for-page';return;}playbackEnded=true;state.playback='ended';mark('logo');});
  video.addEventListener('error',()=>usePoster('error'));
  // A blocked request or a play() promise that never settles must not cover the shop indefinitely.
- startupTimer=setTimeout(()=>usePoster('stalled'),1800);
+ startupTimer=setTimeout(()=>usePoster('stalled'),2500);
  video.src=VIDEO;play();
  function tick(now){
   if(finished)return;state.elapsed=now-begun;
@@ -126,7 +127,8 @@ function start({demo=false}={}){
   }
   showValue=Math.min(state.progress,showValue+dt*.24);const display=Math.round(showValue);number.textContent=display+'%';number.setAttribute('aria-valuenow',String(display));
   overlay.dataset.timeline=String(Math.round(state.timeline));overlay.dataset.ready=String(state.progress===100);overlay.dataset.media=state.media;
-  const artworkDone=playbackEnded&&state.elapsed>=MIN_ANIMATION||state.media==='poster'&&now-fallbackAt>=350&&state.elapsed>=600;
+  const filmDone=playbackEnded||state.media==='video'&&video.currentTime>=COMPLETE_AT;
+  const artworkDone=filmDone&&state.elapsed>=MIN_ANIMATION||state.media==='poster'&&now-fallbackAt>=350&&state.elapsed>=MIN_ANIMATION;
   if(artworkDone&&readyAt!==null&&state.hold===null)dismiss('ready');
   raf=requestAnimationFrame(tick);
  }

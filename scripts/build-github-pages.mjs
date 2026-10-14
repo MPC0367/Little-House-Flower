@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const source=path.resolve(process.argv[2]||path.join(root,'hosted-backend/public'));
 const base='/Little-House-Flower';
-const release='intro-reload-20261014-1';
+const release='intro-natural-20261014-2';
 const textTypes=new Set(['.html','.css','.js','.mjs','.json','.webmanifest','.txt']);
 const filenames=['site.css','upgrade.css','polish.css','customizer.css','customizer.mjs','logo-intro.css','hosted-context.js','storefront.js'];
 

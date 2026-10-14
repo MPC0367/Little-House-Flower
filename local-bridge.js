@@ -48,4 +48,4 @@ function accept(booking,result){if(result.ok){if(result.receipt)Object.assign(bo
 async function deliver(booking,opts={}){if(opts.hp)return {ok:false};await LHF.localSession;try{const recovered=await LHF.localAPI('/Little-House-Flower/api/orders/submission/'+booking.id);if(recovered.ok)return accept(booking,recovered);}catch(e){if(e.status!==404)return {ok:false,reason:e.message};}try{return accept(booking,await LHF.localAPI('/Little-House-Flower/api/orders', {...booking,consent:true},{signal:AbortSignal.timeout(12000)}));}catch(e){return {ok:false,reason:e.message};}}
 return {deliver,summary,totalLabel,lineUrl,start(){},send(){},status:()=>({configured:true,blocked:false,queued:0})};
 })();
-LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=intro-reload-20261014-1');return renderCustomizer(params,query);};
+LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=intro-natural-20261014-2');return renderCustomizer(params,query);};
