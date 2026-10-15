@@ -54,4 +54,4 @@ async function deliver(booking,opts={}){if(opts.hp)return {ok:false};await LHF.l
 }}
 return {deliver,summary,totalLabel,lineUrl,start(){},send(){},status:()=>({configured:true,blocked:false,queued:0})};
 })();
-LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=brief-20261015-1');return renderCustomizer(params,query);};
+LHF.pages.custom=async function(params,query){const {renderCustomizer}=await import('/Little-House-Flower/customizer.mjs?v=brief-20261015-2');return renderCustomizer(params,query);};

@@ -1,5 +1,5 @@
-import {styles,containers,materials,finishes,finishFor,palettes,validateConfig,visualConfig,originalConfig,flowerEvidence,colorSwatches,sizeLabels,ribbonLabels,styleNotes,configSummary,priceBudget,VERSION} from '/Little-House-Flower/shared/config.mjs?v=brief-20261015-1';
-import {recipes,defaultRecipe} from '/Little-House-Flower/shared/recipes.mjs?v=brief-20261015-1';
+import {styles,containers,materials,finishes,finishFor,palettes,validateConfig,visualConfig,originalConfig,flowerEvidence,colorSwatches,sizeLabels,ribbonLabels,styleNotes,configSummary,priceBudget,VERSION} from '/Little-House-Flower/shared/config.mjs?v=brief-20261015-2';
+import {recipes,defaultRecipe} from '/Little-House-Flower/shared/recipes.mjs?v=brief-20261015-2';
 
 export function renderCustomizer(params,query={}){
  const L=window.LHF,{h,empty}=L.util,C=L.catalog,R=L.router,I=L.i18n,lang=I.lang,t=(th,en)=>lang==='th'?th:en,pick=I.pick;

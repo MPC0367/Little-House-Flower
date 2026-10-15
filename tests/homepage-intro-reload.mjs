@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 const {webkit,expect}=await import(process.env.LHF_PLAYWRIGHT_MODULE||'@playwright/test');
 const base=(process.env.LHF_TEST_URL||'http://127.0.0.1:5590/Little-House-Flower').replace(/\/$/,'');
-const home=base+'/?lang=en#/',marker='lhf.logo.intro.v5',FILM_MS=4400,START_WAIT_MS=2000;
+const home=base+'/?lang=en#/',marker='lhf.logo.intro.v5',FILM_MS=4400,SPEED=1.25,SCREEN_MS=FILM_MS/SPEED,START_WAIT_MS=2000;
 const local=['127.0.0.1','localhost','[::1]'].includes(new URL(base).hostname);
 const checks=[],reports=[],errors=[],contexts=[];
 let stage='setup';
@@ -70,14 +70,16 @@ async function waitForRun(page,label,{expectedStarts=1,expectedDismissals=1,bloc
  assert.equal(result.starts,expectedStarts,label+': the intro must actually start exactly once per document load.');
  assert.equal(result.dismissals.length,expectedDismissals,label+': the intro must finish.');
  assert.equal(result.marker,'1');
- // The opening is the supplied film (shared/opening-film.js): on screen no longer than the film (4.4s), never a
+ // The opening is the supplied film (shared/opening-film.js): played a little faster than its own speed (1.25×, the
+ // owner's word of 15 Oct 2026) and on screen no longer than that (about 3.5 s), never a
  // still picture. Before the film moves the cover only waits, at most START_WAIT_MS (2s), then the page opens.
  const wait=result.report.startDelay??0,filmShown=result.report.elapsed-wait;
  assert.equal(await page.locator('.lhf-logo-intro img').count(),0,label+': the opening never shows a picture.');
  if(result.report.media==='video'){
   assert.ok(['film-ended','film-length'].includes(result.report.reason),label+': the opening ends with the film ('+result.report.reason+').');
-  assert.ok(result.report.timeline>=4000,label+': the film plays through at its own speed (reached '+Math.round(result.report.timeline)+' ms).');
-  assert.ok(filmShown<=FILM_MS+120,label+': the film is on screen no longer than the film ('+Math.round(filmShown)+' ms).');
+  assert.ok(result.report.timeline>=4000,label+': the film plays through, every frame (reached '+Math.round(result.report.timeline)+' ms).');
+  assert.equal(result.report.speed,SPEED,label+': the film plays at 1.25×.');
+  assert.ok(filmShown<=SCREEN_MS+120,label+': the film is on screen no longer than the film at that speed ('+Math.round(filmShown)+' ms).');
   assert.ok(wait<=START_WAIT_MS,label+': the film starts within the wait ('+Math.round(wait)+' ms).');
  }else{
   assert.equal(result.report.media,'none');
